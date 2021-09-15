@@ -342,7 +342,11 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                             if 'target_service_name' in req and req['target_service_name'] is not None:
                                 target_service_name = req['target_service_name']
 
-                                if error['service_name'] == target_service_name:
+                                service_pattern = error['service_name']
+                                service_matcher = re.compile(service_pattern)
+                                service_matching = service_matcher.match(target_service_name)
+
+                                if service_matching is not None:
                                     for type in error['types']:
                                         # warning("Checking if we need to inject error: " + str(type))
                                         # warning("already_failed: " + str(already_failed))
