@@ -1,0 +1,96 @@
+{
+  "python.grpc": {
+    "pattern": "grpc\\.insecure\\_channel",
+    "exceptions": [
+      {
+        "name": "grpc._channel._InactiveRpcError",
+        "metadata": {
+          "code": "UNAVAILABLE"
+        }
+      },
+      {
+        "name": "grpc._channel._InactiveRpcError",
+        "metadata": {
+          "code": "DEADLINE_EXCEEDED"
+        }
+      }
+    ]
+  },
+  "python.requests": {
+    "pattern": "requests\\.(get|put|post|head)",
+    "exceptions": [
+      {
+        "name": "requests.exceptions.ConnectionError"
+      },
+      {
+        "name": "requests.exceptions.Timeout",
+        "restrictions": "timeout"
+      }
+    ]
+  },
+  "java.WebClient": {
+    "pattern": "WebClient\\.(GET|PUT|POST|HEAD)",
+    "exceptions": [
+      {
+        "name": "com.linecorp.armeria.client.UnprocessedRequestException",
+        "metadata": {
+          "cause": "io.netty.channel.ConnectTimeoutException"
+        }
+      }
+    ]
+  },
+   "java.grpc": {
+    "pattern": "(.*Service/.*)",
+    "exceptions": [
+      {
+        "name": "io.grpc.StatusRuntimeException",
+        "metadata": {
+          "cause": "",
+          "code": "UNAVAILABLE"
+        }
+      },
+      {
+        "name": "io.grpc.StatusRuntimeException",
+        "metadata": {
+          "cause": "",
+          "code": "DEADLINE_EXCEEDED"
+        }
+      }
+    ]
+  },
+  "http": {
+    "pattern": "(((requests\\.(get|put|post|head))|(WebClient\\.(GET|PUT|POST|HEAD))))",
+    "errors": [
+      {
+        "service_name": ".*",
+        "types": [
+          {
+            "return_value": {
+              "status_code": "500"
+            }
+          },
+          {
+            "return_value": {
+              "status_code": "502"
+            }
+          },
+          {
+            "return_value": {
+              "status_code": "503"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "grpc": {
+    "pattern": "((grpc\\.insecure\\_channel)|(.*Service/.*))",
+    "errors": [
+      {
+        "service_name": ".*",
+        "types": [
+        ]
+      }
+    ]
+  }
+}
