@@ -89,6 +89,13 @@
       {
         "service_name": ".*",
         "types": [
+          {
+            "exception": {
+              "metadata": {
+                "code": "NOT_FOUND"
+              }
+            }
+          }
         ]
       }
     ]

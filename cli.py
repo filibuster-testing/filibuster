@@ -6,7 +6,7 @@ from filibuster.server import start_filibuster_server
 
 @click.command()
 @click.option('--functional-test', required=True, type=str, help='Functional test to run.')
-@click.option('--analysis-file', default="default-instrumentation.json", type=str, help='Analysis file.')
+@click.option('--analysis-file', default="default-analysis.json", type=str, help='Analysis file.')
 def test(functional_test, analysis_file):
     """Test a microservice application using Filibuster."""
 
