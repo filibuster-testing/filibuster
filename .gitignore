@@ -3,3 +3,4 @@ dist/
 .idea/
 __pycache__
 *egg-info/
+counterexample.json

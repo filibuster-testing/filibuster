@@ -27,9 +27,7 @@ from filibuster.server_helpers import should_fail_request_with, load_counterexam
 app = Flask(__name__)
 
 OUTPUT = "volumes/last-run.csv"
-COUNTEREXAMPLE_PATH = "volumes/counterexample.json"
-
-counterexample = load_counterexample()
+COUNTEREXAMPLE_PATH = "counterexample.json"
 
 if os.environ.get('ONLY_INITIAL_EXECUTION', ''):
     MAX_NUM_TESTS = 1
@@ -56,16 +54,22 @@ cumulative_dynamic_pruning_time_in_ms = 0
 cumulative_test_generation_time_in_ms = 0
 mean_dynamic_pruning_time_in_ms = []
 instrumentation_data = None
+counterexample = None
 
 # Specific testing functions.
 
-
-def run_test(functional_test):
+def run_test(functional_test, counterexample_file):
     global current_test_execution
     global test_executions_scheduled
     global requests_to_fail
     global current_test_execution_batch
     global test_executions_ran
+    global counterexample
+
+    iteration = 0
+
+    if counterexample_file:
+        counterexample = load_counterexample(counterexample_file)
 
     test_start_time = time.time()
 
@@ -96,7 +100,7 @@ def run_test(functional_test):
         requests_to_fail = []
 
         # Run initial test, which should pass.
-        run_test_with_fresh_state(functional_test)
+        run_test_with_fresh_state(functional_test, counterexample_file is not None)
 
         # Get log of requests that were made and return:
         # This execution will be the execution where everything passes and there
@@ -109,10 +113,11 @@ def run_test(functional_test):
                                                       completed=True)
         test_executions_ran.append(initial_actual_test_execution)
 
-    info("[DONE] Running initial non-failing execution (test 1)")
+        info("[DONE] Running initial non-failing execution (test 1)")
+
+        iteration = 1
 
     # Loop until list is exhausted.
-    iteration = 1
     while test_executions_scheduled.size() > 0:
         if os.environ.get("PAUSE_BETWEEN", ""):
             input("Press Enter to start next test...")
@@ -142,7 +147,7 @@ def run_test(functional_test):
 
         if counterexample:
             # We have to run.
-            run_test_with_fresh_state(functional_test)
+            run_test_with_fresh_state(functional_test, counterexample_file is not None)
 
             # Add to history list.
             current_test_execution = TestExecution(server_state.service_request_log,
@@ -169,7 +174,7 @@ def run_test(functional_test):
 
                 if not dynamic_full_history_reduce:
                     # Run the test.
-                    run_test_with_fresh_state(functional_test)
+                    run_test_with_fresh_state(functional_test, counterexample_file is not None)
 
                     # Add to history list.
                     current_test_execution = TestExecution(server_state.service_request_log,
@@ -182,7 +187,7 @@ def run_test(functional_test):
                     test_executions_pruned.append(current_test_execution)
             else:
                 # Run the test.
-                run_test_with_fresh_state(functional_test)
+                run_test_with_fresh_state(functional_test, counterexample_file is not None)
 
                 # Add to history list.
                 current_test_execution = TestExecution(server_state.service_request_log,
@@ -235,6 +240,8 @@ def should_schedule(test_execution, additional_test_executions):
 
 def generate_additional_test_executions(generated_id, execution_index, instrumentation_type, analysis_file):
     # If there is a counterexample, run only the test that failed for quick debugging.
+    global counterexample
+
     if counterexample:
         return
 
@@ -390,7 +397,7 @@ def read_analysis_file(analysis_file):
 
 # Test functions
 
-def run_test_with_fresh_state(functional_test):
+def run_test_with_fresh_state(functional_test, counterexample_provided=False):
     # Reset state.
     global server_state
     server_state = ServerState()
@@ -408,11 +415,14 @@ def run_test_with_fresh_state(functional_test):
         with open(COUNTEREXAMPLE_PATH, 'w') as counterexample_file:
             json.dump(counterexample, counterexample_file)
 
-        raise Exception("Pytest failed on command \'pytest {}\'".format(args_str))
+        if not counterexample_provided:
+            raise Exception("Test failed; counterexample file written: " + COUNTEREXAMPLE_PATH)
+        else:
+            raise Exception("Counterexample reproduced.")
 
 
-def run_test_with_exit(functional_test):
-    run_test(functional_test)
+def run_test_with_exit(functional_test, counterexample_file):
+    run_test(functional_test, counterexample_file)
 
     # try:
     #     run_test(functional_test)
@@ -423,7 +433,7 @@ def run_test_with_exit(functional_test):
     # return 0  # Exit on success
 
 
-def run_tests(functional_test):
+def run_tests(functional_test, counterexample_file):
     # # Keep track of all tests.
     # tests = []
 
@@ -443,7 +453,7 @@ def run_tests(functional_test):
     # Recreate the empty file.
     # open(OUTPUT, 'w').close()
 
-    if run_test_with_exit(functional_test):
+    if run_test_with_exit(functional_test, counterexample_file):
         return 1
 
     # Run all functional tests.
@@ -465,11 +475,8 @@ def run_tests(functional_test):
     return 0  # Exit on success
 
 
-def run_counterexample():
-    import importlib
-    module = importlib.import_module("functional.{}".format(counterexample["module"]))
-    test = getattr(module, counterexample["test"])
-    if run_test_with_exit(module, test):
+def run_counterexample(functional_test, counterexample_file):
+    if run_test_with_exit(functional_test, counterexample_file):
         return 1  # Exit with error
     return 0  # Exit on success
 
@@ -655,7 +662,7 @@ def update():
         print(e, file=sys.stderr)
 
 
-def start_filibuster_server(functional_test, analysis_file):
+def start_filibuster_server(functional_test, analysis_file, counterexample_file):
     global instrumentation_data
     instrumentation_data = analysis_file
 
@@ -665,10 +672,10 @@ def start_filibuster_server(functional_test, analysis_file):
         ('filibuster', '127.0.0.1', 5005)
     ])
 
-    if counterexample:
-        exit_code = run_counterexample()
+    if counterexample_file:
+        exit_code = run_counterexample(functional_test, counterexample_file)
     else:
-        exit_code = run_tests(functional_test)
+        exit_code = run_tests(functional_test, counterexample_file)
 
     debug("Filibuster server exiting with exit code {}".format(exit_code))
     os.environ["FILIBUSTER_INJECTED_FAULT"] = "[]"  # Reset to empty list to indicate fault was not injected.
