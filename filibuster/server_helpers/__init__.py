@@ -15,8 +15,8 @@ def should_fail_request_with(request, requests_to_fail):
     debug("Not failing request.")
     return None
 
+
 def load_counterexample(path):
-    counterexample = None
     try:
         f = open(path)
         counterexample = json.load(f)
