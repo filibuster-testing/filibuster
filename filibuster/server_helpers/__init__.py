@@ -1,9 +1,7 @@
 import json
-import os
 
 from filibuster.logger import info, debug
 
-COUNTEREXAMPLE_PATH = "filibuster/server/volumes/counterexample.json"
 
 def should_fail_request_with(request, requests_to_fail):
     debug("Request: \n" + str(request))
@@ -24,6 +22,5 @@ def load_counterexample(path):
             "Counterexample found. Running the following counterexample: {}.".format(counterexample['functional_test']))
         f.close()
     except IOError:
-        expected_file_at = "{}/{}".format(os.getcwd(), COUNTEREXAMPLE_PATH)
-        raise Exception("No counterexample found at {}; aborting.".format(expected_file_at))
+        raise Exception("No counterexample found at {}; aborting.".format(path))
     return counterexample
