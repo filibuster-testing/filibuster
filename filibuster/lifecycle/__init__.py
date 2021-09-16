@@ -10,13 +10,6 @@ TIMEOUT_ITERATIONS = 100
 SLEEP = 1
 
 
-def services():
-    value = os.getenv("SERVICES")
-    value = value.replace('"', '').replace('\'', '')
-    services = value.split()
-    return services
-
-
 def num_services_running(services):
     num_running = len(services)
     for service in services:
@@ -80,4 +73,4 @@ def start_filibuster_server_thread(app):
 
     server_thread = Server()
     server_thread.setDaemon(True)
-    server_thread.start()
+    server_thread.start()    server_thread.start()
