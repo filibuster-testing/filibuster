@@ -374,8 +374,7 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                                                     debug("=> failure description: " + str(type))
                                                     additional_test_executions.append(new_execution)
                             else:
-                                warning(
-                                    "Request does not have a target service; request is being made outside of the system.")
+                                warning("Request does not have a target service, it's made outside of the system.")
 
         append_quantity = 0
 
@@ -427,6 +426,8 @@ def run_test_with_fresh_state(functional_test, counterexample_provided=False):
             error("Test failed; counterexample file written: " + COUNTEREXAMPLE_PATH)
             exit(1)
         else:
+            input("Press Enter to continue...")
+
             error("Counterexample reproduced.")
             exit(1)
 
