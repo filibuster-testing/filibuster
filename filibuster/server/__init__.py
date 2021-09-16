@@ -250,9 +250,6 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
     # List of additional test executions.
     additional_test_executions = []
 
-    # Did we already fail this request?  If so, don't fail again.
-    already_failed = False
-
     # Get information about the current execution.
     log = server_state.service_request_log
     failures = requests_to_fail
