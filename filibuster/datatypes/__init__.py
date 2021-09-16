@@ -1,7 +1,4 @@
-import hashlib
 import json
-
-from filibuster.logger import warning
 
 
 class TestExecution:
@@ -43,7 +40,9 @@ class TestExecution:
     @staticmethod
     def from_json(json_test_execution):
         loaded_json = json.loads(json_test_execution)
-        return TestExecution(loaded_json['log'], loaded_json['failures'])
+        te = TestExecution(loaded_json['log'], loaded_json['failures'])
+        te.response_log = loaded_json['response_log']
+        return te
 
     @staticmethod
     def same_call_as_request_log_call(le, rle):
@@ -139,7 +138,6 @@ class TestExecution:
                     response_log_entry['forced_exception'] = failure_l_entry.get('forced_exception')
 
                 self.response_log.append(response_log_entry)
-
 
     def __eq__(self, other):
         if not isinstance(other, TestExecution):
