@@ -3,10 +3,14 @@ from filibuster.logger import info, debug
 
 def print_requests(test_execution):
     for entry in test_execution.log:
-        info("{}: module: {} method: {} args: {} kwargs: {}".format(str(entry['generated_id']), str(entry['module']), str(entry['method']), str(entry['args']), str(entry['kwargs'])))
-        info("  execution_index: " + str(entry['execution_index']))
-        info("  origin_vclock: " + str(entry['origin_vclock']))
+        info("gen_id: {} ".format(str(entry['generated_id'])))
+        info("  module: " + str(entry['module']))
+        info("  method: " + str(entry['method']))
+        info("  args: " + str(entry['args']))
+        info("  kwargs: " + str(entry['kwargs']))
         info("  vclock: " + str(entry['vclock']))
+        info("  origin_vclock: " + str(entry['origin_vclock']))
+        info("  execution_index: " + str(entry['execution_index']))
 
         for failure in test_execution.failures:
             if failure['execution_index'] == entry['execution_index']:
@@ -21,8 +25,8 @@ def print_requests(test_execution):
 def print_log_for_test_execution(test_execution):
     debug("")
     debug("Log: ")
-    for l in test_execution.log:
-        debug("{}".format(l))
+    for le in test_execution.log:
+        debug("{}".format(le))
     if len(test_execution.log) == 0:
         debug("None.")
 
@@ -37,9 +41,14 @@ def print_unique_response_paths(test_executions_ran):
         j = 0
         info("Path: " + str(i))
         for p in test_execution.response_log:
-            info(" {}: {} => {}; args: {}, kwargs: {}, vclock: {}, origin-vclock: {}".format(str(j), str(p['source_service_name']),
-                                                                           str(p['target_service_name']), str(p['args']),
-                                                                           str(p['kwargs']), str(p['vclock']), str(p['origin_vclock'])))
+            info(" {}: {} => {}; args: {}, kwargs: {}, vclock: {}, origin-vclock: {}".format(
+                str(j),
+                str(p['source_service_name']),
+                str(p['target_service_name']),
+                str(p['args']),
+                str(p['kwargs']),
+                str(p['vclock']),
+                str(p['origin_vclock'])))
             j = j + 1
         info("")
     info("")
