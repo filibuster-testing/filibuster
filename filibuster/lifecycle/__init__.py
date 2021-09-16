@@ -1,10 +1,8 @@
-import os
 import time
 import requests
 import threading
-import subprocess
 
-from filibuster.logger import debug, notice
+from filibuster.logger import debug
 
 TIMEOUT_ITERATIONS = 100
 SLEEP = 1
@@ -73,4 +71,4 @@ def start_filibuster_server_thread(app):
 
     server_thread = Server()
     server_thread.setDaemon(True)
-    server_thread.start()    server_thread.start()
+    server_thread.start()
