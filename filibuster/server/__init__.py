@@ -229,10 +229,10 @@ def should_schedule(test_execution, additional_test_executions):
     # b.) We haven't scheduled it in a previous execution.
     # c.) We aren't currently executing it in the current batch of tests.
     # d.) We haven't already ran it.
-    return test_execution not in additional_test_executions and \
-           not test_executions_scheduled.contains(test_execution) and \
-           test_execution not in current_test_execution_batch and \
-           test_execution not in test_executions_ran
+    return test_execution not in additional_test_executions \
+        and not test_executions_scheduled.contains(test_execution) \
+        and test_execution not in current_test_execution_batch \
+        and test_execution not in test_executions_ran
 
 
 def generate_additional_test_executions(generated_id, execution_index, instrumentation_type, analysis_file):
