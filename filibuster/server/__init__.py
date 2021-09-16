@@ -57,6 +57,7 @@ counterexample = None
 
 # Specific testing functions.
 
+
 def run_test(functional_test, counterexample_file):
     global current_test_execution
     global test_executions_scheduled
@@ -398,86 +399,38 @@ def read_analysis_file(analysis_file):
 
 def run_test_with_fresh_state(functional_test, counterexample_provided=False):
     # Reset state.
+    global test_executions_ran
     global server_state
     server_state = ServerState()
 
     exit_code = os.WEXITSTATUS(os.system(functional_test))
+
     if exit_code:
         # Allow replay of failed test
         if not current_test_execution:  # Errored on initial test. This shouldn't happen.
             raise Exception(
                 "Failed on initial test execution of {}; not injecting faults.".format(functional_test))
-        counterexample = {
-            "functional_test": functional_test,
-            "TestExecution": current_test_execution.to_json()
-        }
-        with open(COUNTEREXAMPLE_PATH, 'w') as counterexample_file:
-            json.dump(counterexample, counterexample_file)
 
         if not counterexample_provided:
-            raise Exception("Test failed; counterexample file written: " + COUNTEREXAMPLE_PATH)
+            # Rewrite test execution as a completed test before going to JSON.
+            counterexample_test_execution = TestExecution(server_state.service_request_log,
+                                                          requests_to_fail,
+                                                          completed=True,
+                                                          retcon=test_executions_ran)
+
+            counterexample = {
+                "functional_test": functional_test,
+                "TestExecution": counterexample_test_execution.to_json()
+            }
+            pp.pprint(counterexample)
+            with open(COUNTEREXAMPLE_PATH, 'w') as counterexample_file:
+                json.dump(counterexample, counterexample_file)
+
+            error("Test failed; counterexample file written: " + COUNTEREXAMPLE_PATH)
+            exit(1)
         else:
-            raise Exception("Counterexample reproduced.")
-
-
-def run_test_with_exit(functional_test, counterexample_file):
-    run_test(functional_test, counterexample_file)
-
-    # try:
-    #     run_test(functional_test)
-    # except Exception:
-    #     error("Test threw an exception, included below you'll find the exception that was triggered: ")
-    #     traceback.print_exc()
-    #     return 1  # Exit with error
-    # return 0  # Exit on success
-
-
-def run_tests(functional_test, counterexample_file):
-    # # Keep track of all tests.
-    # tests = []
-
-    # # Aggregate functional tests.
-    # import functional
-    # for loader, module_name, is_pkg in pkgutil.walk_packages(functional.__path__):
-    #     if module_name.startswith("test_"):
-    #         _module = loader.find_module(module_name).load_module(module_name)
-    #         for member in getmembers(_module, isfunction):
-    #             if member[0].startswith("test_functional"):
-    #                 tests.append((_module, member[1]))
-    #
-    # # Clear out the last-run file.
-    # if os.path.exists(OUTPUT):
-    #     os.remove(OUTPUT)
-
-    # Recreate the empty file.
-    # open(OUTPUT, 'w').close()
-
-    if run_test_with_exit(functional_test, counterexample_file):
-        return 1
-
-    # Run all functional tests.
-    # for (module, test) in tests:
-    #     if run_test_with_exit(module, test):
-    #         return 1  # Exit with error
-
-    # # Write out dynamic pruning stats
-    # global cumulative_test_generation_time_in_ms
-    # global cumulative_dynamic_pruning_time_in_ms
-    # global mean_dynamic_pruning_time_in_ms
-    # file = open(OUTPUT, "a")
-    # if mean_dynamic_pruning_time_in_ms:
-    #     file.write("cumulative dynamic pruning time ms, " + str(cumulative_dynamic_pruning_time_in_ms) + "\n")
-    #     file.write("cumulative test generation time ms, " + str(cumulative_test_generation_time_in_ms) + "\n")
-    #     file.write("mean dynamic pruning time per test ms, " + str(statistics.mean(mean_dynamic_pruning_time_in_ms)) + "\n")
-    # file.close()
-
-    return 0  # Exit on success
-
-
-def run_counterexample(functional_test, counterexample_file):
-    if run_test_with_exit(functional_test, counterexample_file):
-        return 1  # Exit with error
-    return 0  # Exit on success
+            error("Counterexample reproduced.")
+            exit(1)
 
 
 # Filibuster server Flask functions
@@ -491,6 +444,47 @@ def hello():
             "update": "filibuster/update"
         }
     })
+
+
+# TODO: really not efficient, needs to be fixed with memoization
+@app.route("/fault-injected/<service_name>", methods=['GET'])
+def faults_injected(service_name):
+    global counterexample
+    global test_executions_ran
+    global current_test_execution
+
+    found = False
+
+    if counterexample:
+        # If using a counterexample, it should contain a log that maps
+        # execution indexes to their target services.
+        #
+        for item in current_test_execution.failures:
+            for le in current_test_execution.response_log:
+                if le['execution_index'] == item['execution_index']:
+                    if le['target_service_name'] == service_name:
+                        found = True
+                        break
+    else:
+        # This work is duplicated here, unfortunately. *After* the test finishes,
+        # we compute this information for every single call made in the test
+        # from all of the previously run tests.
+        #
+        # When we choose to inject faults, we don't know the service that we are injecting
+        # the fault on, so we have to go find another execution where we do know.
+        #
+        # From there, we know.
+        #
+        if current_test_execution:  # on initial, fault-free execution, this value isn't set.
+            for item in current_test_execution.failures:
+                for te in test_executions_ran:
+                    for le in te.response_log:
+                        if le['execution_index'] == item['execution_index']:
+                            if le['target_service_name'] == service_name:
+                                found = True
+                                break
+
+    return jsonify({ "result": found })
 
 
 @app.route("/health-check", methods=['GET'])
@@ -671,10 +665,7 @@ def start_filibuster_server(functional_test, analysis_file, counterexample_file)
         ('filibuster', '127.0.0.1', 5005)
     ])
 
-    if counterexample_file:
-        exit_code = run_counterexample(functional_test, counterexample_file)
-    else:
-        exit_code = run_tests(functional_test, counterexample_file)
+    exit_code = run_test(functional_test, counterexample_file)
 
     debug("Filibuster server exiting with exit code {}".format(exit_code))
     os.environ["FILIBUSTER_INJECTED_FAULT"] = "[]"  # Reset to empty list to indicate fault was not injected.
