@@ -422,7 +422,6 @@ def run_test_with_fresh_state(functional_test, counterexample_provided=False):
                 "functional_test": functional_test,
                 "TestExecution": counterexample_test_execution.to_json()
             }
-            pp.pprint(counterexample)
             with open(COUNTEREXAMPLE_PATH, 'w') as counterexample_file:
                 json.dump(counterexample, counterexample_file)
 
