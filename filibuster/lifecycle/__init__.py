@@ -6,7 +6,7 @@ import subprocess
 
 from filibuster.logger import debug, notice
 
-TIMEOUT_ITERS = 100
+TIMEOUT_ITERATIONS = 100
 SLEEP = 1
 
 
@@ -27,7 +27,7 @@ def num_services_running(services):
 
 
 def wait_for_num_services_running(services, num_running, waiting_message):
-    timeout = TIMEOUT_ITERS
+    timeout = TIMEOUT_ITERATIONS
     while num_services_running(services) != num_running:
         debug("Filibuster server waiting for {} to {}.".format(services, waiting_message))
         debug("=> num_running: " + str(num_running))
