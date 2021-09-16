@@ -55,6 +55,7 @@ mean_dynamic_pruning_time_in_ms = []
 instrumentation_data = None
 counterexample = None
 
+
 # Specific testing functions.
 
 
@@ -93,8 +94,6 @@ def run_test(functional_test, counterexample_file):
     else:  # Run initial execution only when we are running all tests (when there is no counterexample to debug).
         # Run initial execution.
         info("Running initial non-failing execution (test 1) " + str(functional_test))
-
-        os.environ["FILIBUSTER_INJECTED_FAULT"] = "[]"  # Empty list to indicate fault was not injected.
 
         # Reset requests to fail.
         requests_to_fail = []
@@ -137,8 +136,6 @@ def run_test(functional_test, counterexample_file):
 
         # Reset requests to fail.
         requests_to_fail = next_test_execution.failures
-        services_to_fail = [request_to_fail['args'] for request_to_fail in requests_to_fail]
-        os.environ["FILIBUSTER_INJECTED_FAULT"] = str(services_to_fail)
 
         # Set current test execution.
         current_test_execution = next_test_execution
@@ -170,7 +167,7 @@ def run_test(functional_test, counterexample_file):
                 num_tests_compared_to = len(test_executions_ran)
                 cumulative_dynamic_pruning_time_in_ms += dynamic_pruning_time_in_ms
                 if num_tests_compared_to:
-                    mean_dynamic_pruning_time_in_ms.append(dynamic_pruning_time_in_ms/num_tests_compared_to)
+                    mean_dynamic_pruning_time_in_ms.append(dynamic_pruning_time_in_ms / num_tests_compared_to)
 
                 if not dynamic_full_history_reduce:
                     # Run the test.
@@ -319,10 +316,12 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                                         print("KEY IS " + str(key))
                                         # TODO: we have to do this programmatically, we need to parse the expression.
                                         if exception['metadata'][key] == "@expr(metadata['timeout']-1)":
-                                            new_req['forced_exception']['metadata'][key] = (req['metadata']['timeout'] - 1)
+                                            new_req['forced_exception']['metadata'][key] = (
+                                                        req['metadata']['timeout'] - 1)
                                         # TODO: we have to do this programmatically, we need to parse the expression.
                                         elif exception['metadata'][key] == "@expr(metadata['timeout']+1)":
-                                            new_req['forced_exception']['metadata'][key] = (req['metadata']['timeout'] + 1)
+                                            new_req['forced_exception']['metadata'][key] = (
+                                                        req['metadata']['timeout'] + 1)
                                         # TODO: we have to do this programmatically, we need to parse the expression.
                                         elif exception['metadata'][key] == "@expr(metadata['timeout'])":
                                             new_req['forced_exception']['metadata'][key] = (req['metadata']['timeout'])
@@ -373,7 +372,8 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                                             new_execution = TestExecution(log, new_failures)
                                             if should_schedule(new_execution, additional_test_executions):
                                                 if new_execution not in additional_test_executions:
-                                                    debug("Adding req failure for request: " + str(req['execution_index']))
+                                                    debug("Adding req failure for request: " + str(
+                                                        req['execution_index']))
                                                     debug("=> failure description: " + str(type))
                                                     additional_test_executions.append(new_execution)
                             else:
@@ -391,9 +391,11 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
 
     return True
 
+
 def read_analysis_file(analysis_file):
     with open(analysis_file, "r") as f:
         return json.load(f)
+
 
 # Test functions
 
@@ -445,9 +447,27 @@ def hello():
     })
 
 
+@app.route("/fault-injected", methods=['GET'])
+def faults_injected_index():
+    global counterexample
+    global current_test_execution
+
+    fault_injected = False
+
+    if counterexample:
+        if len(current_test_execution.failures) > 0:
+            fault_injected = True
+    else:
+        if current_test_execution:
+            if len(current_test_execution.failures) > 0:
+                fault_injected = True
+
+    return jsonify({"result": fault_injected})
+
+
 # TODO: really not efficient, needs to be fixed with memoization
 @app.route("/fault-injected/<service_name>", methods=['GET'])
-def faults_injected(service_name):
+def faults_injected_by_service(service_name):
     global counterexample
     global test_executions_ran
     global current_test_execution
@@ -483,7 +503,7 @@ def faults_injected(service_name):
                                 found = True
                                 break
 
-    return jsonify({ "result": found })
+    return jsonify({"result": found})
 
 
 @app.route("/health-check", methods=['GET'])
@@ -542,7 +562,8 @@ def create():
             # This is the initial execution.
             if current_test_execution is None:
                 execution_start_time = time.time_ns()
-                generate_additional_test_executions(gen_id, execution_index, data['instrumentation_type'], instrumentation_data)
+                generate_additional_test_executions(gen_id, execution_index, data['instrumentation_type'],
+                                                    instrumentation_data)
                 execution_end_time = time.time_ns()
 
                 test_generation_time_in_ms = (execution_end_time - execution_start_time) / (10 ** 6)
@@ -559,7 +580,8 @@ def create():
 
                 if not generated_id_found:
                     generation_start_time = time.time_ns()
-                    generate_additional_test_executions(gen_id, execution_index, data['instrumentation_type'], instrumentation_data)
+                    generate_additional_test_executions(gen_id, execution_index, data['instrumentation_type'],
+                                                        instrumentation_data)
                     generation_end_time = time.time_ns()
 
                     test_generation_time_in_ms = (generation_end_time - generation_start_time) / (10 ** 6)
@@ -617,7 +639,8 @@ def update():
 
             # This is the initial execution.
             if current_test_execution is None:
-                generate_additional_test_executions(gen_id, execution_index, data['instrumentation_type'], instrumentation_data)
+                generate_additional_test_executions(gen_id, execution_index, data['instrumentation_type'],
+                                                    instrumentation_data)
             else:
                 # Request comes in, do we know about it from the log?
                 req = None
@@ -640,7 +663,8 @@ def update():
                         break
 
                 if not found_in_execution_log:
-                    generate_additional_test_executions(gen_id, execution_index, data['instrumentation_type'], instrumentation_data)
+                    generate_additional_test_executions(gen_id, execution_index, data['instrumentation_type'],
+                                                        instrumentation_data)
 
         if PRINT_RESPONSES:
             print("")
@@ -660,13 +684,6 @@ def start_filibuster_server(functional_test, analysis_file, counterexample_file)
 
     start_filibuster_server_thread(app)
 
-    wait_for_services_to_start([
-        ('filibuster', '127.0.0.1', 5005)
-    ])
+    wait_for_services_to_start([('filibuster', '127.0.0.1', 5005)])
 
-    exit_code = run_test(functional_test, counterexample_file)
-
-    debug("Filibuster server exiting with exit code {}".format(exit_code))
-    os.environ["FILIBUSTER_INJECTED_FAULT"] = "[]"  # Reset to empty list to indicate fault was not injected.
-
-    exit(exit_code)
+    run_test(functional_test, counterexample_file)
