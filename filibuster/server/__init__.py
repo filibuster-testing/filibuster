@@ -26,7 +26,6 @@ from filibuster.server_helpers import should_fail_request_with, load_counterexam
 
 app = Flask(__name__)
 
-OUTPUT = "volumes/last-run.csv"
 COUNTEREXAMPLE_PATH = "counterexample.json"
 
 if os.environ.get('ONLY_INITIAL_EXECUTION', ''):
