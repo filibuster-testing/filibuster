@@ -59,7 +59,7 @@ counterexample = None
 # Specific testing functions.
 
 
-def run_test(functional_test, counterexample_file):
+def run_test(functional_test):
     global current_test_execution
     global test_executions_scheduled
     global requests_to_fail
@@ -68,9 +68,6 @@ def run_test(functional_test, counterexample_file):
     global counterexample
 
     iteration = 0
-
-    if counterexample_file:
-        counterexample = load_counterexample(counterexample_file)
 
     test_start_time = time.time()
 
@@ -99,7 +96,7 @@ def run_test(functional_test, counterexample_file):
         requests_to_fail = []
 
         # Run initial test, which should pass.
-        run_test_with_fresh_state(functional_test, counterexample_file is not None)
+        run_test_with_fresh_state(functional_test, counterexample is not None)
 
         # Get log of requests that were made and return:
         # This execution will be the execution where everything passes and there
@@ -144,7 +141,7 @@ def run_test(functional_test, counterexample_file):
 
         if counterexample:
             # We have to run.
-            run_test_with_fresh_state(functional_test, counterexample_file is not None)
+            run_test_with_fresh_state(functional_test, True)
 
             # Add to history list.
             current_test_execution = TestExecution(server_state.service_request_log,
@@ -171,7 +168,7 @@ def run_test(functional_test, counterexample_file):
 
                 if not dynamic_full_history_reduce:
                     # Run the test.
-                    run_test_with_fresh_state(functional_test, counterexample_file is not None)
+                    run_test_with_fresh_state(functional_test, counterexample is not None)
 
                     # Add to history list.
                     current_test_execution = TestExecution(server_state.service_request_log,
@@ -184,7 +181,7 @@ def run_test(functional_test, counterexample_file):
                     test_executions_pruned.append(current_test_execution)
             else:
                 # Run the test.
-                run_test_with_fresh_state(functional_test, counterexample_file is not None)
+                run_test_with_fresh_state(functional_test, counterexample is not None)
 
                 # Add to history list.
                 current_test_execution = TestExecution(server_state.service_request_log,
@@ -416,18 +413,16 @@ def run_test_with_fresh_state(functional_test, counterexample_provided=False):
                                                           completed=True,
                                                           retcon=test_executions_ran)
 
-            counterexample = {
+            counterexample_json = {
                 "functional_test": functional_test,
                 "TestExecution": counterexample_test_execution.to_json()
             }
-            with open(COUNTEREXAMPLE_PATH, 'w') as counterexample_file:
-                json.dump(counterexample, counterexample_file)
+            with open(COUNTEREXAMPLE_PATH, 'w') as counterexample_file_output:
+                json.dump(counterexample_json, counterexample_file_output)
 
             error("Test failed; counterexample file written: " + COUNTEREXAMPLE_PATH)
             exit(1)
         else:
-            input("Press Enter to continue...")
-
             error("Counterexample reproduced.")
             exit(1)
 
@@ -677,6 +672,7 @@ def update():
 
 
 def start_filibuster_server(functional_test, analysis_file, counterexample_file):
+    global counterexample
     global instrumentation_data
     instrumentation_data = analysis_file
 
@@ -684,4 +680,7 @@ def start_filibuster_server(functional_test, analysis_file, counterexample_file)
 
     wait_for_services_to_start([('filibuster', '127.0.0.1', 5005)])
 
-    run_test(functional_test, counterexample_file)
+    if counterexample_file:
+        counterexample = load_counterexample(counterexample_file)
+
+    run_test(functional_test)
