@@ -21,8 +21,10 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Operating System :: OS Independent",
     ],
-    entry_points = '''
-        [console_scripts]
-        filibuster=cli:test
-    '''
+    entry_points={
+        "console_scripts": [
+            "filibuster = filibuster_cli:test",
+            "filibuster-loadgen = filibuster_loadgen_cli:loadgen"
+        ]
+    },
 )

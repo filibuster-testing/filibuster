@@ -1,3 +1,7 @@
+import math
+from _queue import Empty
+from multiprocessing import Process, Queue
+
 from flask import Flask, jsonify, request
 
 import re
@@ -6,6 +10,8 @@ import sys
 import copy
 import time
 import json
+
+from timeit import default_timer as timer
 
 from filibuster.datatypes import TestExecution, ServerState
 
@@ -96,7 +102,7 @@ def run_test(functional_test):
         requests_to_fail = []
 
         # Run initial test, which should pass.
-        run_test_with_fresh_state(functional_test, counterexample is not None)
+        run_test_with_fresh_state(functional_test, counterexample is not None, False)
 
         # Get log of requests that were made and return:
         # This execution will be the execution where everything passes and there
@@ -141,7 +147,7 @@ def run_test(functional_test):
 
         if counterexample:
             # We have to run.
-            run_test_with_fresh_state(functional_test, True)
+            run_test_with_fresh_state(functional_test, True, False)
 
             # Add to history list.
             current_test_execution = TestExecution(server_state.service_request_log,
@@ -168,7 +174,7 @@ def run_test(functional_test):
 
                 if not dynamic_full_history_reduce:
                     # Run the test.
-                    run_test_with_fresh_state(functional_test, counterexample is not None)
+                    run_test_with_fresh_state(functional_test, counterexample is not None, False)
 
                     # Add to history list.
                     current_test_execution = TestExecution(server_state.service_request_log,
@@ -181,7 +187,7 @@ def run_test(functional_test):
                     test_executions_pruned.append(current_test_execution)
             else:
                 # Run the test.
-                run_test_with_fresh_state(functional_test, counterexample is not None)
+                run_test_with_fresh_state(functional_test, counterexample is not None, False)
 
                 # Add to history list.
                 current_test_execution = TestExecution(server_state.service_request_log,
@@ -392,7 +398,7 @@ def read_analysis_file(analysis_file):
 
 # Test functions
 
-def run_test_with_fresh_state(functional_test, counterexample_provided=False):
+def run_test_with_fresh_state(functional_test, counterexample_provided=False, loadgen=False):
     # Reset state.
     global test_executions_ran
     global server_state
@@ -400,31 +406,35 @@ def run_test_with_fresh_state(functional_test, counterexample_provided=False):
 
     exit_code = os.WEXITSTATUS(os.system(functional_test))
 
-    if exit_code:
-        # Allow replay of failed test
-        if not current_test_execution:  # Errored on initial test. This shouldn't happen.
-            raise Exception(
-                "Failed on initial test execution of {}; not injecting faults.".format(functional_test))
+    if not loadgen:
+        if exit_code:
+            # Allow replay of failed test
+            if not current_test_execution:  # Errored on initial test. This shouldn't happen.
+                raise Exception(
+                    "Failed on initial test execution of {}; not injecting faults.".format(functional_test))
 
-        if not counterexample_provided:
-            # Rewrite test execution as a completed test before going to JSON.
-            counterexample_test_execution = TestExecution(server_state.service_request_log,
-                                                          requests_to_fail,
-                                                          completed=True,
-                                                          retcon=test_executions_ran)
+            if not counterexample_provided:
+                # Rewrite test execution as a completed test before going to JSON.
+                counterexample_test_execution = TestExecution(server_state.service_request_log,
+                                                              requests_to_fail,
+                                                              completed=True,
+                                                              retcon=test_executions_ran)
 
-            counterexample_json = {
-                "functional_test": functional_test,
-                "TestExecution": counterexample_test_execution.to_json()
-            }
-            with open(COUNTEREXAMPLE_PATH, 'w') as counterexample_file_output:
-                json.dump(counterexample_json, counterexample_file_output)
+                counterexample_json = {
+                    "functional_test": functional_test,
+                    "TestExecution": counterexample_test_execution.to_json()
+                }
+                with open(COUNTEREXAMPLE_PATH, 'w') as counterexample_file_output:
+                    json.dump(counterexample_json, counterexample_file_output)
 
-            error("Test failed; counterexample file written: " + COUNTEREXAMPLE_PATH)
-            exit(1)
-        else:
-            error("Counterexample reproduced.")
-            exit(1)
+                error("Test failed; counterexample file written: " + COUNTEREXAMPLE_PATH)
+                exit(1)
+            else:
+                error("Counterexample reproduced.")
+                exit(1)
+    else:
+        # info("Test execution returned: " + str(exit_code))
+        return exit_code
 
 
 # Filibuster server Flask functions
@@ -671,8 +681,95 @@ def update():
         print(e, file=sys.stderr)
 
 
-def start_filibuster_server(functional_test, analysis_file, counterexample_file):
+def start_thread(queue, functional_test, counterexample_file, num_requests):
+    for x in range(num_requests):
+        start = timer()
+        exit_code = run_test_with_fresh_state(functional_test, counterexample_file is not None, True)
+        end = timer()
+        duration = end - start
+        queue.put((exit_code, start, end, duration))
+
+
+def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_duration):
+    start_filibuster_server(analysis_file)
+
     global counterexample
+    global requests_to_fail
+    global current_test_execution
+
+    if counterexample_file:
+        counterexample = load_counterexample(counterexample_file)
+        current_test_execution = TestExecution.from_json(counterexample['TestExecution'])
+        requests_to_fail = current_test_execution.failures
+
+    processes = []
+    queue = Queue()
+
+    for x in range(concurrency):
+        p = Process(target=start_thread, args=(queue, functional_test, counterexample_file, num_requests))
+        p.start()
+        processes.append(p)
+
+    for x in processes:
+        p.join()
+
+    flushed = False
+
+    num_success = 0
+    num_failure = 0
+    num_exceeded_duration = 0
+    exceeded_durations = []
+    num_dequeued = 0
+
+    while not flushed:
+        try:
+            (exit_code, start, end, duration) = queue.get_nowait()
+
+            num_dequeued = num_dequeued + 1
+
+            if exit_code:
+                num_failure = num_failure + 1
+            else:
+                if max_duration is not None and duration >= max_duration:
+                    num_failure = num_failure + 1
+                    num_exceeded_duration = num_exceeded_duration + 1
+                    exceeded_durations.append(duration)
+                else:
+                    num_success = num_success + 1
+        except Empty:
+            flushed = True
+            break
+
+    num_total_requests = num_requests * concurrency
+
+    info("--------------- Loadgen Statistics ---------------")
+    info("Requests issued (dequeued): \t\t" + str(num_total_requests) + "(" + str(num_dequeued) + ")")
+    info("")
+    info("Requests successful: \t\t\t" + str(num_success))
+    info("Requests failed: \t\t\t\t" + str(num_failure))
+    info("Requests failed (duration violation): \t" + str(num_exceeded_duration))
+    info("")
+    info("Max Duration (seconds): " + str(max_duration))
+    info("* P50: " + str(my_percentile(exceeded_durations, 50)))
+    info("* P90: " + str(my_percentile(exceeded_durations, 90)))
+    info("* P99: " + str(my_percentile(exceeded_durations, 99)))
+    info("")
+    info("Failure rate: \t\t\t\t" + str((num_failure/num_total_requests) * 100) + "%")
+    info("--------------- Loadgen Statistics ---------------")
+
+
+def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file):
+    start_filibuster_server(analysis_file)
+
+    global counterexample
+
+    if counterexample_file:
+        counterexample = load_counterexample(counterexample_file)
+
+    run_test(functional_test)
+
+
+def start_filibuster_server(analysis_file):
     global instrumentation_data
     instrumentation_data = analysis_file
 
@@ -680,7 +777,11 @@ def start_filibuster_server(functional_test, analysis_file, counterexample_file)
 
     wait_for_services_to_start([('filibuster', '127.0.0.1', 5005)])
 
-    if counterexample_file:
-        counterexample = load_counterexample(counterexample_file)
 
-    run_test(functional_test)
+def my_percentile(data, percentile):
+    n = len(data)
+    p = n * percentile / 100
+    if p.is_integer():
+        return sorted(data)[int(p)]
+    else:
+        return sorted(data)[int(math.ceil(p)) - 1]
