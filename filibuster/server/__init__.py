@@ -690,7 +690,7 @@ def start_thread(queue, functional_test, counterexample_file, num_requests):
         queue.put((exit_code, start, end, duration))
 
 
-def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_duration):
+def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure):
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -705,20 +705,35 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     processes = []
     queue = Queue()
 
+    # Start each worker.
     for x in range(concurrency):
         p = Process(target=start_thread, args=(queue, functional_test, counterexample_file, num_requests))
         p.start()
         processes.append(p)
 
+    # Join all of them.
     for x in processes:
         p.join()
 
+    # Wait until all have fully terminated.
+    # Why is this necessary? (it is, otherwise, we don't dequeue everything.)
+    #
+    some_alive = True
+
+    while some_alive:
+        some_alive = False
+        for x in processes:
+            if x.is_alive():
+                some_alive = True
+
+    # Flush the queue and build statistics.
     flushed = False
 
     num_success = 0
     num_failure = 0
     num_exceeded_duration = 0
     exceeded_durations = []
+    all_durations = []
     num_dequeued = 0
 
     while not flushed:
@@ -726,11 +741,12 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
             (exit_code, start, end, duration) = queue.get_nowait()
 
             num_dequeued = num_dequeued + 1
+            all_durations.append(duration)
 
             if exit_code:
                 num_failure = num_failure + 1
             else:
-                if max_duration is not None and duration >= max_duration:
+                if max_request_latency_for_failure is not None and duration >= max_request_latency_for_failure:
                     num_failure = num_failure + 1
                     num_exceeded_duration = num_exceeded_duration + 1
                     exceeded_durations.append(duration)
@@ -749,10 +765,14 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     info("Requests failed: \t\t\t\t" + str(num_failure))
     info("Requests failed (duration violation): \t" + str(num_exceeded_duration))
     info("")
-    info("Max Duration (seconds): " + str(max_duration))
-    info("* P50: " + str(my_percentile(exceeded_durations, 50)))
-    info("* P90: " + str(my_percentile(exceeded_durations, 90)))
-    info("* P99: " + str(my_percentile(exceeded_durations, 99)))
+    info("Max Request Latency (seconds): \t\t" + str(max_request_latency_for_failure))
+    info("")
+    info("Request durations (seconds):")
+    info("* P0:  " + str(my_percentile(all_durations, 0)))
+    info("* P50: " + str(my_percentile(all_durations, 50)))
+    info("* P90: " + str(my_percentile(all_durations, 90)))
+    info("* P95: " + str(my_percentile(all_durations, 95)))
+    info("* P99: " + str(my_percentile(all_durations, 99)))
     info("")
     info("Failure rate: \t\t\t\t" + str((num_failure/num_total_requests) * 100) + "%")
     info("--------------- Loadgen Statistics ---------------")

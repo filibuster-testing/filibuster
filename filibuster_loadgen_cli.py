@@ -10,8 +10,8 @@ from filibuster.server import start_filibuster_server_and_run_multi_threaded_tes
 @click.option('--counterexample-file', required=True, type=str, help='Counterexample file to reproduce.')
 @click.option('--concurrency', required=True, type=int, help='Number of concurrent load generators.')
 @click.option('--num-requests', required=True, type=int, help='Number of requests for each load generator.')
-@click.option('--max-duration', type=float, help='Request latency to indicate failure.')
-def loadgen(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_duration):
+@click.option('--max-request-latency-for-failure', type=float, help='Maximum request latency before request is considered failure (seconds.)')
+def loadgen(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure):
     """Test a microservice application using Filibuster."""
 
     # Resolve full path of analysis file.
@@ -19,7 +19,7 @@ def loadgen(functional_test, analysis_file, counterexample_file, concurrency, nu
 
     # Run a multi-threaded test.
     start_filibuster_server_and_run_multi_threaded_test(
-        functional_test, abs_analysis_file, counterexample_file, concurrency, num_requests, max_duration)
+        functional_test, abs_analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure)
 
 
 if __name__ == '__main__':
