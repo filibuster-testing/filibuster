@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTTP API: Create &mdash; filibuster  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="HTTP API: Update" href="instrumentation-server-update.html" />
+    <link rel="prev" title="Data Types" href="instrumentation-formats.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> filibuster
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build-status.html">Build Status</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HTTP API: Create</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#request">Request</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#field-descriptions">Field Descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-payload">Example Payload</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#response">Response</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Field Descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timeouts">Timeouts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-reduction-invariant">Dynamic Reduction Invariant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-body-no-fault-injection">Example Body: No Fault Injection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-body-fault-injection-value">Example Body: Fault Injection (Value)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-body-fault-injection-exception">Example Body: Fault Injection (Exception)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">filibuster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>HTTP API: Create</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instrumentation-server-create.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="http-api-create">
+<h1>HTTP API: Create<a class="headerlink" href="#http-api-create" title="Permalink to this headline"></a></h1>
+<p>The CREATE API (<code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/filibuster/create</span></code>) provided by the Filibuster server is responsible for registering remote call with the Filibuster test server in order to drive fault injection for these calls.</p>
+<section id="request">
+<h2>Request<a class="headerlink" href="#request" title="Permalink to this headline"></a></h2>
+<p>We describe the necessary parameters for a request below along with an example taken from the <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> example.</p>
+<section id="field-descriptions">
+<h3>Field Descriptions<a class="headerlink" href="#field-descriptions" title="Permalink to this headline"></a></h3>
+<p>In the following table, we present descriptions of the fields in the request payload.</p>
+<table class="colwidths-auto force-left docutils align-left" id="id2">
+<caption><span class="caption-text">Field Descriptions: Request Payload</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Presence</p></th>
+<th class="head"><p>Data Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">instrumentation_type</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>Type (String)</p></td>
+<td><p>The Filibuster instrumentation type; for <code class="docutils literal notranslate"><span class="pre">CREATE</span></code>, should be <code class="docutils literal notranslate"><span class="pre">invocation</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">source_service_name</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>String</p></td>
+<td><p>The name of the service where the call originates</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">module</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>String</p></td>
+<td><p>Name of the module or class of the instrumented call</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>String</p></td>
+<td><p>Name of the method of the instrumented call</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">args</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>List</p></td>
+<td><p>List of arguments to the instrumented call</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kwargs</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>Map</p></td>
+<td><p>Additional keyword arguments to the instrumented call (specific for Python)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">callsite_file</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>String</p></td>
+<td><p>Application file where the instrumented call originates</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">callsite_line</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>String</p></td>
+<td><p>Line number in <code class="docutils literal notranslate"><span class="pre">callsite_file</span></code> where the call originates</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">full_traceback</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>String</p></td>
+<td><p>SHA1 or MD5 hash representing a unique callsite in application code</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">metadata</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>Map</p></td>
+<td><p>Any metadata that should be associated with the request for fault-injection (<em>e.g.</em>, timeouts)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vclock</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>VClock (Map)</p></td>
+<td><p>Vector clock of this request</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">origin_vclock</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>VClock (Map)</p></td>
+<td><p>Vector clock of the originating request</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">execution_index</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>EI (String)</p></td>
+<td><p>Encoded execution index for this request</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="example-payload">
+<h3>Example Payload<a class="headerlink" href="#example-payload" title="Permalink to this headline"></a></h3>
+<p>Here is the example payload for an instrumentation request from the users service in the <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> example: the payload of <code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/filibuster/create</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;instrumentation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;invocation&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;source_service_name&quot;</span><span class="p">:</span> <span class="s2">&quot;users&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;requests&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;get&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;http://0.0.0.0:5001/movies/267eedb8-0f5d-42d5-8f43-72426b9fb3e6&quot;</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;kwargs&quot;</span><span class="p">:</span> <span class="p">{},</span>
+  <span class="nt">&quot;callsite_file&quot;</span><span class="p">:</span> <span class="s2">&quot;/Users/c.meiklejohn/Documents/GitHub/nufilibuster/examples/cinema-1/services/users/users/app.py&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;callsite_line&quot;</span><span class="p">:</span> <span class="s2">&quot;113&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;full_traceback&quot;</span><span class="p">:</span> <span class="s2">&quot;436928f8a571d50077e6c6972034959a&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">10</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;vclock&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;users&quot;</span><span class="p">:</span> <span class="mi">2</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;origin_vclock&quot;</span><span class="p">:</span> <span class="p">{},</span>
+  <span class="nt">&quot;execution_index&quot;</span><span class="p">:</span> <span class="s2">&quot;[[\&quot;68ae4deac392aa61feeeb0634d243d57\&quot;, 1]]&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This payload describes an invocation of <cite>requests.get</cite> from the <cite>users</cite> service to the <cite>movies</cite> service.  The call originates from line 113 in the main application file and the call contains a 10 second timeout.  There’s an associated vector clock and execution index; the origin clock here is an empty clock, since this was the first remote call made from one service to another.</p>
+</section>
+</section>
+<section id="response">
+<h2>Response<a class="headerlink" href="#response" title="Permalink to this headline"></a></h2>
+<p>We describe the necessary parameters in an response below along with an example taken from the <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> example.</p>
+<section id="id1">
+<h3>Field Descriptions<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<p>In the following table, we present descriptions of the fields in the response body.</p>
+<table class="colwidths-auto docutils align-left" id="id3">
+<caption><span class="caption-text">Field Descriptions: Response Body</span><a class="headerlink" href="#id3" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Presence</p></th>
+<th class="head"><p>Data Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">generated_id</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>Integer</p></td>
+<td><p>A totally ordered identifier for this request in this test execution</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failure_metadata</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>Object</p></td>
+<td><p>Object, see <code class="docutils literal notranslate"><span class="pre">failure_metadata</span></code> below</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forced_exception</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>Object</p></td>
+<td><p>Object, see <code class="docutils literal notranslate"><span class="pre">forced_exception</span></code> below</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-auto docutils align-left" id="id4">
+<caption><span class="caption-text">Field Descriptions: Response Body, <code class="docutils literal notranslate"><span class="pre">failure_metadata</span></code></span><a class="headerlink" href="#id4" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Presence</p></th>
+<th class="head"><p>Data Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">return_value</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>Object</p></td>
+<td><p>Object containing the fields and values to set to those fields in the response object</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">exception</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>Object</p></td>
+<td><p>Object containing the fields and values to set to those fields in the response object</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-auto docutils align-left" id="id5">
+<caption><span class="caption-text">Field Descriptions: Response Body, <code class="docutils literal notranslate"><span class="pre">forced_exception</span></code></span><a class="headerlink" href="#id5" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Presence</p></th>
+<th class="head"><p>Data Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>String</p></td>
+<td><p>Name of the exception class to instantiate and throw at the callsite</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">metadata</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>Object</p></td>
+<td><p>Object, see <code class="docutils literal notranslate"><span class="pre">metadata</span></code> below.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-auto docutils align-left" id="id6">
+<caption><span class="caption-text">Field Descriptions: Response Body, <code class="docutils literal notranslate"><span class="pre">failure_metadata.exception</span></code></span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Presence</p></th>
+<th class="head"><p>Data Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>String</p></td>
+<td><p>Name of the exception class to instantiate and throw at the callsite</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">metadata</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>Object</p></td>
+<td><p>Object, see <code class="docutils literal notranslate"><span class="pre">metadata</span></code> below.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-auto docutils align-left" id="id7">
+<caption><span class="caption-text">Field Descriptions: Response Body, <code class="docutils literal notranslate"><span class="pre">forced_exception.metadata</span></code> and <code class="docutils literal notranslate"><span class="pre">failure_metadata.exception.metadata</span></code></span><a class="headerlink" href="#id7" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Presence</p></th>
+<th class="head"><p>Data Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">abort</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>Boolean</p></td>
+<td><p>Whether or not the request occurs before throw; defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sleep</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>Float or Expression (String)</p></td>
+<td><p>The amount of time to sleep or an expression based on the callsite.  See below.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="timeouts">
+<h3>Timeouts<a class="headerlink" href="#timeouts" title="Permalink to this headline"></a></h3>
+<p>For timeouts, either a float can be provided (as fractional seconds: 0.001 for a single millisecond) or an expression in terms of the timeout specified at the callsite.  To specify a timeout that is in terms of the callsite, use the following syntax:</p>
+<p>For example, the following takes the call site’s timeout and adds a single milliscond and sleeps that interval, forcing the timeout to fire.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@expr</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;timeout&#39;</span><span class="p">])</span><span class="o">+</span><span class="mf">0.001</span>
+</pre></div>
+</div>
+<p>To sleep an interval that’s slightly before the timeout, you could also do the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@expr</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;timeout&#39;</span><span class="p">])</span><span class="o">-</span><span class="mf">0.001</span>
+</pre></div>
+</div>
+</section>
+<section id="dynamic-reduction-invariant">
+<h3>Dynamic Reduction Invariant<a class="headerlink" href="#dynamic-reduction-invariant" title="Permalink to this headline"></a></h3>
+<p>For dynamic reduction to work, the metadata object that is returned by the instrumentation must always contain the fields that were supplied; therefore, ensuring the invariant holds that any fault injected produces a metadata object that is strictly greater.  This ensures a strict partial order over objects, where they can be compared to ensure requests are equivalent.  Following from this, the metadata object can contain any fields that are instrumentation specific, as long as they are returned along with the response.</p>
+</section>
+<section id="example-body-no-fault-injection">
+<h3>Example Body: No Fault Injection<a class="headerlink" href="#example-body-no-fault-injection" title="Permalink to this headline"></a></h3>
+<p>The minimal response from the create call to the Filibuster server will contain a single field in a JSON object containing an identifier that uniquely identifies this request in the test exceution.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;generated_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="example-body-fault-injection-value">
+<h3>Example Body: Fault Injection (Value)<a class="headerlink" href="#example-body-fault-injection-value" title="Permalink to this headline"></a></h3>
+<p>This response from the create call informs the instrumentation that the response should be modified to change the <code class="docutils literal notranslate"><span class="pre">status_code</span></code> field on the <code class="docutils literal notranslate"><span class="pre">Response</span></code> object to a 500 Internal Server Error response.</p>
+<p>The instrumentation is responsible for iterating this <code class="docutils literal notranslate"><span class="pre">return_value</span></code> dictionary and set the values on the response object.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;generated_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nt">&quot;failure_metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;return_value&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">500</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="example-body-fault-injection-exception">
+<h3>Example Body: Fault Injection (Exception)<a class="headerlink" href="#example-body-fault-injection-exception" title="Permalink to this headline"></a></h3>
+<p>This response from the create call informs the instrumentation that instead of returning a response to the user that an exception should be thrown at the callsite; in this specific case, the <code class="docutils literal notranslate"><span class="pre">requests.exceptions.ConnectionError</span></code> exception will be instantiated and thrown.</p>
+<p>The instrumentation is responsible in throwing this exception.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;generated_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nt">&quot;forced_exception&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;requests.exceptions.ConnectionError&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Optional fields might also be present.  In the following response, a <code class="docutils literal notranslate"><span class="pre">requests.exceptions.Timeout</span></code> exception will be thrown, but only after the request is issued.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;generated_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nt">&quot;forced_exception&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;requests.exceptions.Timeout&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;abort&quot;</span><span class="p">:</span> <span class="kc">false</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Finally, in the following response, a <code class="docutils literal notranslate"><span class="pre">requests.exceptions.Timeout</span></code> exception will be thrown, only after the request is issued and after sleeping <code class="docutils literal notranslate"><span class="pre">&#64;expr(metadata['timeout'])+0.001</span></code> seconds.  This expression is evaluated by the instrumentation and is arbitrary based on the instrumentation’s implementation.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;generated_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nt">&quot;forced_exception&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;requests.exceptions.Timeout&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;sleep&quot;</span><span class="p">:</span> <span class="s2">&quot;@expr(metadata[&#39;timeout&#39;])+0.001&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;abort&quot;</span><span class="p">:</span> <span class="kc">false</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="instrumentation-formats.html" class="btn btn-neutral float-left" title="Data Types" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="instrumentation-server-update.html" class="btn btn-neutral float-right" title="HTTP API: Update" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Christopher S. Meiklejohn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

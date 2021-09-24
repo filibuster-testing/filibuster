@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instrumenting Services To Receive Calls &mdash; filibuster  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Enabling Fault-Injection in the Client" href="instrumentation-grpc-client-fi.html" />
+    <link rel="prev" title="Instrumenting Remote Service Calls" href="instrumentation-grpc-client.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> filibuster
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build-status.html">Build Status</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Instrumenting Services To Receive Calls</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-propagation">Metadata Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instrumentation-call">Instrumentation Call</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">filibuster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Instrumenting Services To Receive Calls</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instrumentation-grpc-server.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="instrumenting-services-to-receive-calls">
+<h1>Instrumenting Services To Receive Calls<a class="headerlink" href="#instrumenting-services-to-receive-calls" title="Permalink to this headline"></a></h1>
+<p>Next, we need to capture the incoming metadata and propagate it to any further service calls.  We need to notify the Filibuster server of the service that was reached to resolve dynamic binding.</p>
+<section id="metadata-propagation">
+<h2>Metadata Propagation<a class="headerlink" href="#metadata-propagation" title="Permalink to this headline"></a></h2>
+<p>We extract the metadata from the request metadata, assign a request id if the current request does not have one, and then assign it to the thread context.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">## *******************************************************************************************</span>
+<span class="c1">## START PARSE METADATA AND CONTEXT PROPAGATION</span>
+<span class="c1">## *******************************************************************************************</span>
+
+<span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
+
+<span class="n">request_id</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">sleep_interval</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># Parse incoming metadata.</span>
+
+<span class="k">if</span> <span class="s1">&#39;x-filibuster-request-id&#39;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+    <span class="n">request_id</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;x-filibuster-request-id&#39;</span><span class="p">]</span>
+
+<span class="n">generated_id</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;x-filibuster-generated-id&#39;</span><span class="p">]</span>
+<span class="n">vclock_str</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;x-filibuster-vclock&#39;</span><span class="p">]</span>
+<span class="n">vclock</span> <span class="o">=</span> <span class="n">vclock_fromstring</span><span class="p">(</span><span class="n">vclock_str</span><span class="p">)</span>
+<span class="n">origin_vclock_str</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;x-filibuster-origin-vclock&#39;</span><span class="p">]</span>
+<span class="n">origin_vclock</span> <span class="o">=</span> <span class="n">vclock_fromstring</span><span class="p">(</span><span class="n">origin_vclock_str</span><span class="p">)</span>
+<span class="n">execution_index</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;x-filibuster-execution-index&#39;</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="s1">&#39;x-filibuster-forced-sleep&#39;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+    <span class="n">sleep_interval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;x-filibuster-forced-sleep&#39;</span><span class="p">])</span>
+
+<span class="n">notice</span><span class="p">(</span><span class="s2">&quot;request_id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">request_id</span><span class="p">))</span>
+<span class="n">notice</span><span class="p">(</span><span class="s2">&quot;generated_id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">generated_id</span><span class="p">))</span>
+<span class="n">notice</span><span class="p">(</span><span class="s2">&quot;vclock: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vclock</span><span class="p">))</span>
+<span class="n">notice</span><span class="p">(</span><span class="s2">&quot;origin_vclock: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">origin_vclock</span><span class="p">))</span>
+<span class="n">notice</span><span class="p">(</span><span class="s2">&quot;execution_index: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">execution_index</span><span class="p">))</span>
+<span class="n">notice</span><span class="p">(</span><span class="s2">&quot;sleep_interval: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sleep_interval</span><span class="p">))</span>
+
+<span class="c1"># Assign request id if none is provided.</span>
+<span class="k">if</span> <span class="n">request_id</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">request_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+
+<span class="c1"># Attach metadata to thread context.</span>
+<span class="n">attach</span><span class="p">(</span><span class="n">set_value</span><span class="p">(</span><span class="n">_FILIBUSTER_VCLOCK_KEY</span><span class="p">,</span> <span class="n">vclock_str</span><span class="p">))</span>
+<span class="n">attach</span><span class="p">(</span><span class="n">set_value</span><span class="p">(</span><span class="n">_FILIBUSTER_REQUEST_ID_KEY</span><span class="p">,</span> <span class="n">request_id</span><span class="p">))</span>
+<span class="n">attach</span><span class="p">(</span><span class="n">set_value</span><span class="p">(</span><span class="n">_FILIBUSTER_ORIGIN_VCLOCK_KEY</span><span class="p">,</span> <span class="n">origin_vclock</span><span class="p">))</span>
+<span class="n">attach</span><span class="p">(</span><span class="n">set_value</span><span class="p">(</span><span class="n">_FILIBUSTER_EXECUTION_INDEX_KEY</span><span class="p">,</span> <span class="n">execution_index</span><span class="p">))</span>
+
+<span class="c1">## *******************************************************************************************</span>
+<span class="c1">## END PARSE METADATA AND CONTEXT PROPAGATION</span>
+<span class="c1">## *******************************************************************************************</span>
+</pre></div>
+</div>
+</section>
+<section id="instrumentation-call">
+<h2>Instrumentation Call<a class="headerlink" href="#instrumentation-call" title="Permalink to this headline"></a></h2>
+<p>Finally, we issue a call to the Filibuster server to notify it of which server the request arrived at.  We only do this if the request has a generated id, which means it is an instrumented Filibuster request.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">## *******************************************************************************************</span>
+<span class="c1">## START INSTRUMENTATION CALL</span>
+<span class="c1">## *******************************************************************************************</span>
+
+<span class="k">if</span> <span class="n">generated_id</span><span class="p">:</span>
+    <span class="n">notice</span><span class="p">(</span><span class="s2">&quot;Generated id is set, issuing update.&quot;</span><span class="p">)</span>
+
+    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;instrumentation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;request_received&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;generated_id&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">generated_id</span><span class="p">),</span>
+        <span class="s1">&#39;target_service_name&#39;</span><span class="p">:</span> <span class="n">service_name</span>
+    <span class="p">}</span>
+
+    <span class="n">token</span> <span class="o">=</span> <span class="n">attach</span><span class="p">(</span><span class="n">set_value</span><span class="p">(</span><span class="n">_FILIBUSTER_INSTRUMENTATION_KEY</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DISABLE_SERVER_COMMUNICATION&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">filibuster_update_url</span><span class="p">(</span><span class="n">filibuster_url</span><span class="p">),</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Exception raised during instrumentation (_record_successful_response)!&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">notice</span><span class="p">(</span><span class="s2">&quot;Removing instrumentation key for Filibuster.&quot;</span><span class="p">)</span>
+            <span class="n">detach</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">notice</span><span class="p">(</span><span class="s2">&quot;No generated id.&quot;</span><span class="p">)</span>
+
+<span class="c1">## *******************************************************************************************</span>
+<span class="c1">## END INSTRUMENTATION CALL</span>
+<span class="c1">## *******************************************************************************************</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="instrumentation-grpc-client.html" class="btn btn-neutral float-left" title="Instrumenting Remote Service Calls" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="instrumentation-grpc-client-fi.html" class="btn btn-neutral float-right" title="Enabling Fault-Injection in the Client" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Christopher S. Meiklejohn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

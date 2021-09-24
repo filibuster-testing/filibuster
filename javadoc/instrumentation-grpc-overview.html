@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instrumenting GRPC &mdash; filibuster  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Instrumenting Remote Service Calls" href="instrumentation-grpc-client.html" />
+    <link rel="prev" title="Instrumentation Example: Requests" href="instrumentation-requests.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> filibuster
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build-status.html">Build Status</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Instrumenting GRPC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tracking-invocations">Tracking Invocations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-propagation">Metadata Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#differences-between-grpc-and-http">Differences between GRPC and HTTP</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#http">HTTP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grpc">GRPC</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">filibuster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Instrumenting GRPC</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instrumentation-grpc-overview.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="instrumenting-grpc">
+<h1>Instrumenting GRPC<a class="headerlink" href="#instrumenting-grpc" title="Permalink to this headline"></a></h1>
+<p>In the following sections, we discuss the modifications to the <code class="docutils literal notranslate"><span class="pre">opentelemetry-instrumentation-grpc</span></code> library to support Filibuster.</p>
+<section id="tracking-invocations">
+<h2>Tracking Invocations<a class="headerlink" href="#tracking-invocations" title="Permalink to this headline"></a></h2>
+<p>This diagram provides a high-level overview of the modifications in the following sections to intercept remote calls and notify the Filibuster server of their response values.  It also shows the locations where fault injection information is aggregated and faults are injected.</p>
+<img alt="_images/instrumentation.png" src="_images/instrumentation.png" />
+</section>
+<section id="metadata-propagation">
+<h2>Metadata Propagation<a class="headerlink" href="#metadata-propagation" title="Permalink to this headline"></a></h2>
+<p>This diagram provides a high-level overview of the modifications in the following sections to intercept and track metadata and propagate it forward.</p>
+<img alt="_images/instrumentation-metadata-grpc.png" src="_images/instrumentation-metadata-grpc.png" />
+</section>
+<section id="differences-between-grpc-and-http">
+<h2>Differences between GRPC and HTTP<a class="headerlink" href="#differences-between-grpc-and-http" title="Permalink to this headline"></a></h2>
+<p>One of the major differences between HTTP and GRPC is in how it requires that users handle errors.</p>
+<section id="http">
+<h3>HTTP<a class="headerlink" href="#http" title="Permalink to this headline"></a></h3>
+<p>With HTTP, the <code class="docutils literal notranslate"><span class="pre">requests</span></code> library throws a number of exceptions that must be tested.</p>
+<p>For example, if the remote service is unavailable, a <code class="docutils literal notranslate"><span class="pre">requests.exceptions.ConnectionError</span></code> will be thrown; similarly, if the remote call to the service times out, a <code class="docutils literal notranslate"><span class="pre">requests.exceptions.Timeout</span></code> will be thrown.  There are around 20 of these exceptions and cover library specific errors.  Filibuster therefore needs to inject a user-defined subset of these that they want to test for, where some of these errors are context-specific, as a timeout exception will not be thrown when an infinity timeout is specified.</p>
+<p>If microservice APIs are written in a REST style, then services will also return HTTP responses containing specific status codes to indicate internal errors, failures, or application logic.  As there are 87 possible status codes known to be in use (<em>c.f.</em>, Wikipedia) – and, since these error codes are chosen by the application developer to indicate an application-specific abnormal response of some type – Filibuster does not automatically test for all possible status codes.  This is important, because a single service might only return one of these codes – it would be pointless to test for the 86 others.</p>
+<p>To solve this problem, we use a static analysis on the service code to determine which status codes are returned.  In our examples, we use a very simple static analysis that looks for <code class="docutils literal notranslate"><span class="pre">raise</span></code> statements of the exception types associated with each status code response.  This analysis is both an over-approximation and an under-approximation: if the application developer constructs a response manually specifying the status code as an integer, it will be missed, thus under-approximating; and if the application developer happens to raise one of these exceptions in dead code, we will over-approximate.</p>
+</section>
+<section id="grpc">
+<h3>GRPC<a class="headerlink" href="#grpc" title="Permalink to this headline"></a></h3>
+<p>With GRPC, the <code class="docutils literal notranslate"><span class="pre">grpc</span></code> library throws a single exception <code class="docutils literal notranslate"><span class="pre">grpc._channel._InactiveRpcError</span></code>.</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">grpc._channel._InactiveRpcError</span></code> exception can be thrown for a number of different reasons: the remote service being unavailable, the remote request timing out, etc.  Different types of errors are distinguished using a <code class="docutils literal notranslate"><span class="pre">code</span></code> parameters on the exception.  This <code class="docutils literal notranslate"><span class="pre">code</span></code> parameter can be set to any of the 20 different status codes provided in the <code class="docutils literal notranslate"><span class="pre">grpc.StatusCode</span></code> Python module.</p>
+<p>Similar to HTTP, we use a lightweight static analysis over the code looking for references to the <code class="docutils literal notranslate"><span class="pre">grpc.StatusCode</span></code> enum in order to determine the different exception codes to test.  Similar to HTTP, this is both an under-approximation and an over-approximation: we under-approximate when the application developer uses the enum’s values as integers directly; we over-approximate when unreachable code contains references to these enums.</p>
+<p>Using the values of <code class="docutils literal notranslate"><span class="pre">grpc.StatusCode</span></code> is a gRPC best practice and was influenced by the use of HTTP status codes in REST designs for indicating error.  However, some applications still may encode error responses right into the payload of a successful response in some application specific way.  As an example, a service might respond to a request for user information by encoding a boolean into the payload to indicate whether or not the user exists instead of using <code class="docutils literal notranslate"><span class="pre">grpc.StatusCode.NOT_FOUND</span></code>.  Without programmer input, we are unable to automatically determine these data-specific responses – in general, this problem is undecidable – and therefore, Filibuster does not support it.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="instrumentation-requests.html" class="btn btn-neutral float-left" title="Instrumentation Example: Requests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="instrumentation-grpc-client.html" class="btn btn-neutral float-right" title="Instrumenting Remote Service Calls" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Christopher S. Meiklejohn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

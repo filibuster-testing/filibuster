@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Java Instrumentors &mdash; filibuster  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Types" href="instrumentation-formats.html" />
+    <link rel="prev" title="Static Analysis" href="instrumentation-grpc-client-analysis.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> filibuster
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build-status.html">Build Status</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Java Instrumentors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#client-instrumentor">Client Instrumentor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fault-injection">Fault Injection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#server-instrumentor">Server Instrumentor</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">filibuster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Java Instrumentors</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instrumentation-java-overview.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="java-instrumentors">
+<h1>Java Instrumentors<a class="headerlink" href="#java-instrumentors" title="Permalink to this headline"></a></h1>
+<p>For developers, Filibuster provides a client and server instrumentor library that can be used to ease the task of instrumenting libraries for use with Filibuster.</p>
+<section id="client-instrumentor">
+<h2>Client Instrumentor<a class="headerlink" href="#client-instrumentor" title="Permalink to this headline"></a></h2>
+<p>The Filibuster client instrumentor is used to setup the required metadata and record the request lifecycle of an outgoing request.  The instrumentor automatically maintains metadata, such as the vector clocks and execution indexes associated with this request, and notifies the Filibuster server of the request and it’s outcome.</p>
+<p>The client instrumentor should be instantiated with the service name and a boolean indicating whether or not the Filibuster server should be contacted or not (for testing.)  Once instantiated, the service should invoke the <code class="docutils literal notranslate"><span class="pre">prepareForInvocation</span></code> method, which will setup required metadata: the vector clocks and execution indexes that should be associated with this request.</p>
+<p>Here is an example:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">FilibusterClientInstrumentor</span> <span class="n">filibusterClientInstrumentor</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FilibusterClientInstrumentor</span><span class="o">(</span>
+        <span class="n">serviceName</span><span class="o">,</span>
+        <span class="n">shouldCommunicateWithServer</span>
+<span class="o">);</span>
+<span class="n">filibusterClientInstrumentor</span><span class="o">.</span><span class="na">prepareForInvocation</span><span class="o">();</span>
+</pre></div>
+</div>
+<p>Next, before the request is performed by the underlying library, the <code class="docutils literal notranslate"><span class="pre">beforeInvocation</span></code> method should be invoked with the module/class name, method name, and serializable arguments.  These arguments are never deserialized by the Filibuster server, so the serialization format can be client specific; however, they should be unique enough to distinguish this call site from another.  In our case, we can use the destination URL and JSON payload of the request.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">filibusterClientInstrumentor</span><span class="o">.</span><span class="na">beforeInvocation</span><span class="o">(</span><span class="n">module</span><span class="o">,</span> <span class="n">method</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>Next, the client needs to notify the Filibuster server whether or not the call completed succesfully or with an exception being thrown at the callsite.  To do this, the client instrumentor provides two methods.</p>
+<p>First, if the call completes successfully, the <code class="docutils literal notranslate"><span class="pre">afterInvocationComplete</span></code> method can be used to provide the resulting class name (of the response object) along with the status code that was returned.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">filibusterClientInstrumentor</span><span class="o">.</span><span class="na">afterInvocationComplete</span><span class="o">(</span><span class="n">className</span><span class="o">,</span> <span class="n">statusCode</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>If the call throws, the client needs to notify the Filibuster server with the exception that is thrown.  To do this, the <code class="docutils literal notranslate"><span class="pre">afterInvocationWithException</span></code> method can be used, providing the exception that was thrown.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">filibusterClientInstrumentor</span><span class="o">.</span><span class="na">afterInvocationWithException</span><span class="o">(</span><span class="n">exception</span><span class="o">);</span>
+</pre></div>
+</div>
+<section id="fault-injection">
+<h3>Fault Injection<a class="headerlink" href="#fault-injection" title="Permalink to this headline"></a></h3>
+<p>After the <code class="docutils literal notranslate"><span class="pre">beforeInvocation</span></code> method is invoked, the <code class="docutils literal notranslate"><span class="pre">getFailureMetadata</span></code> and <code class="docutils literal notranslate"><span class="pre">getForcedException</span></code> methods can be used to determine if the client that is being instrumented should throw an exception or alter the response to indicate failure.  Both of these functions return a JSON object whose contents should be interpreted by the client itself.  We refer the reader to the section <a class="reference internal" href="instrumentation-server-create.html#http-api-create"><span class="std std-ref">HTTP API: Create</span></a> for details on what these fields these objects contain and how they should be interpreted.</p>
+<p>It is the clients responsibility to ensure that when injecting faults that one of either the <code class="docutils literal notranslate"><span class="pre">afterInvocationComplete</span></code> or <code class="docutils literal notranslate"><span class="pre">afterInvocationWithException</span></code> methods are invoked to record the final response.</p>
+</section>
+</section>
+<section id="server-instrumentor">
+<h2>Server Instrumentor<a class="headerlink" href="#server-instrumentor" title="Permalink to this headline"></a></h2>
+<p>The Filibuster server instrumentor is used to setup required metadata and notify the Filibuster server of an incoming request.  The instrumentor automatically sends the <code class="docutils literal notranslate"><span class="pre">request_received</span></code> message to the Filibuster server and stores metadata in a global metadata context that is then used by the client instrumentor.</p>
+<p>The server instrumentor should be instantiated with the service name, a boolean indicating whether or not the Filibuster server should be contacted or not (for testing) and the incoming metadata for the request.  The metadata must be provided explicitly to the server instrumentor: this metadata will be stored differently depending on the transport mechanism (<em>e.g.,</em> headers for HTTP requests, metadata for GRPC requests.)</p>
+<p>Here is an example:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">FilibusterServerInstrumentor</span> <span class="n">filibusterServerInstrumentor</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FilibusterServerInstrumentor</span><span class="o">(</span>
+        <span class="n">String</span> <span class="n">serviceName</span><span class="o">,</span>
+        <span class="kt">boolean</span> <span class="n">shouldCommunicateWithFilibusterServer</span><span class="o">,</span>
+        <span class="n">String</span> <span class="n">requestId</span><span class="o">,</span>
+        <span class="n">String</span> <span class="n">generatedId</span><span class="o">,</span>
+        <span class="n">String</span> <span class="n">vectorClock</span><span class="o">,</span>
+        <span class="n">String</span> <span class="n">originVectorClock</span><span class="o">,</span>
+        <span class="n">String</span> <span class="n">executionIndex</span>
+<span class="o">);</span>
+</pre></div>
+</div>
+<p>In our implementation for Armeria’s <code class="docutils literal notranslate"><span class="pre">WebClient</span></code>, we use the incoming request headers as storage of the metadata and pass them to the instrumentor as follows.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">FilibusterServerInstrumentor</span> <span class="n">filibusterServerInstrumentor</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FilibusterServerInstrumentor</span><span class="o">(</span>
+        <span class="n">serviceName</span><span class="o">,</span>
+        <span class="n">shouldCommunicateWithServer</span><span class="o">(),</span>
+        <span class="n">req</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;X-Filibuster-Request-Id&quot;</span><span class="o">,</span> <span class="n">Helper</span><span class="o">.</span><span class="na">generateNewRequestId</span><span class="o">().</span><span class="na">toString</span><span class="o">()),</span>
+        <span class="n">req</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;X-Filibuster-Generated-Id&quot;</span><span class="o">),</span>
+        <span class="n">req</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;X-Filibuster-VClock&quot;</span><span class="o">),</span>
+        <span class="n">req</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;X-Filibuster-Origin-VClock&quot;</span><span class="o">),</span>
+        <span class="n">req</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;X-Filibuster-Execution-Index&quot;</span><span class="o">)</span>
+<span class="o">);</span>
+</pre></div>
+</div>
+<p>Finally, before delegating the request to the underlying library, invoke the <code class="docutils literal notranslate"><span class="pre">beforeInvocation</span></code> method to perform the required instrumentation call to the Filibuster server.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">filibusterServerInstrumentor</span><span class="o">.</span><span class="na">beforeInvocation</span><span class="o">();</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="instrumentation-grpc-client-analysis.html" class="btn btn-neutral float-left" title="Static Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="instrumentation-formats.html" class="btn btn-neutral float-right" title="Data Types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Christopher S. Meiklejohn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instrumentation Example: Requests &mdash; filibuster  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Instrumenting GRPC" href="instrumentation-grpc-overview.html" />
+    <link rel="prev" title="Instrumentation Example: Flask" href="instrumentation-flask.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> filibuster
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build-status.html">Build Status</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Instrumentation Example: Requests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-reception">Metadata Reception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fault-injection">Fault Injection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-propagation">Metadata Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#response-notification">Response Notification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-successful-response-payload">Example: Successful Response Payload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-exceptional-response-payload">Example: Exceptional Response Payload</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">filibuster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Instrumentation Example: Requests</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instrumentation-requests.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="instrumentation-example-requests">
+<h1>Instrumentation Example: Requests<a class="headerlink" href="#instrumentation-example-requests" title="Permalink to this headline"></a></h1>
+<p>Now, we discuss the modifications made to the <code class="docutils literal notranslate"><span class="pre">opentelemetry-instrumentation-requests</span></code> library to allow us to modify outgoing calls to include the required metadata, support fault injection, and notify the Filibuster server of remote calls and their responses.</p>
+<p>We assume you read the previous section on the modifications to Flask.</p>
+<section id="metadata-reception">
+<h2>Metadata Reception<a class="headerlink" href="#metadata-reception" title="Permalink to this headline"></a></h2>
+<p>First, we only perform instrumentation if instrumentation is enabled for this request – we don’t want to instrument the calls to the Filibuster server.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">_FILIBUSTER_INSTRUMENTATION_KEY</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>Next, we have to compute a hash for this request based on the traceback to uniquely identify this request.  To do this, we use the service name and part of the traceback and compute a MD5.  This doesn’t have to be cryptographically secure but just unique enough for this service.  We omit lines from the traceback that are calls within the instrumentation code, therefore only including lines in the application code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">raw_callsite</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_stack</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">service_name</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="n">TEST_PREFIX</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="n">INSTRUMENTATION_PREFIX</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">raw_callsite</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="k">break</span>
+
+<span class="n">cs_search</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;File </span><span class="se">\&quot;</span><span class="s2">(.*)</span><span class="se">\&quot;</span><span class="s2">, line (.*), in&quot;</span><span class="p">)</span>
+<span class="n">callsite</span> <span class="o">=</span> <span class="n">cs_search</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">raw_callsite</span><span class="p">)</span>
+
+<span class="n">callsite_file</span> <span class="o">=</span> <span class="n">callsite</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">callsite_line</span> <span class="o">=</span> <span class="n">callsite</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">full_traceback</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_stack</span><span class="p">())</span>
+<span class="n">full_traceback_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">full_traceback</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Next, we extract the vclock from the thread context – where we set the incoming vclock in the Flask instrumentation – and increment the vclock using our service name.  This is because we are inside of the <a href="#id1"><span class="problematic" id="id2">``</span></a>request``s instrumentation and therefore about to issue a request to an external service: we are taking an action that requires incrementing the vclock.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Incoming clock from the request that triggered this service to be reached.</span>
+<span class="n">incoming_vclock_string</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">_FILIBUSTER_VCLOCK_KEY</span><span class="p">)</span>
+
+<span class="c1"># If it&#39;s not None, we probably need to merge with our clock, first, since our clock is keeping</span>
+<span class="c1"># track of *our* requests from this node.</span>
+<span class="k">if</span> <span class="n">incoming_vclock_string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">vclocks_by_request</span> <span class="o">=</span> <span class="n">_filibuster_global_context_get_value</span><span class="p">(</span><span class="n">_FILIBUSTER_VCLOCK_BY_REQUEST_KEY</span><span class="p">)</span>
+    <span class="n">incoming_vclock</span> <span class="o">=</span> <span class="n">vclock_fromstring</span><span class="p">(</span><span class="n">incoming_vclock_string</span><span class="p">)</span>
+    <span class="n">local_vclock</span> <span class="o">=</span> <span class="n">vclocks_by_request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request_id_string</span><span class="p">,</span> <span class="n">vclock_new</span><span class="p">())</span>
+    <span class="n">new_local_vclock</span> <span class="o">=</span> <span class="n">vclock_merge</span><span class="p">(</span><span class="n">incoming_vclock</span><span class="p">,</span> <span class="n">local_vclock</span><span class="p">)</span>
+    <span class="n">vclocks_by_request</span><span class="p">[</span><span class="n">request_id_string</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_local_vclock</span>
+    <span class="n">_filibuster_global_context_set_value</span><span class="p">(</span><span class="n">_FILIBUSTER_VCLOCK_BY_REQUEST_KEY</span><span class="p">,</span> <span class="n">vclocks_by_request</span><span class="p">)</span>
+
+<span class="c1"># Finally, advance the clock to account for this request.</span>
+<span class="n">vclocks_by_request</span> <span class="o">=</span> <span class="n">_filibuster_global_context_get_value</span><span class="p">(</span><span class="n">_FILIBUSTER_VCLOCK_BY_REQUEST_KEY</span><span class="p">)</span>
+<span class="n">local_vclock</span> <span class="o">=</span> <span class="n">vclocks_by_request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request_id_string</span><span class="p">,</span> <span class="n">vclock_new</span><span class="p">())</span>
+<span class="n">new_local_vclock</span> <span class="o">=</span> <span class="n">vclock_increment</span><span class="p">(</span><span class="n">local_vclock</span><span class="p">,</span> <span class="n">service_name</span><span class="p">)</span>
+<span class="n">vclocks_by_request</span><span class="p">[</span><span class="n">request_id_string</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_local_vclock</span>
+<span class="n">_filibuster_global_context_set_value</span><span class="p">(</span><span class="n">_FILIBUSTER_VCLOCK_BY_REQUEST_KEY</span><span class="p">,</span> <span class="n">vclocks_by_request</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We also need to advance the execution index to account for the service issuing a remote call to another service.</p>
+<p>To do this, we use the call site hash that was generated in the example above and combine it with the module, method and arguments that were invoked.  This combined hash is then added to the execution index and set as the current execution index.</p>
+<p>When this call returns, we will pop this from the execution index (this code is omitted for brevity and handled in the code that records the response below.    )</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Maintain the execution index for each request.</span>
+<span class="n">incoming_execution_index_string</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">_FILIBUSTER_EXECUTION_INDEX_KEY</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">incoming_execution_index_string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">incoming_execution_index</span> <span class="o">=</span> <span class="n">execution_index_fromstring</span><span class="p">(</span><span class="n">incoming_execution_index_string</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">execution_indices_by_request</span> <span class="o">=</span> <span class="n">_filibuster_global_context_get_value</span><span class="p">(</span><span class="n">_FILIBUSTER_EI_BY_REQUEST_KEY</span><span class="p">)</span>
+    <span class="n">incoming_execution_index</span> <span class="o">=</span> <span class="n">local_execution_index</span>
+
+<span class="n">execution_index_hash</span> <span class="o">=</span> <span class="n">unique_request_hash</span><span class="p">([</span><span class="n">full_traceback_hash</span><span class="p">,</span> <span class="s1">&#39;requests&#39;</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">url</span><span class="p">)])</span>
+
+<span class="n">execution_indices_by_request</span> <span class="o">=</span> <span class="n">_filibuster_global_context_get_value</span><span class="p">(</span><span class="n">_FILIBUSTER_EI_BY_REQUEST_KEY</span><span class="p">)</span>
+<span class="n">execution_indices_by_request</span><span class="p">[</span><span class="n">request_id_string</span><span class="p">]</span> <span class="o">=</span> <span class="n">execution_index_push</span><span class="p">(</span><span class="n">execution_index_hash</span><span class="p">,</span> <span class="n">incoming_execution_index</span><span class="p">)</span>
+<span class="n">execution_index</span> <span class="o">=</span> <span class="n">execution_indices_by_request</span><span class="p">[</span><span class="n">request_id_string</span><span class="p">]</span>
+<span class="n">_filibuster_global_context_set_value</span><span class="p">(</span><span class="n">_FILIBUSTER_EI_BY_REQUEST_KEY</span><span class="p">,</span> <span class="n">execution_indices_by_request</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we have to set the incoming vclock as our origin vclock.  If we don’t have an incoming vclock, it’s the first request in the microservice application and we use a new vclock.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">incoming_origin_vclock_string</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">_FILIBUSTER_ORIGIN_VCLOCK_KEY</span><span class="p">)</span>
+
+<span class="c1"># This isn&#39;t used in the record_call, but just propagated through the headers in the subsequent request.</span>
+<span class="n">origin_vclock</span> <span class="o">=</span> <span class="n">vclock</span>
+
+<span class="c1"># Record call with the incoming origin clock and advanced clock.</span>
+<span class="k">if</span> <span class="n">incoming_origin_vclock_string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">incoming_origin_vclock</span> <span class="o">=</span> <span class="n">vclock_fromstring</span><span class="p">(</span><span class="n">incoming_origin_vclock_string</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">incoming_origin_vclock</span> <span class="o">=</span> <span class="n">vclock_new</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now, we can make the call to the Filibuster server.  We elide the details of making a normal JSON call to the Filibuster server, which is covered in our API documentation.  We encode the execution index as string, as covered in the Data Types section of our API documentation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">_record_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">method</span><span class="p">,</span>
+                        <span class="p">[</span><span class="n">url</span><span class="p">],</span>
+                        <span class="n">callsite_file</span><span class="p">,</span>
+                        <span class="n">callsite_line</span><span class="p">,</span>
+                        <span class="n">full_traceback_hash</span><span class="p">,</span>
+                        <span class="n">vclock</span><span class="p">,</span>
+                        <span class="n">incoming_origin_vclock</span><span class="p">,</span>
+                        <span class="n">execution_index_tostring</span><span class="p">(</span><span class="n">execution_index</span><span class="p">),</span>
+                        <span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="fault-injection">
+<h2>Fault Injection<a class="headerlink" href="#fault-injection" title="Permalink to this headline"></a></h2>
+<p>If the Filibuster server notifies us that we have to inject a failure for this request, we will receive information in the response about what precise error to inject along with metadata describing how that fault should be injected.  We will omit the detailed information that describes parsing this response and injecting the actual failure, as it’s instrumentation specific and fairly straightforward.</p>
+<p>For demonstration purposes, we will show sample code used in the <code class="docutils literal notranslate"><span class="pre">requests</span></code> instrumentation about how we might parse this response and handle it.  In this code, we use the response from the Filibuster server to extract either the exception we should inject, or the changes we should make to the response returned to the user, from the Filibuster server.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">&#39;generated_id&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+        <span class="n">generated_id</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;generated_id&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="s1">&#39;forced_exception&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+        <span class="n">exception</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;forced_exception&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s1">&#39;metadata&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;forced_exception&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;forced_exception&#39;</span><span class="p">][</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">exception_metadata</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;forced_exception&#39;</span><span class="p">][</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;abort&#39;</span> <span class="ow">in</span> <span class="n">exception_metadata</span> <span class="ow">and</span> <span class="n">exception_metadata</span><span class="p">[</span><span class="s1">&#39;abort&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">should_abort</span> <span class="o">=</span> <span class="n">exception_metadata</span><span class="p">[</span><span class="s1">&#39;abort&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;sleep&#39;</span> <span class="ow">in</span> <span class="n">exception_metadata</span> <span class="ow">and</span> <span class="n">exception_metadata</span><span class="p">[</span><span class="s1">&#39;sleep&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">should_sleep_interval</span> <span class="o">=</span> <span class="n">exception_metadata</span><span class="p">[</span><span class="s1">&#39;sleep&#39;</span><span class="p">]</span>
+
+        <span class="n">should_inject_fault</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">if</span> <span class="s1">&#39;failure_metadata&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;return_value&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;failure_metadata&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="s1">&#39;status_code&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;failure_metadata&#39;</span><span class="p">][</span><span class="s1">&#39;return_value&#39;</span><span class="p">]:</span>
+            <span class="n">status_code</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;failure_metadata&#39;</span><span class="p">][</span><span class="s1">&#39;return_value&#39;</span><span class="p">][</span><span class="s1">&#39;status_code&#39;</span><span class="p">]</span>
+            <span class="n">should_inject_fault</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+<p>These booleans (or other values), which are set based on the response from the Filibuster server, allow us to either make a request to the remote service (in the event of no fault injection), modify the response (in the case of value-based fault injection), or throw an exception (in the case of exception-based fault injection.)</p>
+<p>As you can imagine, we made the following adjustments in the <code class="docutils literal notranslate"><span class="pre">opentelemetry</span></code> code to respect these values.  If we need to throw an exception, we skip the remote call and throw; if we need to modify the response, we skip the remote call, directly instantiate the response class and set the attributes accordingly before returning the response to the user.  We refer the reader to the implementation of our <code class="docutils literal notranslate"><span class="pre">requests</span></code> instrumentation; however, these modifications are rather straightforward.</p>
+</section>
+<section id="metadata-propagation">
+<h2>Metadata Propagation<a class="headerlink" href="#metadata-propagation" title="Permalink to this headline"></a></h2>
+<p>In terms of metadata propagation, we modified the calls that are made to the remote service to include additional headers containing the required instrumentation metadata.  This was a simple modification to include a dictionary of headers containing values taken from the dictionary stored in the thread context.</p>
+<p>Here, you will find an example of the additional headers provided to each call.  These headers are the ones discussed in our overview of how our instrumentation needs to propagate forward.</p>
+<p>As HTTP headers require values that are strings, we encode these values as strings using a JSON to string serializer.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;X-Filibuster-Generated-Id&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">generated_id</span><span class="p">),</span>
+    <span class="s1">&#39;X-Filibuster-VClock&#39;</span><span class="p">:</span> <span class="n">vclock_tostring</span><span class="p">(</span><span class="n">vclock</span><span class="p">),</span>
+    <span class="s1">&#39;X-Filibuster-Origin-VClock&#39;</span><span class="p">:</span> <span class="n">vclock_tostring</span><span class="p">(</span><span class="n">origin_vclock</span><span class="p">),</span>
+    <span class="s1">&#39;X-Filibuster-Execution-Index&#39;</span><span class="p">:</span> <span class="n">execution_index_tostring</span><span class="p">(</span><span class="n">execution_index</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="response-notification">
+<h2>Response Notification<a class="headerlink" href="#response-notification" title="Permalink to this headline"></a></h2>
+<p>After the call completes (or, is potentially aborted based on fault injection), we have to notify the Filibuster server of the response.  We do this by extending the existing <code class="docutils literal notranslate"><span class="pre">opentelemery</span></code> instrumentation to notify the Filibuster server of success or failure, based on the value set above.</p>
+<p>In the event of success, we notify Filibuster using the <code class="docutils literal notranslate"><span class="pre">_record_successful_response</span></code> callback; in the event of failure, we use the <code class="docutils literal notranslate"><span class="pre">_record_exceptional_response</span></code> callback.</p>
+<section id="example-successful-response-payload">
+<h3>Example: Successful Response Payload<a class="headerlink" href="#example-successful-response-payload" title="Permalink to this headline"></a></h3>
+<p>If the response was successful – either because Filibuster didn’t inject a fault or Filibuster modified the response to return an error code, this payload includes the return value including the class of the response object and the attributes and values each attribute had to indicate the error.  It sets the <code class="docutils literal notranslate"><span class="pre">instrumentation_type</span></code> as <code class="docutils literal notranslate"><span class="pre">invocation_complete</span></code> indicating this request is the response of a remote call.  It also includes the associated vclock and execution index of the remote call.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;__class__&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span>
+    <span class="s1">&#39;status_code&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">status_code</span><span class="p">),</span>
+    <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;instrumentation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;invocation_complete&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;generated_id&#39;</span><span class="p">:</span> <span class="n">generated_id</span><span class="p">,</span>
+    <span class="s1">&#39;execution_index&#39;</span><span class="p">:</span> <span class="n">execution_index</span><span class="p">,</span>
+    <span class="s1">&#39;vclock&#39;</span><span class="p">:</span> <span class="n">vclock</span><span class="p">,</span>
+    <span class="s1">&#39;return_value&#39;</span><span class="p">:</span> <span class="n">return_value</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We omit the implementation detail of this method for brevity; as you can imagine, it’s a call to the <code class="docutils literal notranslate"><span class="pre">requests</span></code> library where we set the context appropriately to ensure we do not instrument this call (as it’s made to the Filibuster server, where we do not want to perform fault injection.)</p>
+</section>
+<section id="example-exceptional-response-payload">
+<h3>Example: Exceptional Response Payload<a class="headerlink" href="#example-exceptional-response-payload" title="Permalink to this headline"></a></h3>
+<p>If the response was unsuccessful because it threw an exception (by fault injection), this response includes the fully qualified name of the exception as a string, the vector clock associated with the request, and the execution index associate with this request.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s1">&#39;instrumentation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;invocation_complete&#39;</span><span class="p">,</span>
+     <span class="s1">&#39;generated_id&#39;</span><span class="p">:</span> <span class="n">generated_id</span><span class="p">,</span>
+     <span class="s1">&#39;execution_index&#39;</span><span class="p">:</span> <span class="n">execution_index</span><span class="p">,</span>
+     <span class="s1">&#39;vclock&#39;</span><span class="p">:</span> <span class="n">vclock</span><span class="p">,</span>
+     <span class="s1">&#39;exception&#39;</span><span class="p">:</span> <span class="n">parsed_exception_string</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Again, we omit the implementation detail of this method for brevity; as you can imagine, it’s a call to the requests library where we set the context appropriately to ensure we do not instrument this call (as it’s made to the Filibuster server, where we do not want to perform fault injection.)</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="instrumentation-flask.html" class="btn btn-neutral float-left" title="Instrumentation Example: Flask" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="instrumentation-grpc-overview.html" class="btn btn-neutral float-right" title="Instrumenting GRPC" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Christopher S. Meiklejohn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

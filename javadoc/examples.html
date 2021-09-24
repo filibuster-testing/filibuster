@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examples &mdash; filibuster  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Running" href="running.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> filibuster
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-examples">Cinema Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-1"><code class="docutils literal notranslate"><span class="pre">cinema-1</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fault-analysis">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filibuster-analysis">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-2"><code class="docutils literal notranslate"><span class="pre">cinema-2</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-3"><code class="docutils literal notranslate"><span class="pre">cinema-3</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-4"><code class="docutils literal notranslate"><span class="pre">cinema-4</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id7">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-5"><code class="docutils literal notranslate"><span class="pre">cinema-5</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id10">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-6"><code class="docutils literal notranslate"><span class="pre">cinema-6</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id13">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id14">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id15">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-7"><code class="docutils literal notranslate"><span class="pre">cinema-7</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id16">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id17">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id18">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-8"><code class="docutils literal notranslate"><span class="pre">cinema-8</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id19">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id20">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id21">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cinema-9"><code class="docutils literal notranslate"><span class="pre">cinema-9</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id22">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id23">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id24">Filibuster Analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#industry-examples">Industry Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#audible"><code class="docutils literal notranslate"><span class="pre">audible</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id25">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id26">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id27">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#expedia"><code class="docutils literal notranslate"><span class="pre">expedia</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id30">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id31">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id32">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mailchimp"><code class="docutils literal notranslate"><span class="pre">mailchimp</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id33">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id34">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id35">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#netflix"><code class="docutils literal notranslate"><span class="pre">netflix</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id38">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id39">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id40">Filibuster Analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bug-examples">Bug Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bug-1-remote-service-unavailability"><code class="docutils literal notranslate"><span class="pre">bug-1</span></code>: remote service unavailability</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id43">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id44">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id45">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-2-overload-in-error-handling-code"><code class="docutils literal notranslate"><span class="pre">bug-2</span></code>: overload in error handling code</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id46">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id47">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id48">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-3-retries-to-same-server"><code class="docutils literal notranslate"><span class="pre">bug-3</span></code>: retries to same server</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id49">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id51">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id52">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-4-incorrectly-configured-timeouts"><code class="docutils literal notranslate"><span class="pre">bug-4</span></code>: incorrectly configured timeouts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id53">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id55">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id56">Filibuster Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-5-critical-service-has-no-fallback"><code class="docutils literal notranslate"><span class="pre">bug-5</span></code>: critical service has no fallback</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id57">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id59">Fault Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id60">Filibuster Analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build-status.html">Build Status</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">filibuster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Examples</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/examples.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h1>
+<section id="cinema-examples">
+<h2>Cinema Examples<a class="headerlink" href="#cinema-examples" title="Permalink to this headline"></a></h2>
+<section id="cinema-1">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-1</span></code><a class="headerlink" href="#cinema-1" title="Permalink to this headline"></a></h3>
+<section id="description">
+<h4>Description<a class="headerlink" href="#description" title="Permalink to this headline"></a></h4>
+<p>The first example, which we are calling <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>, comes from <a class="reference external" href="https://codeahoy.com/2016/07/10/writing-microservices-in-python-using-flask/">a tutorial on building
+microservices in Flask</a>.
+The <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> example contains 4 services: <code class="docutils literal notranslate"><span class="pre">bookings</span></code>, <code class="docutils literal notranslate"><span class="pre">movies</span></code>, <code class="docutils literal notranslate"><span class="pre">showtimes</span></code>, and <code class="docutils literal notranslate"><span class="pre">users</span></code>,
+where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bookings</span></code>: contains information about bookings for each client;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">movies</span></code>: contains detailed information about each movie;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showtimes</span></code>: contains information about shows for each date; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">users</span></code>: that aggregates information about movies that a particular user has bookings for.</p></li>
+</ul>
+<img alt="_images/cinema-1.jpg" src="_images/cinema-1.jpg" />
+</section>
+<section id="fault-analysis">
+<h4>Fault Analysis<a class="headerlink" href="#fault-analysis" title="Permalink to this headline"></a></h4>
+<p>With <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>, the most interesting service to consider is the <code class="docutils literal notranslate"><span class="pre">users</span></code> service, as it
+has a dependency on both the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> and <code class="docutils literal notranslate"><span class="pre">movies</span></code> services operating correctly. For users
+to retrieve a user’s bookings information, it first retrieves information from the <code class="docutils literal notranslate"><span class="pre">bookings</span></code>
+service and then retrieves information from the <code class="docutils literal notranslate"><span class="pre">movies</span></code> service based on the information
+retrieved from the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service. If no information can be retrieved from the <code class="docutils literal notranslate"><span class="pre">bookings</span></code>
+service (the user doesn’t have any movie bookings or that the call failed/timed out/errored),
+no call is made to the <code class="docutils literal notranslate"><span class="pre">movies</span></code> service. This is a simple example of one service calling multiple
+services in a sequence. There is a dependency among the calls: if one call fails, any subsequent
+calls will not be issued.</p>
+</section>
+<section id="filibuster-analysis">
+<h4>Filibuster Analysis<a class="headerlink" href="#filibuster-analysis" title="Permalink to this headline"></a></h4>
+<p>In this pattern, let <span class="math notranslate nohighlight">\(k_i\)</span> be the number of different ways that the <cite>i</cite>-th service can fail,
+and let <span class="math notranslate nohighlight">\(n\)</span> be the total number of calls made. Using this, the number of tests that Filibuster
+should execute should be: <span class="math notranslate nohighlight">\(k_1 + k_2 + ... + k_n\)</span>.</p>
+<p>As <code class="docutils literal notranslate"><span class="pre">bookings</span></code> can fail 5 ways, and <code class="docutils literal notranslate"><span class="pre">movies</span></code> can fail 4 ways, the number of tests we expect is
+<span class="math notranslate nohighlight">\(1 + 5 + 4 = 10\)</span>. This is the exact number executed by Filibuster.</p>
+</section>
+</section>
+<section id="cinema-2">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-2</span></code><a class="headerlink" href="#cinema-2" title="Permalink to this headline"></a></h3>
+<section id="id1">
+<h4>Description<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h4>
+<p>In this example, <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> is reorganized so that <code class="docutils literal notranslate"><span class="pre">users</span></code> first calls <code class="docutils literal notranslate"><span class="pre">bookings</span></code> and then
+<code class="docutils literal notranslate"><span class="pre">bookings</span></code> calls <code class="docutils literal notranslate"><span class="pre">movies</span></code>.</p>
+<img alt="_images/cinema-2.jpg" src="_images/cinema-2.jpg" />
+</section>
+<section id="id2">
+<h4>Fault Analysis<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h4>
+<p>This is an example of a chain of calls. The first call triggers the second call and results are
+forwarded back.</p>
+</section>
+<section id="id3">
+<h4>Filibuster Analysis<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h4>
+<p>In this pattern, let <span class="math notranslate nohighlight">\(n\)</span> be the number of edges (calls) in the chain, and let <span class="math notranslate nohighlight">\(k_i\)</span> be the number
+of different ways that the <span class="math notranslate nohighlight">\(i\)</span>-th service can fail. This means that the number of tests executed
+by Filibuster should be <span class="math notranslate nohighlight">\(k_1 + k_2 + ... + k_n\)</span>. As <code class="docutils literal notranslate"><span class="pre">bookings</span></code> can fail 5 ways, and <code class="docutils literal notranslate"><span class="pre">movies</span></code> can
+fail 4 ways, we should execute <span class="math notranslate nohighlight">\(1 + 4 + 5 = 10\)</span> tests, the exact number executed by Filibuster
+(without dynamic reduction.)</p>
+<p>However, we’re able to avoid one execution through dynamic reduction. To understand why, we provide
+the following reasoning.</p>
+<p>By injecting a <code class="docutils literal notranslate"><span class="pre">Timeout</span></code> or <code class="docutils literal notranslate"><span class="pre">ConnectionError</span></code> exception for the call from the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service
+to the <code class="docutils literal notranslate"><span class="pre">movies</span></code> service, we cause the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service to return a <code class="docutils literal notranslate"><span class="pre">503</span> <span class="pre">Service</span> <span class="pre">Unavailable</span></code>
+response back to the <code class="docutils literal notranslate"><span class="pre">users</span></code> service. Therefore, since we have already seen the effect on the 503 error
+at the <code class="docutils literal notranslate"><span class="pre">users</span></code> service, when returned from the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service, we do not need to directly inject
+the 503 error, eliminating one possible test. With dynamic reduction enabled, we see this effect with
+the Filibuster output: <span class="math notranslate nohighlight">\(1 + 3 + 5 = 9\)</span> tests.</p>
+</section>
+</section>
+<section id="cinema-3">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-3</span></code><a class="headerlink" href="#cinema-3" title="Permalink to this headline"></a></h3>
+<section id="id4">
+<h4>Description<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h4>
+<p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>, we move the call made from the <code class="docutils literal notranslate"><span class="pre">users</span></code> service to the
+<code class="docutils literal notranslate"><span class="pre">bookings</span></code> service into a retry loop (with a single retry.)</p>
+<img alt="_images/cinema-3.jpg" src="_images/cinema-3.jpg" />
+</section>
+<section id="id5">
+<h4>Fault Analysis<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h4>
+<p>This is an example of a retry loop.</p>
+</section>
+<section id="id6">
+<h4>Filibuster Analysis<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h4>
+<p>Similar to previous examples, <code class="docutils literal notranslate"><span class="pre">bookings</span></code> can fail 5 ways, and <code class="docutils literal notranslate"><span class="pre">movies</span></code> can fail 4 ways.
+However, now that the call from <code class="docutils literal notranslate"><span class="pre">users</span></code> to <code class="docutils literal notranslate"><span class="pre">bookings</span></code> has been placed in a loop, we have to
+consider those calls failing multiple times. Therefore, we should consider the following:</p>
+<ul class="simple">
+<li><p>first, we know that without a retry loop (<code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>) we need to test 10 executions (10):</p></li>
+<li><p>next, we have to additionally consider the first iteration of the loop failing (9); and</p></li>
+<li><p>we have to also consider all possible outcomes of the second iteration of the loop (1 success, 9 failures = 10).</p></li>
+</ul>
+<p>This results in <span class="math notranslate nohighlight">\((1 + 9 + (9 \times 10)) = 91\)</span>, the number of tests executed by Filibuster (without
+dynamic reduction.)</p>
+<p>We can use the same reasoning as we used in <code class="docutils literal notranslate"><span class="pre">cinema-2</span></code> to identify how many tests will be
+reduced: we don’t need to inject faults on services directly when that failure is previously
+generated by injecting faults on one or more of its dependencies.</p>
+<p>Therefore, we consider the following the minimum number of test executions that are required to
+cover the entire fault space:</p>
+<ul class="simple">
+<li><p>the passing execution (1); and</p></li>
+<li><p>exhaustion of the first loop (5 outcomes: 3 status codes, 2 exceptions) where the second loop succeeds (5); and</p></li>
+<li><p>exhaustion of the first loop (5 outcomes: 3 status codes, 2 exceptions) with exhaustion of the second loop (6 outcomes: 3 status codes, 2 exceptions, 1 success) (6); and</p></li>
+<li><p>combinations of all possible outcomes of the movies service: (4 errors, 1 success = <span class="math notranslate nohighlight">\(5 \times 5 = 25\)</span>).</p></li>
+</ul>
+<p>This results in: <span class="math notranslate nohighlight">\(1 + 5 + 6 + 25 = 37\)</span> tests. This is precisely the number of tests Filibuster
+executes with dynamic reduction.</p>
+</section>
+</section>
+<section id="cinema-4">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-4</span></code><a class="headerlink" href="#cinema-4" title="Permalink to this headline"></a></h3>
+<section id="id7">
+<h4>Description<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h4>
+<p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>, each service calls to a remote service before calling a
+dependent service. Each of these calls made to remote services can fail without affecting the
+response. Specifically:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">users</span></code> retrieves information from IMDB;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bookings</span></code> retrieves information from Fandango; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">movies</span></code> retrieves information from Rotten Tomatoes.</p></li>
+</ul>
+<img alt="_images/cinema-4.jpg" src="_images/cinema-4.jpg" />
+</section>
+<section id="id8">
+<h4>Fault Analysis<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h4>
+<p>This is not a canonical example of any particular pattern, but a composition of the first two patterns:
+the sequence and chain. More specifically, this example contains a chain of sequences of calls:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>users -&gt;</dt><dd><ul>
+<li><p>IMDB</p></li>
+<li><dl class="simple">
+<dt>bookings -&gt;</dt><dd><ul>
+<li><p>Fandango</p></li>
+<li><dl class="simple">
+<dt>movies -&gt;</dt><dd><ul>
+<li><p>Rotten Tomatoes</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>In this particular example, none of the calls to remote services impact the chain; however, a failure
+of any non-remote services cause the chain to abort immediately, as seen in <code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>.</p>
+</section>
+<section id="id9">
+<h4>Filibuster Analysis<a class="headerlink" href="#id9" title="Permalink to this headline"></a></h4>
+<p>In order to understand what tests Filibuster needs to execute for this example, we can start by building
+upon the formula we had for chains of calls.</p>
+<section id="no-reduction">
+<h5>No Reduction<a class="headerlink" href="#no-reduction" title="Permalink to this headline"></a></h5>
+<p>We start by knowing that <code class="docutils literal notranslate"><span class="pre">bookings</span></code> is called from <code class="docutils literal notranslate"><span class="pre">users</span></code> and can fail 5 ways; we also know that
+<code class="docutils literal notranslate"><span class="pre">movies</span></code> is called by <code class="docutils literal notranslate"><span class="pre">bookings</span></code> and can fail 4 ways. Therefore, we know that we should start off
+with the following: <span class="math notranslate nohighlight">\(1 + 5 + 4 = 10\)</span>. However, this doesn’t account for the remote calls.
+Therefore, we have to consider what impact having sequences in each service makes on this formula.</p>
+<p><strong>IMDB</strong></p>
+<p>Let’s consider first IMDB. We know that the call to IMDB will always happen, and it’s outcome will not
+impact whether we make the call to <code class="docutils literal notranslate"><span class="pre">bookings</span></code> from the <code class="docutils literal notranslate"><span class="pre">users</span></code> service. Since IMDB has two possible
+outcomes (failure with <code class="docutils literal notranslate"><span class="pre">ConnectionError</span></code> or success), this alters our formula:</p>
+<div class="math notranslate nohighlight">
+\[1 + (2 \times 5) + 4\]</div>
+<p>We put the 2 before the 5 in the multiplication to indicate that the call to IMDB occurs before the
+call to <cite>bookings</cite>: this is done to help the reader.</p>
+<p>However, we also need to consider that we will try the combination of all possible outcomes of the
+call to IMDB with the ways that the <cite>movies</cite> service can fail. Again, this alters the formula:</p>
+<div class="math notranslate nohighlight">
+\[1 + (2 \times 5) + (4 \times (2))\]</div>
+<p>We put the 2 in parentheses after the 4 in the multiplication to indicate that we are referencing
+combinations with an earlier failure. Again, this is done to help the reader.</p>
+<p>Finally, we have to consider the failure of IMDB in isolation. We can alter the formula further:</p>
+<div class="math notranslate nohighlight">
+\[1 + (2 \times 5) + (4 \times (2)) + 1 = 20\]</div>
+<p>We can rewrite this clearer with the following form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;passing\ + \\
+&amp;(imdb_{outcomes}\ \times\ bookings_{failures})\ + \\
+&amp;(movies_{failures}\ \times\ imdb_{outcomes})\ + \\
+&amp;imdb_{failure\ only} \\
+&amp;=\ 20\end{split}\]</div>
+<p><strong>Fandango</strong></p>
+<p>When we consider the call that <code class="docutils literal notranslate"><span class="pre">bookings</span></code> makes to Fandango, we have to follow the same process.</p>
+<p>First, we need to consider the Fandango outcomes, as they do not impact if any subsequent calls were
+made. This adjusts the formula by adding the Fandango failures to the combinations we try with IMDB and
+movie failures.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;passing\ + \\
+&amp;(imdb_{outcomes}\ \times\ bookings_{failures})\ + \\
+&amp;(imdb_{outcomes}\ \times\ movies_{failures}\ \times\ fandango_{failures})\ +\ \\
+&amp;imdb_{failure\ only} \\\end{split}\]</div>
+<p>Similarly, we have to account for both Fandango failing alone and Fandango failing with IMDB with two adjustments:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;passing\ + \\
+&amp;(imdb_{outcomes}\ \times\ bookings_{failures})\ + \\
+&amp;(imdb_{outcomes}\ \times\ movies_{failures}\ \times\ fandango_{outcomes})\ +\ \\
+&amp;imdb_{failure\ only}\ +\ \\
+&amp;fandango_{failure\ only}\ +\ \\
+&amp;(imdb_{failure\ only}\ \times\ fandango_{failure\ only}) \\
+&amp;=\ 30\end{split}\]</div>
+<p><strong>Rotten Tomatoes</strong></p>
+<p>Finally, we have to follow the same process for the call from <cite>movies</cite> to Rotten Tomatoes. First, consider it
+in combination with other calls from <cite>movies</cite> – this happens to be none – and then it’s combination with all
+the other remote service calls.</p>
+<p>This yields the final adjustment:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;passing\ + \\
+&amp;(imdb_{outcomes}\ \times\ bookings_{failures})\ + \\
+&amp;(imdb_{outcomes}\ \times\ movies_{failures}\ \times\ fandango_{outcomes})\ + \\
+&amp;imdb_{failure\ only}\ + \\
+&amp;fandango_{failure\ only}\ + \\
+&amp;rotten\ tomatoes_{failure\ only}\ + \\
+&amp;(imdb_{failure\ only}\ \times\ fandango_{failure\ only})\ + \\
+&amp;(imdb_{failure\ only}\ \times\ rotten\ tomatoes_{failure\ only})\ + \\
+&amp;(fandango_{failure\ only}\ \times\ rotten\ tomatoes_{failure\ only})\ + \\
+&amp;(imdb_{failure\ only}\ \times\ fandango_{failure\ only}\ \times\ rotten\ tomatoes_{failure\ only}) \\
+&amp;=\ 34\end{split}\]</div>
+<p>This is the exact number of tests executed by Filibuster (without dynamic pruning.)</p>
+</section>
+<section id="dynamic-reduction">
+<h5>Dynamic Reduction<a class="headerlink" href="#dynamic-reduction" title="Permalink to this headline"></a></h5>
+<p>With dynamic reduction, we have to consider fewer cases.</p>
+<p>We consider the following, presenting them in order of execution, which matches the postorder execution
+of the application through concolic execution:</p>
+<ul class="simple">
+<li><p>the passing execution (1);</p></li>
+<li><p>the ways that Rotten Tomatoes can fail (1);</p></li>
+<li><p>the ways that movies can fail (4);</p></li>
+<li><p>the ways Fandango can fail combined with the possible failures of movies: <span class="math notranslate nohighlight">\((1 + (4 \times 1) = 5)\)</span>;</p></li>
+<li><p>the ways that bookings can fail (4); and</p></li>
+<li><p>the ways that bookings can fail (5) combined with the possible failures of IMDB: <span class="math notranslate nohighlight">\((1 + (5 \times 1)) = 6\)</span>.</p></li>
+</ul>
+<p>This results in: <span class="math notranslate nohighlight">\(1 + 1 + 4 + (1 + (4 \times 1)) + 4 + (1 + (5 \times 1)) = 21\)</span> tests. This is the number
+that Filibuster runs with dynamic reduction.</p>
+</section>
+</section>
+</section>
+<section id="cinema-5">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-5</span></code><a class="headerlink" href="#cinema-5" title="Permalink to this headline"></a></h3>
+<section id="id10">
+<h4>Description<a class="headerlink" href="#id10" title="Permalink to this headline"></a></h4>
+<p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>, all calls happen regardless of failure. In the event of failure,
+a default response is used.</p>
+<img alt="_images/cinema-5.jpg" src="_images/cinema-5.jpg" />
+</section>
+<section id="id11">
+<h4>Fault Analysis<a class="headerlink" href="#id11" title="Permalink to this headline"></a></h4>
+<p>This is a simple example of one service calling multiple services without dependencies. All requests
+will always be made regardless of failure of previous requests.</p>
+</section>
+<section id="id12">
+<h4>Filibuster Analysis<a class="headerlink" href="#id12" title="Permalink to this headline"></a></h4>
+<p>In this pattern, let <span class="math notranslate nohighlight">\(k_i\)</span> be the number of different ways that the <span class="math notranslate nohighlight">\(i\)</span>-th service can fail,
+and let <span class="math notranslate nohighlight">\(n\)</span> be the total number of requests made. Then the number of fault-injection tests should be
+<span class="math notranslate nohighlight">\((1+k_1) * (1+k_2) * ... * (1+k_n)\)</span>.</p>
+<p>Since each request has 4 possible failures, in this case the number of tests executed by Filibuster
+should be <span class="math notranslate nohighlight">\(5 \times 5 = 25\)</span>. This is the exact number executed by Filibuster.</p>
+</section>
+</section>
+<section id="cinema-6">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-6</span></code><a class="headerlink" href="#cinema-6" title="Permalink to this headline"></a></h3>
+<section id="id13">
+<h4>Description<a class="headerlink" href="#id13" title="Permalink to this headline"></a></h4>
+<p>This example is based on <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> and adds a backup service for the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service:
+<code class="docutils literal notranslate"><span class="pre">bookings-primary</span></code>, replaces <code class="docutils literal notranslate"><span class="pre">bookings</span></code>, and <code class="docutils literal notranslate"><span class="pre">bookings-secondary</span></code> is the backup. The request to
+retrieve the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> for a user will issue a request to the <code class="docutils literal notranslate"><span class="pre">bookings-secondary</span></code> service if the
+<code class="docutils literal notranslate"><span class="pre">bookings-primary</span></code> service has failed or returns an error. It’s important to note that the two bookings
+services return different responses when requests are made for the same user: this is an instance of
+eventual consistency between replicas.</p>
+<img alt="_images/cinema-6.jpg" src="_images/cinema-6.jpg" />
+</section>
+<section id="id14">
+<h4>Fault Analysis<a class="headerlink" href="#id14" title="Permalink to this headline"></a></h4>
+<p>This illustrates a fallback pattern which is common in microservice architectures.</p>
+</section>
+<section id="id15">
+<h4>Filibuster Analysis<a class="headerlink" href="#id15" title="Permalink to this headline"></a></h4>
+<p>This particular example extends <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> and is a combination of two patterns: the fallback and
+sequence patterns. To determine how this can fail, let us first look at the two bookings service.
+According to the formula above, there are <span class="math notranslate nohighlight">\(1 + 4 \times 5 = 21\)</span> paths, out of which
+<span class="math notranslate nohighlight">\(4 \times 4 = 16\)</span> end up with an error and 5 end up with a response. In the first 16 paths,
+we don’t make the call to <code class="docutils literal notranslate"><span class="pre">movies</span></code>. We then consider the combinations of the second case (5 paths)
+with <code class="docutils literal notranslate"><span class="pre">movies</span></code> success/failing (5 ways), which yields <span class="math notranslate nohighlight">\(5 \times 5 = 25\)</span>. So the total is <span class="math notranslate nohighlight">\(25 + 16 = 41\)</span>.
+This is the exact number executed by Filibuster.</p>
+</section>
+</section>
+<section id="cinema-7">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-7</span></code><a class="headerlink" href="#cinema-7" title="Permalink to this headline"></a></h3>
+<section id="id16">
+<h4>Description<a class="headerlink" href="#id16" title="Permalink to this headline"></a></h4>
+<p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-6</span></code>, we first check that the health check service of the primary
+bookings replica passes before trying to access it.</p>
+<img alt="_images/cinema-7.jpg" src="_images/cinema-7.jpg" />
+</section>
+<section id="id17">
+<h4>Fault Analysis<a class="headerlink" href="#id17" title="Permalink to this headline"></a></h4>
+<p>This is a pattern where, depending on the result of a previous request, a later request goes to different
+services.</p>
+</section>
+<section id="id18">
+<h4>Filibuster Analysis<a class="headerlink" href="#id18" title="Permalink to this headline"></a></h4>
+<p>In this case, we run the same number of tests as we do in <code class="docutils literal notranslate"><span class="pre">cinema-6</span></code>; however, we also run 4 additional
+tests to account for the 4 different failures that are possible for the health check service.</p>
+<p>Therefore, <span class="math notranslate nohighlight">\(num\ tests_cinema-6 + 4 = 41 + 4 = 45\)</span>. This is the exact number executed by Filibuster.</p>
+</section>
+</section>
+<section id="cinema-8">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-8</span></code><a class="headerlink" href="#cinema-8" title="Permalink to this headline"></a></h3>
+<section id="id19">
+<h4>Description<a class="headerlink" href="#id19" title="Permalink to this headline"></a></h4>
+<p>In this example, the <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> example is collapsed into a monolith with an API server making
+requests to it using a retry loop, where after the initial request, there is a single retry.</p>
+<img alt="_images/cinema-8.jpg" src="_images/cinema-8.jpg" />
+</section>
+<section id="id20">
+<h4>Fault Analysis<a class="headerlink" href="#id20" title="Permalink to this headline"></a></h4>
+<p>This is a bare-bones example of a bounded retry loop.</p>
+</section>
+<section id="id21">
+<h4>Filibuster Analysis<a class="headerlink" href="#id21" title="Permalink to this headline"></a></h4>
+<p>Since there are 5 possible outcomes (4 failures for the monolith and 1 success case) and the
+second request is only executed if the first fails, we have <span class="math notranslate nohighlight">\((1 + (4 \times 5)) = 21\)</span>, which represents
+the first passing and the first failing with all possible outcomes of the second. This is the exact
+number executed by Filibuster.</p>
+</section>
+</section>
+<section id="cinema-9">
+<h3><code class="docutils literal notranslate"><span class="pre">cinema-9</span></code><a class="headerlink" href="#cinema-9" title="Permalink to this headline"></a></h3>
+<section id="id22">
+<h4>Description<a class="headerlink" href="#id22" title="Permalink to this headline"></a></h4>
+<p>In this example, the <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> example is collapsed into a monolith with an API server making
+requests to it using a quorum replication pattern: <span class="math notranslate nohighlight">\(N\)</span> requests (in this case, <span class="math notranslate nohighlight">\(N = 3\)</span>)
+are first issued and based on the responses the user request is successful if <span class="math notranslate nohighlight">\((N / 2) + 1\)</span>
+responses are received at the API server, after waiting for all.</p>
+<img alt="_images/cinema-9.jpg" src="_images/cinema-9.jpg" />
+</section>
+<section id="id23">
+<h4>Fault Analysis<a class="headerlink" href="#id23" title="Permalink to this headline"></a></h4>
+<p>This is a pattern commonly found in quorum replication where you issue the same request multiple
+times and ensure that all the responses are the same by counting response votes for the answer.</p>
+</section>
+<section id="id24">
+<h4>Filibuster Analysis<a class="headerlink" href="#id24" title="Permalink to this headline"></a></h4>
+<p>Since there are 5 possible outcomes (4 failures for the monolith and 1 success case):
+<span class="math notranslate nohighlight">\(5 \times 5 \times 5 = 125\)</span>. This is the number that Filibuster executes.</p>
+</section>
+</section>
+</section>
+<section id="industry-examples">
+<h2>Industry Examples<a class="headerlink" href="#industry-examples" title="Permalink to this headline"></a></h2>
+<p>You can refer to the readme within the top level directory of each industry example for a more
+detailed outline of the services in that example.</p>
+<section id="audible">
+<h3><code class="docutils literal notranslate"><span class="pre">audible</span></code><a class="headerlink" href="#audible" title="Permalink to this headline"></a></h3>
+<section id="id25">
+<h4>Description<a class="headerlink" href="#id25" title="Permalink to this headline"></a></h4>
+<p>This diagram was taken from the <a class="reference external" href="https://www.youtube.com/watch?v=7uJG3oPw_AA">AWS re:Invent 2018 talk by Audible</a>
+titled <em>Chaos Engineering and Scalability at Audible.com</em>. This is a highly-simplified view of the actual architecture used at Audible.</p>
+<img alt="_images/audible.jpg" src="_images/audible.jpg" />
+</section>
+<section id="id26">
+<h4>Fault Analysis<a class="headerlink" href="#id26" title="Permalink to this headline"></a></h4>
+<p>The bug presented in the talk can be described in three stages.</p>
+<ol class="arabic simple">
+<li><p>In the first stage, there is an inconsistent content upload. <code class="docutils literal notranslate"><span class="pre">audio-assets</span></code> and <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code> (XML chapter descriptions) are not uploaded atomically. In the talk, an audiobook had a success upload in <code class="docutils literal notranslate"><span class="pre">audio-assets</span></code> but failed to upload to <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code>. This results in the system being in an inconsistent state.</p></li>
+<li><p>In the second stage, a user attempts to access this content. The <code class="docutils literal notranslate"><span class="pre">content-delivery-service</span></code> calls <code class="docutils literal notranslate"><span class="pre">audible-download-service</span></code>, where are calls succeed, and then <code class="docutils literal notranslate"><span class="pre">content-delivery-service</span></code> calls <code class="docutils literal notranslate"><span class="pre">audio-assets</span></code> and <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code>. The final call to <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code> returned an error because the chapter description was missing. The application programmer assumed that <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code> always contains the chapter description for the requested audiobook (after initial checks have passed), so there is no appropriate error handling code. As a result, <code class="docutils literal notranslate"><span class="pre">content-delivery-service</span></code> returns a generic <code class="docutils literal notranslate"><span class="pre">500</span> <span class="pre">Internal</span> <span class="pre">Server</span> <span class="pre">Error</span></code>.</p></li>
+<li><p>In the third stage, both the system and the user responds to this generic error by initiating retries. Each retry makes all the previous requests again (and failing at <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code> again). This fault causes the system to perform work that will be abandoned, manifesting as system failure when all available compute capacity is exhausted.</p></li>
+</ol>
+<p>We simulated the dormant fault by have an environment variable <code class="docutils literal notranslate"><span class="pre">BAD_METADATA=1</span></code> in <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code>.
+When the environment variable is set, this service always returns a <code class="docutils literal notranslate"><span class="pre">404</span></code>. The other faults which exhaust
+node capacity needs to be simulated in AWS.</p>
+</section>
+<section id="id27">
+<h4>Filibuster Analysis<a class="headerlink" href="#id27" title="Permalink to this headline"></a></h4>
+<section id="id28">
+<h5>No Reduction<a class="headerlink" href="#id28" title="Permalink to this headline"></a></h5>
+<p>First, let’s consider the ways each service can fail:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">content-delivery-engine</span></code> can fail 4 ways: 2 exceptions and 2 error codes (any abort entire request);</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">content-delivery-service</span></code> can fail 6 ways: 2 exceptions and 4 error codes (any abort entire request);</dt><dd><ul>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">audible-download-service</span></code> can fail 6 ways: 2 exceptions and 4 error codes;</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ownership</span></code> can fail 5 ways: 2 exceptions, 3 error codes (any abort entire request);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">activation</span></code> can fail 4 ways: 2 exceptions, 2 status codes (any abort entire request);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stats</span></code> can fail 3 ways: 2 exceptions, 1 status codes (doesn’t impact request);</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code> can fail 5 ways: 2 exceptions, 3 status codes (any abort entire request); and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">audio-assets</span></code> can fail 5 ways: 2 exceptions, 3 status codes (any abort entire request).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>First, we have to consider the impact of <code class="docutils literal notranslate"><span class="pre">content-delivery-engine</span></code> failures and the passing execution.</p>
+<div class="math notranslate nohighlight">
+\[1 + 4 = 5\]</div>
+<p>Next, we consider <code class="docutils literal notranslate"><span class="pre">content-delivery-service</span></code> failures, where it makes no other requests.</p>
+<div class="math notranslate nohighlight">
+\[1 + 4 + 6 = 11\]</div>
+<p>Next, failures of the <code class="docutils literal notranslate"><span class="pre">audible-download-service</span></code> in isolation.</p>
+<div class="math notranslate nohighlight">
+\[1 + 4 + 6 + 6 = 17\]</div>
+<p>Next, we have to consider the failures of its dependencies (<code class="docutils literal notranslate"><span class="pre">ownership</span></code>, <code class="docutils literal notranslate"><span class="pre">activation</span></code>, and <code class="docutils literal notranslate"><span class="pre">stats</span></code>).</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;1\ +\ 4\ +\ 6\ +\ 6\ +\ 5\ =\ 22 \\
+&amp;1\ +\ 4\ +\ 6\ +\ 6\ +\ (5\ +\ 4)\ =\ 26 \\
+&amp;1\ +\ 4\ +\ 6\ +\ 6\ +\ (5\ +\ 4\ +\ 3)\ =\ 29\end{split}\]</div>
+<p>Now, we need to consider the additional requests that occur from <code class="docutils literal notranslate"><span class="pre">content-delivery-service</span></code>.
+<code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code> can fail 5 ways, but we also need to consider it’s failures in combination with
+<code class="docutils literal notranslate"><span class="pre">stats</span></code>, as <code class="docutils literal notranslate"><span class="pre">stats</span></code> can fail and have no impact on whether this call is made. Therefore, we’ll
+consider the way <code class="docutils literal notranslate"><span class="pre">stats</span></code> can fail with all possible outcomes (3 * 6).</p>
+<div class="math notranslate nohighlight">
+\[1 + 4 + 6 + 6 + (5 + 4 + 3) + (5 + (6 \times 3)) = 49\]</div>
+<p>Finally, we look at audio_assets, which is only called when the call to <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code> is successful,
+again with all combination of how <code class="docutils literal notranslate"><span class="pre">stats</span></code> – called before it with no impact on the request – can fail
+with it. We no longer consider all possible outcomes of <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code>, but only consider the failures
+because it must succeed for the <code class="docutils literal notranslate"><span class="pre">audio-assets</span></code> call to be made.</p>
+<div class="math notranslate nohighlight">
+\[1 + 4 + 6 + 6 + (5 + 4 + 3) + (5 + (5 \times 3)) + (5 + (5 \times 3)) = 69\]</div>
+<p>This is the number of tests executed with Filibuster with no reduction.</p>
+</section>
+<section id="id29">
+<h5>Dynamic Reduction<a class="headerlink" href="#id29" title="Permalink to this headline"></a></h5>
+<p>With dynamic reduction, we can remove the following tests:</p>
+<ul class="simple">
+<li><p>4 tests of the <code class="docutils literal notranslate"><span class="pre">content-delivery-service</span></code>: <code class="docutils literal notranslate"><span class="pre">404</span></code>, <code class="docutils literal notranslate"><span class="pre">403</span></code>, <code class="docutils literal notranslate"><span class="pre">500</span></code>, <code class="docutils literal notranslate"><span class="pre">504</span></code>, as injecting faults on its dependencies causes these errors to happen;</p></li>
+<li><p>4 tests of the <code class="docutils literal notranslate"><span class="pre">audible-download-service</span></code>: <code class="docutils literal notranslate"><span class="pre">403</span></code>, <code class="docutils literal notranslate"><span class="pre">404</span></code>, <code class="docutils literal notranslate"><span class="pre">500</span></code>, <code class="docutils literal notranslate"><span class="pre">503</span></code>, as injecting faults on its dependencies causes these errors to happen;</p></li>
+<li><p>15 tests that are the combination of faults from <code class="docutils literal notranslate"><span class="pre">stats</span></code>, which has no impact on the outcome, combined with the possible failures of <code class="docutils literal notranslate"><span class="pre">asset-metadata</span></code>; and</p></li>
+<li><p>15 tests that are the combination of faults from <code class="docutils literal notranslate"><span class="pre">stats</span></code> combined with the possible failures of <code class="docutils literal notranslate"><span class="pre">audio-assets</span></code>.</p></li>
+</ul>
+<p>This is 38 tests that do not need to be executed: <span class="math notranslate nohighlight">\(4 + 4 + 15 + 15 = 38\)</span>. This results in the following.</p>
+<div class="math notranslate nohighlight">
+\[69 - 38 = 31\]</div>
+<p>This is the number of tests executed with Filibuster with dynamic reduction.</p>
+</section>
+</section>
+</section>
+<section id="expedia">
+<h3><code class="docutils literal notranslate"><span class="pre">expedia</span></code><a class="headerlink" href="#expedia" title="Permalink to this headline"></a></h3>
+<section id="id30">
+<h4>Description<a class="headerlink" href="#id30" title="Permalink to this headline"></a></h4>
+<p>This architecture diagram is taken from the talk from Daniel and Nikos at
+<a class="reference external" href="https://www.youtube.com/watch?v=xrtbiyfRvb4">Automating Chaos Attacks at Expedia</a>
+at Chaos Conf 2020. Here is what we implemented.</p>
+<img alt="_images/expedia.jpg" src="_images/expedia.jpg" />
+</section>
+<section id="id31">
+<h4>Fault Analysis<a class="headerlink" href="#id31" title="Permalink to this headline"></a></h4>
+<p>In this small example, Expedia retrieves reviews for a hotel where reviews are sorted by an ML algorithm. If
+that service failed, the <em>API Gateway</em> fallbacks to retrieve reviews from another service where they are sorted
+by time from most recent to least recent. They validated the fallback using resilience tests. This is a fake
+bug, but shows how they test error handling code for this particular part of their service.</p>
+</section>
+<section id="id32">
+<h4>Filibuster Analysis<a class="headerlink" href="#id32" title="Permalink to this headline"></a></h4>
+<p>Given that each service, <em>review-ml</em> and <em>review-time</em> can each fail four ways, we have to explore <span class="math notranslate nohighlight">\(1 + (4 * 4) = 17\)</span>
+tests. This is the number executed by Filibuster with both dynamic reduction and without reduction.</p>
+</section>
+</section>
+<section id="mailchimp">
+<h3><code class="docutils literal notranslate"><span class="pre">mailchimp</span></code><a class="headerlink" href="#mailchimp" title="Permalink to this headline"></a></h3>
+<section id="id33">
+<h4>Description<a class="headerlink" href="#id33" title="Permalink to this headline"></a></h4>
+<p>This architecture diagram is taken from the talk from Caroline Dickey <a class="reference external" href="https://www.youtube.com/watch?v=w_IeMAidgpI">Think Big: Chaos Testing a Monolith</a> at Chaos Conf 2019. Here is what we implemented.</p>
+<img alt="_images/mailchimp.jpg" src="_images/mailchimp.jpg" />
+</section>
+<section id="id34">
+<h4>Fault Analysis<a class="headerlink" href="#id34" title="Permalink to this headline"></a></h4>
+<p>Here’s the list of faults identified from the Mailchimp talk that is relevant in our implementation.</p>
+<ol class="arabic simple">
+<li><p>Fault #1 - MySQL database instance becomes read-only: Mailchimp expected that when the database became read-only the application would degrade gracefully and alerting would fire. This was mostly true: a majority of the Mailchimp application had application code that gracefully handled this database error; however, one legacy component did not have proper error handling and exposed a database error to the user in the UI.</p></li>
+<li><p>Fault #2 - <code class="docutils literal notranslate"><span class="pre">requestmapper</span></code> becomes unavailable. <code class="docutils literal notranslate"><span class="pre">requestmapper</span></code>, a service for mapping pretty URLs for customer landing pages to internal URLs suddenly becomes unavailable in production.</p></li>
+</ol>
+<p>The description of this bug in the talk is extremely vague; what appears to be happening is the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">app-server</span></code> makes a request to <code class="docutils literal notranslate"><span class="pre">requestmapper</span></code> to get information about the URLs; then</p></li>
+<li><p>when <code class="docutils literal notranslate"><span class="pre">requestmapper</span></code> service is down, <code class="docutils literal notranslate"><span class="pre">app-server</span></code> should handle the error and continue handling the request.</p></li>
+</ul>
+<p>The presenter said that changing the <code class="docutils literal notranslate"><span class="pre">503</span> <span class="pre">Service</span> <span class="pre">Unavailable</span></code> response to a <code class="docutils literal notranslate"><span class="pre">500</span> <span class="pre">Internal</span> <span class="pre">Server</span> <span class="pre">Error</span></code>
+fixed the bug, but did not explain why; our best guess is that the application server has specific error
+handling for a <code class="docutils literal notranslate"><span class="pre">500</span> <span class="pre">Internal</span> <span class="pre">Server</span> <span class="pre">Error</span></code> and no error handling for the <code class="docutils literal notranslate"><span class="pre">503</span> <span class="pre">Service</span> <span class="pre">Unavailable</span></code>.</p>
+<p>We simulated the first fault by setting an environment variable <code class="docutils literal notranslate"><span class="pre">DB_READ_ONLY=1</span></code>. If set, calls to write to the
+DB always returns a <code class="docutils literal notranslate"><span class="pre">403</span> <span class="pre">Forbidden</span></code>. For the second fault, the current version of the code throws a <code class="docutils literal notranslate"><span class="pre">500</span></code>
+(which the load balancer can handle), but buggy implementation throws a <code class="docutils literal notranslate"><span class="pre">503</span></code> (which the load balancer supposedly cannot handle).</p>
+</section>
+<section id="id35">
+<h4>Filibuster Analysis<a class="headerlink" href="#id35" title="Permalink to this headline"></a></h4>
+<p>Let’s look at what Filibuster has to consider when testing this application.</p>
+<section id="id36">
+<h5>No Reduction<a class="headerlink" href="#id36" title="Permalink to this headline"></a></h5>
+<p>First, we have to consider the ways things can fail:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">load-balancer</span></code> can fail with 2 exceptions and 1 error code;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">requestmapper</span></code> can fail with 2 exceptions and 1 error code;</p></li>
+<li><dl class="simple">
+<dt>read to <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> can fail with 2 exceptions and 1 error code,</dt><dd><ul>
+<li><p>only issued if <code class="docutils literal notranslate"><span class="pre">requestmapper</span></code> succeeds;</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>write to <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> can fail with 2 exceptions and 2 error codes,</dt><dd><ul>
+<li><p>only issued if <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> call succeeds or fails with an error code;</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>read to <code class="docutils literal notranslate"><span class="pre">db-secondary</span></code> can fail with 2 exceptions and 2 error codes,</dt><dd><ul>
+<li><p>only issued if <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> read or <code class="docutils literal notranslate"><span class="pre">db_primary</span></code> write has failed; then</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>write to <code class="docutils literal notranslate"><span class="pre">db-secondary</span></code> can fail with 2 exceptions and 2 error codes,</dt><dd><ul>
+<li><p>only issued if <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> read or <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> write has failed; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">db-secondary</span></code> fails with an error code.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Let’s start by considering the failures of just the <code class="docutils literal notranslate"><span class="pre">load-balancer</span></code> and the <code class="docutils literal notranslate"><span class="pre">requestmapper</span></code>. In this case,
+we need to consider the ways that each service can fail along with the passing execution.</p>
+<div class="math notranslate nohighlight">
+\[1 + 3 + 3 = 7\]</div>
+<p>Next, we have to consider the failure of the <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> read operation.</p>
+<div class="math notranslate nohighlight">
+\[1 + 3 + 3 + 4 = 11\]</div>
+<p>Now, we have to consider what happens when the <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> write operation fails. We have to keep in mind the ways that things can fail: if <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> read fails with 2 of the 4 errors, it will continue to execute the write operation; otherwise, it will not. This results in the following: <span class="math notranslate nohighlight">\(4 + 4 + (2 \times 4)\)</span>: <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> failures (4), <code class="docutils literal notranslate"><span class="pre">db-secondary</span></code> failures (4) and finally the calls in the combination: <span class="math notranslate nohighlight">\((2 \times 4)\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[1 + 3 + 3 + (4 + 4 + (2 \times 4)) = 23\]</div>
+<p>Next, we have to consider the ways that the <code class="docutils literal notranslate"><span class="pre">db-secondary</span></code> call can fail. Keep in mind that we have to consider that this call is only made if the <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> read fails and db_primary write fails <span class="math notranslate nohighlight">\((4 + 4 + (2 * 4))\)</span> combined with the ways that the <code class="docutils literal notranslate"><span class="pre">db-secondary</span></code> read can fail (4). This gives us the following.</p>
+<div class="math notranslate nohighlight">
+\[1 + 3 + 3 + (4 + 4 + (2 \times 4)) + ((4 + 4 + (2 + 2)) \times 4) = 71\]</div>
+<p>Finally, we have to consider the subsequent <code class="docutils literal notranslate"><span class="pre">db-secondary</span></code> write call can fail, keeping in mind that it only occurs if the previous errors occur and the <code class="docutils literal notranslate"><span class="pre">db_secondary</span></code> read call fails with either 2 status codes; remember, this call itself can fail 4 ways as well. Ths extends the following formula with <span class="math notranslate nohighlight">\(((4 + 4 + (2 + 2)) * 4) + (4 + 4 + (2 * 4))\)</span> to give us the following.</p>
+<div class="math notranslate nohighlight">
+\[1 + 3 + 3 + (4 + 4 + (2 \times 4)) + ((4 + 4 + (2 + 2)) \times 4) +
+((4 + 4 + (2 + 2)) \times 4) + (4 + 4 + (2 \times 4)) = 135\]</div>
+<p>This is the number that Filibuster runs without pruning.</p>
+</section>
+<section id="id37">
+<h5>Dynamic Reduction<a class="headerlink" href="#id37" title="Permalink to this headline"></a></h5>
+<p>With dynamic reduction, we can only reduce 1 execution: the execution where we inject a <code class="docutils literal notranslate"><span class="pre">500</span> <span class="pre">Internal</span> <span class="pre">Server</span> <span class="pre">Error</span></code>
+returned by the <code class="docutils literal notranslate"><span class="pre">app-server</span></code> to the <code class="docutils literal notranslate"><span class="pre">load-balancer</span></code>, as injecting any of the <code class="docutils literal notranslate"><span class="pre">requestmapper</span></code> failures, or
+certain combinations of the <code class="docutils literal notranslate"><span class="pre">db-primary</span></code> and <code class="docutils literal notranslate"><span class="pre">db-secondary</span></code> failures cause this service to return this error already.</p>
+<p>This results in a total of <span class="math notranslate nohighlight">\(135 - 1 = 134\)</span>, the number that Filibuster runs with dynamic reduction.</p>
+</section>
+</section>
+</section>
+<section id="netflix">
+<h3><code class="docutils literal notranslate"><span class="pre">netflix</span></code><a class="headerlink" href="#netflix" title="Permalink to this headline"></a></h3>
+<section id="id38">
+<h4>Description<a class="headerlink" href="#id38" title="Permalink to this headline"></a></h4>
+<p>The basis of the Netflix example comes from <a class="reference external" href="https://www.youtube.com/watch?v=Q4nniyAarbs">a talk</a> by Casey
+Rosenthal and <a class="reference external" href="https://www.youtube.com/watch?v=qyzymLlj9ag">this talk</a> from Nora Jones. These talks only show
+us a subset of the services that Netflix uses and one example of fallback behavior (e.g., recommendations) so we
+added additional fallback behavior that follows the same strategy and intuition, but isn’t the actual fallback
+behavior of Netflix, as that information is not publically available.</p>
+<p>The diagram captures the microservices called when a client loads its homepage, which consists of multiple parts.</p>
+<img alt="_images/netflix.jpg" src="_images/netflix.jpg" />
+</section>
+<section id="id39">
+<h4>Fault Analysis<a class="headerlink" href="#id39" title="Permalink to this headline"></a></h4>
+<p>The Netflix example contains three faults that can be activated using an environment variable <code class="docutils literal notranslate"><span class="pre">NETFLIX_FAULTS=true</span></code>.
+All three of these faults come from this talk from Nora Jones.</p>
+<p>Here are the faults:</p>
+<ol class="arabic simple">
+<li><p>Call with no fallback: The <code class="docutils literal notranslate"><span class="pre">api-server</span></code> service tries to get the user profile from the <code class="docutils literal notranslate"><span class="pre">user-profile</span></code> service; however, if this service is unavailable the entire request is failed;</p></li>
+<li><p>Retries to the same server: <code class="docutils literal notranslate"><span class="pre">The</span> <span class="pre">api-server</span></code> service communicates with the <code class="docutils literal notranslate"><span class="pre">my-list</span></code> service to get the user’s list; if this service is unavailable, the request is retried against the same service; and</p></li>
+<li><p>Misconfigured timeouts: The <code class="docutils literal notranslate"><span class="pre">api-server</span></code> service communicates with the <code class="docutils literal notranslate"><span class="pre">user-profile</span></code> service with a 1 second timeout; the <code class="docutils literal notranslate"><span class="pre">user-profile</span></code> service communicates with the telemetry service, which has a 20 second timeout; causing the <code class="docutils literal notranslate"><span class="pre">user-profile</span></code> service to fail if the <code class="docutils literal notranslate"><span class="pre">telemetry</span></code> service request takes over 1 second, but less than 5 – a failure when there is no actual error.</p></li>
+</ol>
+<p>For fault #3, <code class="docutils literal notranslate"><span class="pre">CHECK_TIMEOUTS=true</span></code> also needs to be used to verify timeouts execute correctly.</p>
+</section>
+<section id="id40">
+<h4>Filibuster Analysis<a class="headerlink" href="#id40" title="Permalink to this headline"></a></h4>
+<p>This is the analysis when the faults are not active.</p>
+<section id="id41">
+<h5>No Reduction<a class="headerlink" href="#id41" title="Permalink to this headline"></a></h5>
+<p>First, let us consider the ways each service can fail.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">api-gateway</span></code> can fail 5 ways: 3 error codes, 2 exceptions;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">user-profile</span></code> can fail 4 ways: 2 error codes, 2 exceptions;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bookmarks</span></code> can fail 4 ways: 2 error codes, 2 exceptions;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">telemetry</span></code> can fail 3 ways: 1 error code, 2 exceptions;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trending</span></code> can fail 3 ways: 1 error code; 2 exceptions;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">my-list</span></code> can fail 4 ways: 2 error codes, 2 exceptions;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">user-recommendations</span></code> can fail 4 ways: 2 error codes, 2 exceptions;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global-recommendations</span></code> can fail 3 ways: 1 error code, 2 exceptions; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ratings</span></code> can fail 4 ways: 2 error codes, 2 exceptions.</p></li>
+</ul>
+<p>We start with the passing execution (1). We then we need to consider the ways that the call from the <code class="docutils literal notranslate"><span class="pre">mobile-client</span></code>
+to the <code class="docutils literal notranslate"><span class="pre">api-gateway</span></code> can fail.</p>
+<div class="math notranslate nohighlight">
+\[1 + 5 = 6\]</div>
+<p>Next, we consider failures between the <code class="docutils literal notranslate"><span class="pre">api-gateway</span></code> and its dependencies. First, the call to <code class="docutils literal notranslate"><span class="pre">user-profile</span></code>.</p>
+<div class="math notranslate nohighlight">
+\[1 + 5 + 4 = 10\]</div>
+<p>Then, the call to <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, which is only made if the previous call succeeds.</p>
+<div class="math notranslate nohighlight">
+\[1 + 5 + 4 + 4 = 14\]</div>
+<p>Now, if <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code> fails, we will make a call to <code class="docutils literal notranslate"><span class="pre">telemetry</span></code>, which is allowed to fail, and then a call to <code class="docutils literal notranslate"><span class="pre">trending</span></code>.
+Considering just the call to <code class="docutils literal notranslate"><span class="pre">telemetry</span></code> first, this gives us.</p>
+<div class="math notranslate nohighlight">
+\[1 + 5 + 4 + 4 + (3 \times 4) = 26\]</div>
+<p>Next, the subsequent call to <code class="docutils literal notranslate"><span class="pre">trending</span></code>. With this call, we have to consider the following:</p>
+<ul class="simple">
+<li><p>combinations of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code> with <code class="docutils literal notranslate"><span class="pre">trending</span></code>: <span class="math notranslate nohighlight">\(3 \times 4 = 12\)</span></p></li>
+<li><p>combinations of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">telemetry</span></code> and <code class="docutils literal notranslate"><span class="pre">trending</span></code> together: <span class="math notranslate nohighlight">\(3 \times 4 \times 3 = 36\)</span></p></li>
+</ul>
+<p>This gives us the following.</p>
+<div class="math notranslate nohighlight">
+\[1 + 5 + 4 + 4 + (3 \times 4) + ((3 \times 4) + (3 \times 4 \times 3)) = 74\]</div>
+<p>Next, we have to consider <code class="docutils literal notranslate"><span class="pre">my_list</span></code>. With this call, we have to consider the following:</p>
+<ul class="simple">
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">telemetry</span></code> and <code class="docutils literal notranslate"><span class="pre">my-list</span></code>: <span class="math notranslate nohighlight">\(4 \times 3 \times 4 = 48\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code> and <code class="docutils literal notranslate"><span class="pre">my-list</span></code>: <span class="math notranslate nohighlight">\(4 \times 4 = 16\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">my-list</span></code> failing in isolation: 4</p></li>
+</ul>
+<p>This gives us the following.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;1 + 5 + 4 + 4 + (3 \times 4) + ((3 \times 4) + (3 \times 4 \times 3)) + (4 \times 3 \times 4) + (4 \times 4) + 4 \\
+&amp;= 142\end{split}\]</div>
+<p>Next, <code class="docutils literal notranslate"><span class="pre">user-recommendations</span></code>, where we have to consider the following:</p>
+<ul class="simple">
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">telemetry</span> <span class="pre">and</span> <span class="pre">``user-recommendations</span></code>: <span class="math notranslate nohighlight">\(4 \times 3 \times 4 = 48\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code> and <code class="docutils literal notranslate"><span class="pre">user-recommendations</span></code>: <span class="math notranslate nohighlight">\(4 \times 4 = 16\)</span></p></li>
+<li><p>failure of <code class="docutils literal notranslate"><span class="pre">user-recommendations</span></code> in isolation: <span class="math notranslate nohighlight">\(4\)</span></p></li>
+</ul>
+<p>This gives us the following.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;1 + 5 + 4 + 4 + (3 \times 4) + ((3 \times 4) + (3 \times 4 \times 3)) + (4 \times 3 \times 4) + (4 \times 4) + 4 + \\
+&amp;4 + (4 \times 3 \times 4) + (4 \times 4) \\
+&amp;= 210\end{split}\]</div>
+<p>Next, <code class="docutils literal notranslate"><span class="pre">global-recommendations</span></code> which is called on failure of <code class="docutils literal notranslate"><span class="pre">user-recommendations</span></code>:</p>
+<p>Again:</p>
+<ul class="simple">
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">global-recommendations</span></code> with <code class="docutils literal notranslate"><span class="pre">user-recommendations</span></code>: <span class="math notranslate nohighlight">\(4 \times 3 = 12\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">telemetry</span></code>, <code class="docutils literal notranslate"><span class="pre">user-recommendations</span></code> and <code class="docutils literal notranslate"><span class="pre">global-recommendations</span></code>: <span class="math notranslate nohighlight">\(4 \times 3 \times 4 \times 3 = 144\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">user-recommendations</span></code>, and <code class="docutils literal notranslate"><span class="pre">global-recommendations</span></code>: <span class="math notranslate nohighlight">\(4 \times 3 \times 4 = 48\)</span></p></li>
+</ul>
+<p>This gives us the following.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;1 + 5 + 4 + 4 + (3 \times 4) + ((3 \times 4) + (3 \times 4 \times 3)) + (4 \times 3 \times 4) + (4 \times 4) + 4 + \\
+&amp;4 + (4 \times 3 \times 4) + (4 \times 4) + \\
+&amp;(4 \times 3) + (4 \times 3 \times 4 \times 3) + (4 \times 3 \times 4) \\
+&amp;= 414\end{split}\]</div>
+<p>Next, the call to <code class="docutils literal notranslate"><span class="pre">trending</span></code> when <code class="docutils literal notranslate"><span class="pre">global-recommendations</span></code> fails.</p>
+<ul class="simple">
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">telemetry</span></code> and the second <code class="docutils literal notranslate"><span class="pre">telemetry</span></code> call: 4 * 3 * 3 = 36</p></li>
+</ul>
+<p>This yields the following.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;1 + 5 + 4 + 4 + (3 \times 4) + ((3 \times 4) + (3 \times 4 \times 3)) + (4 \times 3 \times 4) + (4 \times 4) + 4 +\\
+&amp;4 + (4 \times 3 \times 4) + (4 \times 4) +\\
+&amp;(4 \times 3) + (4 \times 3 \times 4 \times 3) + (4 \times 3 \times 4) +\\
+&amp;(4 \times 3 \times 3) \\
+&amp;= 450\end{split}\]</div>
+<p>Finally, the last call to ratings.</p>
+<ul class="simple">
+<li><p>combinations of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">telemetry</span></code>, <code class="docutils literal notranslate"><span class="pre">user_recommendations</span></code>, <code class="docutils literal notranslate"><span class="pre">global_recommendations</span></code>, and <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\(4 \times 3 \times 4 \times 3 \times 4 = 576\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">user_recommendations</span></code>, <code class="docutils literal notranslate"><span class="pre">global_recommendations</span></code> and <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\((4 \times 4 \times 3 \times 4 = 192)\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">user_recomendations</span></code> and <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\((4 \times 4 \times 4) = 64\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code> and <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\((4 \times 4) = 16\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code> and <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\((4 \times 4) = 16\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">user_recommendations</span></code>, <code class="docutils literal notranslate"><span class="pre">global_recommendations</span></code>, <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\((4 \times 3 \times 4) = 48\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">user_recommendations</span></code> and <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\((4 \times 4) = 16\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">telemetry</span></code>, and <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\((4 \times 3 \times 4) = 48\)</span></p></li>
+<li><p>combination of <code class="docutils literal notranslate"><span class="pre">bookmarks</span></code>, <code class="docutils literal notranslate"><span class="pre">telemetry</span></code>, <code class="docutils literal notranslate"><span class="pre">user_recommendations</span></code>, <code class="docutils literal notranslate"><span class="pre">ratings</span></code>: <span class="math notranslate nohighlight">\((4 \times 3 \times 4 \times 4) = 192\)</span></p></li>
+<li><p>ratings failing in isolation (<span class="math notranslate nohighlight">\(4\)</span>)</p></li>
+</ul>
+<p>This results in the following.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}&amp;1 + 5 + 4 + 4 + (3 \times 4) + ((3 \times 4) + (3 \times 4 \times 3)) + (4 \times 3 \times 4) + (4 \times 4) + 4 + \\
+&amp;4 + (4 \times 3 \times 4) + (4 \times 4) + \\
+&amp;(4 \times 3) + (4 \times 3 \times 4 \times 3) + (4 \times 3 \times 4) + \\
+&amp;(4 \times 3 \times 3) + \\
+&amp;(4 \times 3 \times 4 \times 3 \times 4) + (4 \times 4 \times 3 \times 4) + (4 \times 4 \times 4) + (4 \times 4) + \\
+&amp;(4 \times 3 \times 4) + (4 \times 4) + (4 \times 3 \times 4) + (4 \times 3 \times 4 \times 4) + 4 \\
+&amp;= 1606\end{split}\]</div>
+<p>This is the exact number of test executions run by Filibuster with no dynamic reduction.</p>
+</section>
+<section id="id42">
+<h5>Dynamic Reduction<a class="headerlink" href="#id42" title="Permalink to this headline"></a></h5>
+<p>The structure of this application does not lend itself well to dynamic reduction: as, all
+of the calls are made from the top-level and therefore we have to explore all possible
+combinations of failures of almost all the requests.</p>
+<p>In this example, we’re only able to use dynamic reduction to eliminate injecting status
+code failures between the <code class="docutils literal notranslate"><span class="pre">mobile-client</span></code> and the <code class="docutils literal notranslate"><span class="pre">app-server</span></code>: as, we can test this
+behavior indirectly by injecting failures on the <code class="docutils literal notranslate"><span class="pre">app-server</span></code>’s dependencies.</p>
+</section>
+<section id="with-bugs">
+<h5>With Bugs<a class="headerlink" href="#with-bugs" title="Permalink to this headline"></a></h5>
+<p>With bugs, a number of additional tests have to be run. We omit the analysis for brevity.
+Without dynamic reduction, it results in 4670 test executions; with 4721 test executions.</p>
+</section>
+</section>
+</section>
+</section>
+<section id="bug-examples">
+<h2>Bug Examples<a class="headerlink" href="#bug-examples" title="Permalink to this headline"></a></h2>
+<section id="bug-1-remote-service-unavailability">
+<h3><code class="docutils literal notranslate"><span class="pre">bug-1</span></code>: remote service unavailability<a class="headerlink" href="#bug-1-remote-service-unavailability" title="Permalink to this headline"></a></h3>
+<section id="id43">
+<h4>Description<a class="headerlink" href="#id43" title="Permalink to this headline"></a></h4>
+<dl class="simple">
+<dt>The first example bug is reported from a senior engineer working on a large internet service; we’ve</dt><dd><p>adapted <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> to contain the bug.</p>
+</dd>
+</dl>
+<p>The <code class="docutils literal notranslate"><span class="pre">bug-1</span></code> example contains 5 services: <code class="docutils literal notranslate"><span class="pre">schema</span></code>, <code class="docutils literal notranslate"><span class="pre">bookings</span></code>, <code class="docutils literal notranslate"><span class="pre">movies</span></code>, <code class="docutils literal notranslate"><span class="pre">showtimes</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">users</span></code>, where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">schema</span></code>: contains a schema used to parse a response before talking to other services;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bookings</span></code>: contains information about bookings for each client;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">movies</span></code>: contains detailed information about each movie;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showtimes</span></code>: contains information about shows for each date; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">users</span></code>: that aggregates information about movies that a particular user has bookings for.</p></li>
+</ul>
+<img alt="_images/bug-1.jpg" src="_images/bug-1.jpg" />
+</section>
+<section id="id44">
+<h4>Fault Analysis<a class="headerlink" href="#id44" title="Permalink to this headline"></a></h4>
+<p>In this example, a top-level service responsible for routing and handling requests an XML schema
+from another service in order to parse the users request. The actual fault is a failure to anticipate
+the <code class="docutils literal notranslate"><span class="pre">schema</span></code> service as being unavailable, causing the entire request to fail.</p>
+</section>
+<section id="id45">
+<h4>Filibuster Analysis<a class="headerlink" href="#id45" title="Permalink to this headline"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> ran 9 test executions to explore the failure space: this example introduces 3 more:
+2 possible exceptions (e.g., <code class="docutils literal notranslate"><span class="pre">Timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">ConnectionError</span></code>) and a <code class="docutils literal notranslate"><span class="pre">500</span> <span class="pre">Internal</span> <span class="pre">Server</span> <span class="pre">Error</span></code>
+response. Therefore <span class="math notranslate nohighlight">\(9 + 3 = 12\)</span>, the number of tests executed by Filibuster with and
+without dynamic reduction.</p>
+</section>
+</section>
+<section id="bug-2-overload-in-error-handling-code">
+<h3><code class="docutils literal notranslate"><span class="pre">bug-2</span></code>: overload in error handling code<a class="headerlink" href="#bug-2-overload-in-error-handling-code" title="Permalink to this headline"></a></h3>
+<section id="id46">
+<h4>Description<a class="headerlink" href="#id46" title="Permalink to this headline"></a></h4>
+<p>The second example bug is reported from a senior engineer working on a large internet service;
+we’ve adapted <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> to contain the bug.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">bug-2</span></code> example contains the 4 services as <code class="docutils literal notranslate"><span class="pre">cinema-5</span></code>: <code class="docutils literal notranslate"><span class="pre">bookings</span></code>, <code class="docutils literal notranslate"><span class="pre">movies</span></code>,
+<code class="docutils literal notranslate"><span class="pre">showtimes</span></code>, and <code class="docutils literal notranslate"><span class="pre">users</span></code>, where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bookings</span></code>: contains information about bookings for each client;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">movies</span></code>: contains detailed information about each movie;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showtimes</span></code>: contains information about shows for each date; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">users</span></code>: that aggregates information about movies that a particular user has bookings for.</p></li>
+</ul>
+<img alt="_images/bug-2.jpg" src="_images/bug-2.jpg" />
+</section>
+<section id="id47">
+<h4>Fault Analysis<a class="headerlink" href="#id47" title="Permalink to this headline"></a></h4>
+<p>In this example, a top-level service has error handling for when one of its dependencies is unavailable;
+however, this error handling code performs an expensive operation under a mutex that’s shared with all
+requests. In the original example, this was a shared mutex in a Kafka client that wrote an entry into
+the queue: here, we’ve replaced that with a floating point operation that takes 2 seconds of CPU under a
+similar mutex.</p>
+</section>
+<section id="id48">
+<h4>Filibuster Analysis<a class="headerlink" href="#id48" title="Permalink to this headline"></a></h4>
+<p>This example produces the same number of test executions with Filibuster as <code class="docutils literal notranslate"><span class="pre">cinema-5</span></code> does: 25.</p>
+</section>
+</section>
+<section id="bug-3-retries-to-same-server">
+<h3><code class="docutils literal notranslate"><span class="pre">bug-3</span></code>: retries to same server<a class="headerlink" href="#bug-3-retries-to-same-server" title="Permalink to this headline"></a></h3>
+<section id="id49">
+<h4>Description<a class="headerlink" href="#id49" title="Permalink to this headline"></a></h4>
+<p>This example comes from <a class="reference external" href="https://www.youtube.com/watch?v=qyzymLlj9ag">this talk</a> from Nora Jones.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">bug-2</span></code> example contains the 4 services as <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>: <code class="docutils literal notranslate"><span class="pre">bookings</span></code>, <code class="docutils literal notranslate"><span class="pre">movies</span></code>, <code class="docutils literal notranslate"><span class="pre">showtimes</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">users</span></code>, where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bookings</span></code>: contains information about bookings for each client;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">movies</span></code>: contains detailed information about each movie;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showtimes</span></code>: contains information about shows for each date; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">users</span></code>: that aggregates information about movies that a particular user has bookings for.</p></li>
+</ul>
+<img alt="_images/bug-3.jpg" src="_images/bug-3.jpg" />
+</section>
+<section id="id51">
+<h4>Fault Analysis<a class="headerlink" href="#id51" title="Permalink to this headline"></a></h4>
+<p>In this example, we’ve adapted <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> to add a single retry when the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service is
+unavailable to the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service again.</p>
+</section>
+<section id="id52">
+<h4>Filibuster Analysis<a class="headerlink" href="#id52" title="Permalink to this headline"></a></h4>
+<p>This example produces the same number of test executions with Filibuster as <code class="docutils literal notranslate"><span class="pre">cinema-5</span></code> does: 25.</p>
+</section>
+</section>
+<section id="bug-4-incorrectly-configured-timeouts">
+<h3><code class="docutils literal notranslate"><span class="pre">bug-4</span></code>: incorrectly configured timeouts<a class="headerlink" href="#bug-4-incorrectly-configured-timeouts" title="Permalink to this headline"></a></h3>
+<section id="id53">
+<h4>Description<a class="headerlink" href="#id53" title="Permalink to this headline"></a></h4>
+<p>This example comes from <a class="reference external" href="https://www.youtube.com/watch?v=qyzymLlj9ag">this talk</a> from Nora Jones.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">bug-4</span></code> example contains 4 services: <code class="docutils literal notranslate"><span class="pre">bookings</span></code>, <code class="docutils literal notranslate"><span class="pre">movies</span></code>, <code class="docutils literal notranslate"><span class="pre">showtimes</span></code>, and <code class="docutils literal notranslate"><span class="pre">users</span></code>, where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bookings</span></code>: contains information about bookings for each client;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">movies</span></code>: contains detailed information about each movie;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showtimes</span></code>: contains information about shows for each date; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">users</span></code>: aggregates information about movies that a particular user has bookings for.</p></li>
+</ul>
+<img alt="_images/bug-4.jpg" src="_images/bug-4.jpg" />
+</section>
+<section id="id55">
+<h4>Fault Analysis<a class="headerlink" href="#id55" title="Permalink to this headline"></a></h4>
+<p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>, the top-level service <code class="docutils literal notranslate"><span class="pre">users</span></code> is configured with a
+timeout of 1s; however, <code class="docutils literal notranslate"><span class="pre">users</span></code> communicates with <code class="docutils literal notranslate"><span class="pre">bookings</span></code> and <code class="docutils literal notranslate"><span class="pre">bookings</span></code> communicates with
+<code class="docutils literal notranslate"><span class="pre">movies</span></code> with a timeout of 10s. Therefore, the timeout of the <code class="docutils literal notranslate"><span class="pre">users</span></code> service isn’t sufficient
+to deal with delays – within the allowed timeout – of the <code class="docutils literal notranslate"><span class="pre">movies</span></code> service.</p>
+</section>
+<section id="id56">
+<h4>Filibuster Analysis<a class="headerlink" href="#id56" title="Permalink to this headline"></a></h4>
+<p>For this, we should use the <code class="docutils literal notranslate"><span class="pre">CHECK_TIMEOUTS=true</span></code> option to verify timeouts are configured
+correctly. This produces the same number of test executions as <code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>, we know that we’ll
+run 10 test executions using Filibuster without dynamic reduction; with, 9 test executions.</p>
+</section>
+</section>
+<section id="bug-5-critical-service-has-no-fallback">
+<h3><code class="docutils literal notranslate"><span class="pre">bug-5</span></code>: critical service has no fallback<a class="headerlink" href="#bug-5-critical-service-has-no-fallback" title="Permalink to this headline"></a></h3>
+<section id="id57">
+<h4>Description<a class="headerlink" href="#id57" title="Permalink to this headline"></a></h4>
+<p>This example comes from <a class="reference external" href="https://www.youtube.com/watch?v=qyzymLlj9ag">this talk</a> from Nora Jones.
+It’s adapted from <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">bug-5</span></code> example contains 4 services: <code class="docutils literal notranslate"><span class="pre">bookings</span></code>, <code class="docutils literal notranslate"><span class="pre">movies</span></code>, <code class="docutils literal notranslate"><span class="pre">showtimes</span></code>, and <code class="docutils literal notranslate"><span class="pre">users</span></code>, where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bookings</span></code>: contains information about bookings for each client;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">movies</span></code>: contains detailed information about each movie;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showtimes</span></code>: contains information about shows for each date; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">users</span></code>: aggregates information about movies that a particular user has bookings for.</p></li>
+</ul>
+<img alt="_images/bug-5.jpg" src="_images/bug-5.jpg" />
+</section>
+<section id="id59">
+<h4>Fault Analysis<a class="headerlink" href="#id59" title="Permalink to this headline"></a></h4>
+<p>In this example, the top-level service, <code class="docutils literal notranslate"><span class="pre">users</span></code>, is responsible for routing and handling requests
+from end users, communicates with <code class="docutils literal notranslate"><span class="pre">bookings</span></code> from another service in order to fulfill the user’s
+request. The actual fault is a failure to anticipate the critical <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service as being unavailable.
+The <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service has no fallbacks, and since it is critical the entire request fails.</p>
+<p>In this example, the top-level service, <code class="docutils literal notranslate"><span class="pre">users</span></code>, is responsible for getting information from the
+<code class="docutils literal notranslate"><span class="pre">bookings</span></code> service. The actual fault is a failure to anticipate that the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service
+– a critical dependency – is unavailable and no fallback actions are provided. This is effectively
+the <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> example.</p>
+</section>
+<section id="id60">
+<h4>Filibuster Analysis<a class="headerlink" href="#id60" title="Permalink to this headline"></a></h4>
+<p>Same as <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>: 9 test executions with Filibuster with and without dynamic reduction.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="running.html" class="btn btn-neutral float-right" title="Running" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Christopher S. Meiklejohn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
