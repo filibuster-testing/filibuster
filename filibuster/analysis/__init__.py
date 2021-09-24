@@ -177,6 +177,56 @@ def exception_to_status_code(exception):
         raise Exception("Analysis failed: unknown exception type.")
 
 
+def analyze_java(service, filename):
+    # Add generic HTTP 500 Internal Server Error.
+    general_failure_type = {
+        'return_value': {
+            'status_code': '500'
+        }
+    }
+
+    for services_and_errors in instrumentation['http']['errors']:
+        if services_and_errors['service_name'] == service:
+            if general_failure_type not in services_and_errors['types']:
+                info("* identified HTTP error: " + str(general_failure_type))
+                services_and_errors['types'].append(general_failure_type)
+
+    # Get http specific errors.
+    file = open(filename, "r")
+    for line in file:
+        z = re.match(r'.*HttpStatus.(\w*).*', line)
+        if z is not None:
+            for match in z.groups():
+                if match:
+                    status_code = java_header_to_status_code(match)
+                    if status_code != "200":
+                        # Add generic HTTP 500 Internal Server Error.
+                        failure_type = {
+                            'return_value': {
+                                'status_code': java_header_to_status_code(match)
+                            }
+                        }
+
+                        for services_and_errors in instrumentation['http']['errors']:
+                            if services_and_errors['service_name'] == service:
+                                if failure_type not in services_and_errors['types']:
+                                    info("* identified HTTP error: " + str(failure_type))
+                                    services_and_errors['types'].append(failure_type)
+
+        z = re.match(r'.*[^Http]Status\.(\w*).*', line)
+        if z is not None:
+            for match in z.groups():
+                if match:
+                    # Just say exception -- this exception name will be determined by the client library.
+                    failure_type = {'exception': {'metadata': {'code': str(match)}}}
+
+                    for services_and_errors in instrumentation['grpc']['errors']:
+                        if services_and_errors['service_name'] == service:
+                            if failure_type not in services_and_errors['types']:
+                                info("* identified GRPC error: " + str(failure_type))
+                                services_and_errors['types'].append(failure_type)
+
+
 def analyze_python(service, filename):
     # Get specific failures for this module.
     with open(filename, "r") as source:
@@ -341,9 +391,9 @@ def analyze_services_directory(output, directory):
 
                     # Java file.
                     # TODO
-                    if 'Server.java' in filename and '.html' not in filename:
-                        print("!! starting analysis of Java file: " + filename)
-                        # analyze_java(service, filename)
+                    if re.match(r'.*.java$', filename) is not None and 'Test' not in filename:
+                        info("* starting analysis of Java file: " + filename)
+                        analyze_java(service, filename)
 
         info("")
 
@@ -351,4 +401,3 @@ def analyze_services_directory(output, directory):
         info("Writing output file: " + output)
         json.dump(instrumentation, outfile, indent=2)
         info("Done.")
-
