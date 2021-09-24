@@ -5,3 +5,5 @@ __pycache__
 *egg-info/
 counterexample.json
 public/_build
+test.py
+analysis.json
