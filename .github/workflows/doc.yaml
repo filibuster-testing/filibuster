@@ -17,6 +17,8 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
+      - name: Install requirements
+        run: pip install -r requirements.txt
       - name: Generate Docs
         run: make html
         working-directory: public
