@@ -1,7 +1,7 @@
 import os
 import click
 from os.path import abspath
-from filibuster.server import start_filibuster_server
+from filibuster.server import start_filibuster_server_and_run_test
 
 
 @click.command()
@@ -14,7 +14,7 @@ def test(functional_test, analysis_file, counterexample_file):
     # Resolve full path of analysis file.
     abs_analysis_file = abspath(os.path.dirname(os.path.realpath(__file__)) + "/" + analysis_file)
 
-    start_filibuster_server(functional_test, abs_analysis_file, counterexample_file)
+    start_filibuster_server_and_run_test(functional_test, abs_analysis_file, counterexample_file)
 
 
 if __name__ == '__main__':
