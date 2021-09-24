@@ -27,8 +27,8 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          CLEAN: true
-          FOLDER: public/_build/html
+          CLEAN: false
+          FOLDER: public/_build/html/
           TARGET_FOLDER: .
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
