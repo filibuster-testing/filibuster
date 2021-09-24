@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instrumentation Overview &mdash; filibuster  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Instrumentation Example: Flask" href="instrumentation-flask.html" />
+    <link rel="prev" title="Build Status" href="build-status.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> filibuster
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build-status.html">Build Status</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Instrumentation Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#goals">Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filibuster-architecture">Filibuster Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#anatomy-of-a-request">Anatomy of a Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-propagation">Metadata Propagation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">filibuster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Instrumentation Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instrumentation-overview.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="instrumentation-overview">
+<h1>Instrumentation Overview<a class="headerlink" href="#instrumentation-overview" title="Permalink to this headline"></a></h1>
+<p>In this section, we will discuss the Filibuster instrumentation and how it is used for in fault injection testing.  The focus of this presentation will be on our built-in HTTP instrumentation.  However, the insights that we provide are valuable to anyone looking to instrument other libraries for use with Filibuster.</p>
+<section id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Permalink to this headline"></a></h2>
+<p>The goals of instrumenting libraries for use with Filibuster are the following:</p>
+<ul class="simple">
+<li><p>Identify when and where remote calls are made between two different services.</p></li>
+<li><p>Alter the responses of remote service calls: either by throwing an exception at the callsite or returning a response that indicates an error.</p></li>
+<li><p>Propagating required instrumentation metadata from service to service as calls are made.</p></li>
+</ul>
+<p>We discuss each goal below to outline the overall architecture of Filibuster.</p>
+</section>
+<section id="filibuster-architecture">
+<h2>Filibuster Architecture<a class="headerlink" href="#filibuster-architecture" title="Permalink to this headline"></a></h2>
+<img alt="_images/architecture-horiz.png" src="_images/architecture-horiz.png" />
+<p>Filibuster runs a server that is responsible for running the functional test for the application, generating additional test executions that try the various ways calls can fail between services, running those additional test executions, gathering coverage data and reporting the results back to the developer.</p>
+<p>We now look at the concrete functionality we need to address the three goals:</p>
+<ul class="simple">
+<li><p>In order for Filibuster to know what additional test executions to generate, the Filibuster server must be notified of the remote calls made between different services.  For this, the Filibuster server exposes an HTTP API that instrumented libraries communicate with.</p></li>
+<li><p>When executing subsequent test executions and injecting failures, Filibuster will notify the instrumentation through the responses to the HTTP API calls with information on whether or not a failure should be injected.  It is up to the instrumentation to inject the appropriate failure based on the information returned by the Filibuster server.</p></li>
+<li><p>Filibuster’s dynamic reduction algorithm requires that both requests between different services are able to be uniquely identified across executions (using execution indexes) and that we are able to understand the causal relationships between requests across service boundaries (using vector clocks.)  This information needs to be propagated between requests through instrumentation.</p></li>
+</ul>
+</section>
+<section id="anatomy-of-a-request">
+<h2>Anatomy of a Request<a class="headerlink" href="#anatomy-of-a-request" title="Permalink to this headline"></a></h2>
+<p>To understand how Filibuster addresses the first two goals, we look at a diagram that shows when, and from where, the instrumentation calls are made.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To understand the data format and API of these instrumentation calls, we refer you to the Filibuster Server API section of the documentation.</p>
+</div>
+<img alt="_images/instrumentation.png" src="_images/instrumentation.png" />
+<p>Referencing the above diagram, instrumentation works as follows.  First, before the target method is invoked, instrumented libraries should first issue an invocation call to Filibuster to notify it of the remote call that is about to be issued.  The return value from this call will notify the instrumentation on whether or not a fault should be injected.  Next, if the call is issued, the target of the call should notify the Filibuster server of the service that received the remote call.  Finally, if the call is actually issued, the instrumentation should notify the Filibuster that the call has completed with the response value.</p>
+<p>The table below and diagram describes where these instrumentation calls should be placed in the request path.</p>
+<table class="colwidths-auto docutils align-left" id="id1">
+<caption><span class="caption-text">Request process with instrumentation endpoints and instrumentation types</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>No.</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Endpoint</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.0</p></td>
+<td><p>Request</p></td>
+<td></td>
+<td></td>
+<td><p>Request originates at Service A</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.0</p></td>
+<td><p>Request</p></td>
+<td></td>
+<td></td>
+<td><p><cite>requests.get</cite> used by Service A to issue a request to B</p></td>
+</tr>
+<tr class="row-even"><td><p>  2.1</p></td>
+<td><p><em>Instrumentation</em></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/filibuster/create</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">invocation</span></code></p></td>
+<td><p><em>Notify Filibuster server invocation with call site and metadata</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>  2.2</p></td>
+<td><p>Request</p></td>
+<td></td>
+<td></td>
+<td><p>Issue call to Service B if fault should not be injected</p></td>
+</tr>
+<tr class="row-even"><td><p>    2.2.1</p></td>
+<td><p><em>Instrumentation</em></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/filibuster/update</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">request_received</span></code></p></td>
+<td><p><em>Notify Filibuster server of invoked service</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>  2.3</p></td>
+<td><p><em>Instrumentation</em></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/filibuster/update</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">invocation_complete</span></code></p></td>
+<td><p><em>Notify Filibuster of return value when call completes</em></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="metadata-propagation">
+<h2>Metadata Propagation<a class="headerlink" href="#metadata-propagation" title="Permalink to this headline"></a></h2>
+<p>We now look at how we address the third goal.</p>
+<p>Filibuster requires that instrumentation metadata be propagated between services on nested service calls.  To achieve this, our instrumentation automatically assigns these values to headers associated with each call and then parses these values when received with an incoming call.</p>
+<p>We refer the reader to the following diagram for a depiction of how this occurs in the case of our examples written with Flask and the <code class="docutils literal notranslate"><span class="pre">requests</span></code> library.</p>
+<img alt="_images/instrumentation-metadata.png" src="_images/instrumentation-metadata.png" />
+<p>Instrumentation calls made to the Filibuster server require that five values be present, we discuss these below.</p>
+<table class="colwidths-auto docutils align-left" id="id2">
+<caption><span class="caption-text">Metadata propagated by instrumentation required in instrumentation calls</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Presence</p></th>
+<th class="head"><p>Data Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">generated_id</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>Integer</p></td>
+<td><p>A totally ordered identifier for this request in this test execution</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vclock</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>VClock (Map)</p></td>
+<td><p>Vector clock associated with this outgoing request</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">origin_vclock</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>VClock (Map)</p></td>
+<td><p>Vector clock associated with the request that originated this request</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">execution_index</span></code></p></td>
+<td><p>Required</p></td>
+<td><p>EI (String)</p></td>
+<td><p>Encoded execution associated with this outgoing request</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">request_id</span></code></p></td>
+<td><p>String</p></td>
+<td><p>Required</p></td>
+<td><p>Unique identifier for the user request; used to assign a vector clock and execution index.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="build-status.html" class="btn btn-neutral float-left" title="Build Status" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="instrumentation-flask.html" class="btn btn-neutral float-right" title="Instrumentation Example: Flask" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Christopher S. Meiklejohn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
