@@ -29,6 +29,6 @@ jobs:
           BRANCH: gh-pages
           CLEAN: true
           FOLDER: public/_build/html
-          TARGET_FOLDER: javadoc
+          TARGET_FOLDER: .
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
