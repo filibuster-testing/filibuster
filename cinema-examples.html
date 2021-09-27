@@ -49,25 +49,25 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Cinema Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#cinema-1"><code class="docutils literal notranslate"><span class="pre">cinema-1</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-1-basic-cinema-example"><code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>: Basic Cinema Example</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fault-analysis">Fault Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#filibuster-analysis">Filibuster Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cinema-2"><code class="docutils literal notranslate"><span class="pre">cinema-2</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-2-nesting-service-calls"><code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>: Nesting Service Calls</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id2">Fault Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Filibuster Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cinema-3"><code class="docutils literal notranslate"><span class="pre">cinema-3</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-3-adding-retry-loops"><code class="docutils literal notranslate"><span class="pre">cinema-3</span></code>: Adding Retry Loops</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Fault Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">Filibuster Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cinema-4"><code class="docutils literal notranslate"><span class="pre">cinema-4</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-4-calls-to-3rd-party-services"><code class="docutils literal notranslate"><span class="pre">cinema-4</span></code>: Calls To 3rd Party Services</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id7">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id8">Fault Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id9">Filibuster Analysis</a><ul>
@@ -77,25 +77,25 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cinema-5"><code class="docutils literal notranslate"><span class="pre">cinema-5</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-5-default-responses"><code class="docutils literal notranslate"><span class="pre">cinema-5</span></code>: Default Responses</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id10">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id11">Fault Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id12">Filibuster Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cinema-6"><code class="docutils literal notranslate"><span class="pre">cinema-6</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-6-fallbacks"><code class="docutils literal notranslate"><span class="pre">cinema-6</span></code>: Fallbacks</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id13">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id14">Fault Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id15">Filibuster Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cinema-7"><code class="docutils literal notranslate"><span class="pre">cinema-7</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-7-health-checks"><code class="docutils literal notranslate"><span class="pre">cinema-7</span></code>: Health Checks</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id16">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id17">Fault Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id18">Filibuster Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cinema-8"><code class="docutils literal notranslate"><span class="pre">cinema-8</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cinema-8-monolithic"><code class="docutils literal notranslate"><span class="pre">cinema-8</span></code>: Monolithic</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id19">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id20">Fault Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id21">Filibuster Analysis</a></li>
@@ -157,8 +157,8 @@
              
   <section id="cinema-examples">
 <h1>Cinema Examples<a class="headerlink" href="#cinema-examples" title="Permalink to this headline"></a></h1>
-<section id="cinema-1">
-<h2><code class="docutils literal notranslate"><span class="pre">cinema-1</span></code><a class="headerlink" href="#cinema-1" title="Permalink to this headline"></a></h2>
+<section id="cinema-1-basic-cinema-example">
+<h2><code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>: Basic Cinema Example<a class="headerlink" href="#cinema-1-basic-cinema-example" title="Permalink to this headline"></a></h2>
 <section id="description">
 <h3>Description<a class="headerlink" href="#description" title="Permalink to this headline"></a></h3>
 <p>The first example, which we are calling <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>, comes from <a class="reference external" href="https://codeahoy.com/2016/07/10/writing-microservices-in-python-using-flask/">a tutorial on building
@@ -194,8 +194,8 @@ should execute should be: <span class="math notranslate nohighlight">\(k_1 + k_2
 <span class="math notranslate nohighlight">\(1 + 5 + 4 = 10\)</span>. This is the exact number executed by Filibuster.</p>
 </section>
 </section>
-<section id="cinema-2">
-<h2><code class="docutils literal notranslate"><span class="pre">cinema-2</span></code><a class="headerlink" href="#cinema-2" title="Permalink to this headline"></a></h2>
+<section id="cinema-2-nesting-service-calls">
+<h2><code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>: Nesting Service Calls<a class="headerlink" href="#cinema-2-nesting-service-calls" title="Permalink to this headline"></a></h2>
 <section id="id1">
 <h3>Description<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
 <p>In this example, <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> is reorganized so that <code class="docutils literal notranslate"><span class="pre">users</span></code> first calls <code class="docutils literal notranslate"><span class="pre">bookings</span></code> and then
@@ -224,8 +224,8 @@ the 503 error, eliminating one possible test. With dynamic reduction enabled, we
 the Filibuster output: <span class="math notranslate nohighlight">\(1 + 3 + 5 = 9\)</span> tests.</p>
 </section>
 </section>
-<section id="cinema-3">
-<h2><code class="docutils literal notranslate"><span class="pre">cinema-3</span></code><a class="headerlink" href="#cinema-3" title="Permalink to this headline"></a></h2>
+<section id="cinema-3-adding-retry-loops">
+<h2><code class="docutils literal notranslate"><span class="pre">cinema-3</span></code>: Adding Retry Loops<a class="headerlink" href="#cinema-3-adding-retry-loops" title="Permalink to this headline"></a></h2>
 <section id="id4">
 <h3>Description<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
 <p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>, we move the call made from the <code class="docutils literal notranslate"><span class="pre">users</span></code> service to the
@@ -263,8 +263,8 @@ cover the entire fault space:</p>
 executes with dynamic reduction.</p>
 </section>
 </section>
-<section id="cinema-4">
-<h2><code class="docutils literal notranslate"><span class="pre">cinema-4</span></code><a class="headerlink" href="#cinema-4" title="Permalink to this headline"></a></h2>
+<section id="cinema-4-calls-to-3rd-party-services">
+<h2><code class="docutils literal notranslate"><span class="pre">cinema-4</span></code>: Calls To 3rd Party Services<a class="headerlink" href="#cinema-4-calls-to-3rd-party-services" title="Permalink to this headline"></a></h2>
 <section id="id7">
 <h3>Description<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h3>
 <p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-2</span></code>, each service calls to a remote service before calling a
@@ -397,8 +397,8 @@ that Filibuster runs with dynamic reduction.</p>
 </section>
 </section>
 </section>
-<section id="cinema-5">
-<h2><code class="docutils literal notranslate"><span class="pre">cinema-5</span></code><a class="headerlink" href="#cinema-5" title="Permalink to this headline"></a></h2>
+<section id="cinema-5-default-responses">
+<h2><code class="docutils literal notranslate"><span class="pre">cinema-5</span></code>: Default Responses<a class="headerlink" href="#cinema-5-default-responses" title="Permalink to this headline"></a></h2>
 <section id="id10">
 <h3>Description<a class="headerlink" href="#id10" title="Permalink to this headline"></a></h3>
 <p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code>, all calls happen regardless of failure. In the event of failure,
@@ -419,8 +419,8 @@ and let <span class="math notranslate nohighlight">\(n\)</span> be the total num
 should be <span class="math notranslate nohighlight">\(5 \times 5 = 25\)</span>. This is the exact number executed by Filibuster.</p>
 </section>
 </section>
-<section id="cinema-6">
-<h2><code class="docutils literal notranslate"><span class="pre">cinema-6</span></code><a class="headerlink" href="#cinema-6" title="Permalink to this headline"></a></h2>
+<section id="cinema-6-fallbacks">
+<h2><code class="docutils literal notranslate"><span class="pre">cinema-6</span></code>: Fallbacks<a class="headerlink" href="#cinema-6-fallbacks" title="Permalink to this headline"></a></h2>
 <section id="id13">
 <h3>Description<a class="headerlink" href="#id13" title="Permalink to this headline"></a></h3>
 <p>This example is based on <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> and adds a backup service for the <code class="docutils literal notranslate"><span class="pre">bookings</span></code> service:
@@ -446,8 +446,8 @@ with <code class="docutils literal notranslate"><span class="pre">movies</span><
 This is the exact number executed by Filibuster.</p>
 </section>
 </section>
-<section id="cinema-7">
-<h2><code class="docutils literal notranslate"><span class="pre">cinema-7</span></code><a class="headerlink" href="#cinema-7" title="Permalink to this headline"></a></h2>
+<section id="cinema-7-health-checks">
+<h2><code class="docutils literal notranslate"><span class="pre">cinema-7</span></code>: Health Checks<a class="headerlink" href="#cinema-7-health-checks" title="Permalink to this headline"></a></h2>
 <section id="id16">
 <h3>Description<a class="headerlink" href="#id16" title="Permalink to this headline"></a></h3>
 <p>In this example, based on <code class="docutils literal notranslate"><span class="pre">cinema-6</span></code>, we first check that the health check service of the primary
@@ -466,8 +466,8 @@ tests to account for the 4 different failures that are possible for the health c
 <p>Therefore, <span class="math notranslate nohighlight">\(num\ tests_cinema-6 + 4 = 41 + 4 = 45\)</span>. This is the exact number executed by Filibuster.</p>
 </section>
 </section>
-<section id="cinema-8">
-<h2><code class="docutils literal notranslate"><span class="pre">cinema-8</span></code><a class="headerlink" href="#cinema-8" title="Permalink to this headline"></a></h2>
+<section id="cinema-8-monolithic">
+<h2><code class="docutils literal notranslate"><span class="pre">cinema-8</span></code>: Monolithic<a class="headerlink" href="#cinema-8-monolithic" title="Permalink to this headline"></a></h2>
 <section id="id19">
 <h3>Description<a class="headerlink" href="#id19" title="Permalink to this headline"></a></h3>
 <p>In this example, the <code class="docutils literal notranslate"><span class="pre">cinema-1</span></code> example is collapsed into a monolith with an API server making

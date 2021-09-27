@@ -2,7 +2,7 @@ Industry Examples
 ========
 
 
-``audible``
+Audible
 -----------
 Description
 ^^^^^^^^^^^
@@ -96,9 +96,9 @@ This is 38 tests that do not need to be executed: :math:`4 + 4 + 15 + 15 = 38`. 
 
 This is the number of tests executed with Filibuster with dynamic reduction.
 
-
-``expedia``
+Expedia
 -----------
+
 Description
 ^^^^^^^^^^^
 This architecture diagram is taken from the talk from Daniel and Nikos at 
@@ -119,13 +119,13 @@ Filibuster Analysis
 Given that each service, *review-ml* and *review-time* can each fail four ways, we have to explore :math:`1 + (4 * 4) = 17`
 tests. This is the number executed by Filibuster with both dynamic reduction and without reduction.
 
-``mailchimp``
+Mailchimp
 -----------
+
 Description
 ^^^^^^^^^^^
 This architecture diagram is taken from the talk from Caroline Dickey `Think Big: Chaos Testing a Monolith
 <https://www.youtube.com/watch?v=w_IeMAidgpI>`_ at Chaos Conf 2019. Here is what we implemented.
-
 
 .. image:: /_static/diagrams/mailchimp.jpg
 
@@ -207,8 +207,9 @@ certain combinations of the ``db-primary`` and ``db-secondary`` failures cause t
 
 This results in a total of :math:`135 - 1 = 134`, the number that Filibuster runs with dynamic reduction.
 
-``netflix``
+Netflix
 -----------
+
 Description
 ^^^^^^^^^^^
 The basis of the Netflix example comes from `a talk <https://www.youtube.com/watch?v=Q4nniyAarbs>`_ by Casey 
