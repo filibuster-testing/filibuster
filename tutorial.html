@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#functional-testing">Functional Testing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#finding-the-bug">Finding the Bug</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#updating-our-functional-test">Updating our Functional Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#computing-coverage">Computing Coverage</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#targeting-precise-errors">Targeting Precise Errors</a></li>
@@ -612,6 +613,16 @@ service to handle this failure.</p>
 </pre></div>
 </div>
 <p>At this point, everything passes!</p>
+</section>
+<section id="computing-coverage">
+<h3>Computing Coverage<a class="headerlink" href="#computing-coverage" title="Permalink to this headline"></a></h3>
+<p>From here, you can use Filibuster to compute coverage.  Coverage files are not available until the services are shutdown,
+so we must shut the services down.  Then, we can use the Filibuster tool to generate coverage, which will be rendered as
+html in the <code class="docutils literal notranslate"><span class="pre">htmlcov</span></code> directory.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make local-stop
+filibuster-coverage
+</pre></div>
+</div>
 </section>
 </section>
 <section id="targeting-precise-errors">
