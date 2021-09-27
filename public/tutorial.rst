@@ -135,43 +135,15 @@ In ``filibuster-tutorial/service/baz/baz/app.py``, add the following code to imp
 
     app = Flask(__name__)
 
-    ## Start OpenTelemetry Configuration
-
-    from opentelemetry import trace
-    from opentelemetry.exporter import jaeger
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
-    from opentelemetry.instrumentation.flask import FlaskInstrumentor
-    from opentelemetry.instrumentation.requests import RequestsInstrumentor
-
-    trace.set_tracer_provider(TracerProvider())
-
-    jaeger_exporter = jaeger.JaegerSpanExporter(
-        service_name="baz",
-        agent_host_name=helper.jaeger_agent_host_name(),
-        agent_port=helper.jaeger_agent_port()
-    )
-
-    trace.get_tracer_provider().add_span_processor(
-        BatchExportSpanProcessor(jaeger_exporter)
-    )
-
-    tracer = trace.get_tracer(__name__)
-
     ## Instrument using filibuster
 
     sys.path.append(os.path.dirname(examples_path))
-    from filibuster.instrumentation.requests import RequestsInstrumentor as FilibusterRequestsInstrumentor
 
-    FilibusterRequestsInstrumentor().instrument(service_name="baz",
-                                                filibuster_url=helper.get_service_url('filibuster'))
+    from filibuster.instrumentation.requests import RequestsInstrumentor as FilibusterRequestsInstrumentor
+    FilibusterRequestsInstrumentor().instrument(service_name="baz", filibuster_url=helper.get_service_url('filibuster'))
 
     from filibuster.instrumentation.flask import FlaskInstrumentor as FilibusterFlaskInstrumentor
-
-    FilibusterFlaskInstrumentor().instrument_app(app, service_name="baz",
-                                                filibuster_url=helper.get_service_url('filibuster'))
-
-    RequestsInstrumentor().instrument()
+    FilibusterFlaskInstrumentor().instrument_app(app, service_name="baz", filibuster_url=helper.get_service_url('filibuster'))
 
     # filibuster requires a health check app to ensure service is running
     @app.route("/health-check", methods=['GET'])
@@ -191,20 +163,14 @@ Note the instrumentation code under ``## Instrument using filibuster``:
 .. code-block:: python 
 
     from filibuster.instrumentation.requests import RequestsInstrumentor as FilibusterRequestsInstrumentor
-
-    FilibusterRequestsInstrumentor().instrument(service_name="baz",
-                                                filibuster_url=helper.get_service_url('filibuster'))
+    FilibusterRequestsInstrumentor().instrument(service_name="baz", filibuster_url=helper.get_service_url('filibuster'))
 
     from filibuster.instrumentation.flask import FlaskInstrumentor as FilibusterFlaskInstrumentor
-
-    FilibusterFlaskInstrumentor().instrument_app(app, service_name="baz",
-                                                filibuster_url=helper.get_service_url('filibuster'))
-
-    RequestsInstrumentor().instrument()
+    FilibusterFlaskInstrumentor().instrument_app(app, service_name="baz", filibuster_url=helper.get_service_url('filibuster'))
 
 Each service you create will need to include this code, with ``service_name`` updated accordingly. This instrumentation 
-code allows ``filibuster`` to instrument Flask and Requests, which in turn allows ``filibuster`` to compute and test 
-different faults.
+code allows Filibuster to instrument both ``flask`` and ``requests``, which in turn allows Filibuster to test
+different fault combinations.
 
 Creating the ``bar`` App
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -227,44 +193,15 @@ In ``filibuster-tutorial/service/bar/bar/app.py``, add the following code.
 
     app = Flask(__name__)
 
-    ## Start OpenTelemetry Configuration
-
-    from opentelemetry import trace
-    from opentelemetry.exporter import jaeger
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
-    from opentelemetry.instrumentation.flask import FlaskInstrumentor
-    from opentelemetry.instrumentation.requests import RequestsInstrumentor
-
-    trace.set_tracer_provider(TracerProvider())
-
-    jaeger_exporter = jaeger.JaegerSpanExporter(
-        service_name="bar",
-        agent_host_name=helper.jaeger_agent_host_name(),
-        agent_port=helper.jaeger_agent_port()
-    )
-
-    trace.get_tracer_provider().add_span_processor(
-        BatchExportSpanProcessor(jaeger_exporter)
-    )
-
-    tracer = trace.get_tracer(__name__)
-
     ## Instrument using filibuster
 
     sys.path.append(os.path.dirname(examples_path))
-    from filibuster.instrumentation.requests import RequestsInstrumentor as FilibusterRequestsInstrumentor
 
-    FilibusterRequestsInstrumentor().instrument(service_name="bar",
-                                                filibuster_url=helper.get_service_url('filibuster'))
+    from filibuster.instrumentation.requests import RequestsInstrumentor as FilibusterRequestsInstrumentor
+    FilibusterRequestsInstrumentor().instrument(service_name="bar", filibuster_url=helper.get_service_url('filibuster'))
 
     from filibuster.instrumentation.flask import FlaskInstrumentor as FilibusterFlaskInstrumentor
-
-    FilibusterFlaskInstrumentor().instrument_app(app, service_name="bar",
-                                                filibuster_url=helper.get_service_url('filibuster'))
-
-    RequestsInstrumentor().instrument()
-
+    FilibusterFlaskInstrumentor().instrument_app(app, service_name="bar", filibuster_url=helper.get_service_url('filibuster'))
 
     # filibuster requires a health check app to ensure service is running
     @app.route("/health-check", methods=['GET'])
