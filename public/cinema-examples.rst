@@ -1,7 +1,7 @@
 Cinema Examples
 ========
 
-``cinema-1``
+``cinema-1``: Basic Cinema Example
 ---------------
 
 Description
@@ -40,7 +40,7 @@ As ``bookings`` can fail 5 ways, and ``movies`` can fail 4 ways, the number of t
 :math:`1 + 5 + 4 = 10`. This is the exact number executed by Filibuster.
 
 
-``cinema-2``
+``cinema-2``: Nesting Service Calls
 ---------------
 
 Description
@@ -74,7 +74,7 @@ the 503 error, eliminating one possible test. With dynamic reduction enabled, we
 the Filibuster output: :math:`1 + 3 + 5 = 9` tests.
 
 
-``cinema-3``
+``cinema-3``: Adding Retry Loops
 ---------------
 
 Description
@@ -117,7 +117,7 @@ This results in: :math:`1 + 5 + 6 + 25 = 37` tests. This is precisely the number
 executes with dynamic reduction.
 
 
-``cinema-4``
+``cinema-4``: Calls To 3rd Party Services
 ---------------
 
 Description
@@ -259,7 +259,7 @@ of the application through concolic execution:
 This results in: :math:`1 + 1 + 4 + (1 + (4 \times 1)) + 4 + (1 + (5 \times 1)) = 21` tests. This is the number
 that Filibuster runs with dynamic reduction.
 
-``cinema-5``
+``cinema-5``: Default Responses
 ---------------
 
 Description
@@ -283,8 +283,7 @@ and let :math:`n` be the total number of requests made. Then the number of fault
 Since each request has 4 possible failures, in this case the number of tests executed by Filibuster 
 should be :math:`5 \times 5 = 25`. This is the exact number executed by Filibuster.
 
-
-``cinema-6``
+``cinema-6``: Fallbacks
 ---------------
 
 Description
@@ -313,7 +312,7 @@ with ``movies`` success/failing (5 ways), which yields :math:`5 \times 5 = 25`. 
 This is the exact number executed by Filibuster.
 
 
-``cinema-7``
+``cinema-7``: Health Checks
 ---------------
 
 Description
@@ -336,7 +335,7 @@ tests to account for the 4 different failures that are possible for the health c
 Therefore, :math:`num\ tests_cinema-6 + 4 = 41 + 4 = 45`. This is the exact number executed by Filibuster.
 
 
-``cinema-8``
+``cinema-8``: Monolithic
 ---------------
 
 Description

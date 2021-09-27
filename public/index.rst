@@ -1,9 +1,13 @@
-Filibuster: Service-level Fault Injection Testing
-=================================================
+.. |br| raw:: html
+
+      <br>
 
 .. image:: /_static/images/filibuster-header.png
+  :alt: Filibuster: Service-level Fault Injection Testing
 
-...
+|br|
+
+Something something...
 
 Overview
 --------
