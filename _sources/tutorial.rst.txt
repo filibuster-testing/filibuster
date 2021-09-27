@@ -568,6 +568,12 @@ html in the ``htmlcov`` directory.
     make local-stop
     filibuster-coverage
 
+You can see that, even though we only wrote a test that exercised the failure-free path of the ``foo`` service,
+Filibuster automatically generated the necessary tests to cover the failure scenarios.  This coverage is aggregated
+across all generated Filibuster tests and for all services.
+
+.. image:: /_static/images/tutorial-coverage.png
+
 Targeting Precise Errors
 ------------------------
 
