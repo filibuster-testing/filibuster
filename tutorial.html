@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -204,43 +205,15 @@ using Filibuster. Run the following:</p>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="c1">## Start OpenTelemetry Configuration</span>
-
-<span class="kn">from</span> <span class="nn">opentelemetry</span> <span class="kn">import</span> <span class="n">trace</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.exporter</span> <span class="kn">import</span> <span class="n">jaeger</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.sdk.trace</span> <span class="kn">import</span> <span class="n">TracerProvider</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.sdk.trace.export</span> <span class="kn">import</span> <span class="n">BatchExportSpanProcessor</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.instrumentation.flask</span> <span class="kn">import</span> <span class="n">FlaskInstrumentor</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span>
-
-<span class="n">trace</span><span class="o">.</span><span class="n">set_tracer_provider</span><span class="p">(</span><span class="n">TracerProvider</span><span class="p">())</span>
-
-<span class="n">jaeger_exporter</span> <span class="o">=</span> <span class="n">jaeger</span><span class="o">.</span><span class="n">JaegerSpanExporter</span><span class="p">(</span>
-    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span>
-    <span class="n">agent_host_name</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">jaeger_agent_host_name</span><span class="p">(),</span>
-    <span class="n">agent_port</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">jaeger_agent_port</span><span class="p">()</span>
-<span class="p">)</span>
-
-<span class="n">trace</span><span class="o">.</span><span class="n">get_tracer_provider</span><span class="p">()</span><span class="o">.</span><span class="n">add_span_processor</span><span class="p">(</span>
-    <span class="n">BatchExportSpanProcessor</span><span class="p">(</span><span class="n">jaeger_exporter</span><span class="p">)</span>
-<span class="p">)</span>
-
-<span class="n">tracer</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">get_tracer</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
 <span class="c1">## Instrument using filibuster</span>
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">examples_path</span><span class="p">))</span>
-<span class="kn">from</span> <span class="nn">filibuster.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterRequestsInstrumentor</span>
 
-<span class="n">FilibusterRequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span>
-                                            <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
+<span class="kn">from</span> <span class="nn">filibuster.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterRequestsInstrumentor</span>
+<span class="n">FilibusterRequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span> <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
 
 <span class="kn">from</span> <span class="nn">filibuster.instrumentation.flask</span> <span class="kn">import</span> <span class="n">FlaskInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterFlaskInstrumentor</span>
-
-<span class="n">FilibusterFlaskInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span>
-                                            <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
-
-<span class="n">RequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">()</span>
+<span class="n">FilibusterFlaskInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span> <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
 
 <span class="c1"># filibuster requires a health check app to ensure service is running</span>
 <span class="nd">@app.route</span><span class="p">(</span><span class="s2">&quot;/health-check&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
@@ -257,21 +230,15 @@ using Filibuster. Run the following:</p>
 </div>
 <p>Note the instrumentation code under <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Instrument</span> <span class="pre">using</span> <span class="pre">filibuster</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">filibuster.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterRequestsInstrumentor</span>
-
-<span class="n">FilibusterRequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span>
-                                            <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
+<span class="n">FilibusterRequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span> <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
 
 <span class="kn">from</span> <span class="nn">filibuster.instrumentation.flask</span> <span class="kn">import</span> <span class="n">FlaskInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterFlaskInstrumentor</span>
-
-<span class="n">FilibusterFlaskInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span>
-                                            <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
-
-<span class="n">RequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">()</span>
+<span class="n">FilibusterFlaskInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span> <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Each service you create will need to include this code, with <code class="docutils literal notranslate"><span class="pre">service_name</span></code> updated accordingly. This instrumentation
-code allows <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> to instrument Flask and Requests, which in turn allows <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> to compute and test
-different faults.</p>
+code allows Filibuster to instrument both <code class="docutils literal notranslate"><span class="pre">flask</span></code> and <code class="docutils literal notranslate"><span class="pre">requests</span></code>, which in turn allows Filibuster to test
+different fault combinations.</p>
 </section>
 <section id="creating-the-bar-app">
 <h3>Creating the <code class="docutils literal notranslate"><span class="pre">bar</span></code> App<a class="headerlink" href="#creating-the-bar-app" title="Permalink to this headline"></a></h3>
@@ -290,44 +257,15 @@ different faults.</p>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="c1">## Start OpenTelemetry Configuration</span>
-
-<span class="kn">from</span> <span class="nn">opentelemetry</span> <span class="kn">import</span> <span class="n">trace</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.exporter</span> <span class="kn">import</span> <span class="n">jaeger</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.sdk.trace</span> <span class="kn">import</span> <span class="n">TracerProvider</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.sdk.trace.export</span> <span class="kn">import</span> <span class="n">BatchExportSpanProcessor</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.instrumentation.flask</span> <span class="kn">import</span> <span class="n">FlaskInstrumentor</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span>
-
-<span class="n">trace</span><span class="o">.</span><span class="n">set_tracer_provider</span><span class="p">(</span><span class="n">TracerProvider</span><span class="p">())</span>
-
-<span class="n">jaeger_exporter</span> <span class="o">=</span> <span class="n">jaeger</span><span class="o">.</span><span class="n">JaegerSpanExporter</span><span class="p">(</span>
-    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span>
-    <span class="n">agent_host_name</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">jaeger_agent_host_name</span><span class="p">(),</span>
-    <span class="n">agent_port</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">jaeger_agent_port</span><span class="p">()</span>
-<span class="p">)</span>
-
-<span class="n">trace</span><span class="o">.</span><span class="n">get_tracer_provider</span><span class="p">()</span><span class="o">.</span><span class="n">add_span_processor</span><span class="p">(</span>
-    <span class="n">BatchExportSpanProcessor</span><span class="p">(</span><span class="n">jaeger_exporter</span><span class="p">)</span>
-<span class="p">)</span>
-
-<span class="n">tracer</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">get_tracer</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
 <span class="c1">## Instrument using filibuster</span>
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">examples_path</span><span class="p">))</span>
-<span class="kn">from</span> <span class="nn">filibuster.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterRequestsInstrumentor</span>
 
-<span class="n">FilibusterRequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span>
-                                            <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
+<span class="kn">from</span> <span class="nn">filibuster.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterRequestsInstrumentor</span>
+<span class="n">FilibusterRequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
 
 <span class="kn">from</span> <span class="nn">filibuster.instrumentation.flask</span> <span class="kn">import</span> <span class="n">FlaskInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterFlaskInstrumentor</span>
-
-<span class="n">FilibusterFlaskInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span>
-                                            <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
-
-<span class="n">RequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">()</span>
-
+<span class="n">FilibusterFlaskInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
 
 <span class="c1"># filibuster requires a health check app to ensure service is running</span>
 <span class="nd">@app.route</span><span class="p">(</span><span class="s2">&quot;/health-check&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
