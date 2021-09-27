@@ -19,7 +19,6 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="Filibuster" href="index.html" /> 
 </head>
 
@@ -61,38 +60,6 @@
 </ul>
 </li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
-<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage Reports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="build-status.html">Build Status</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
-<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
-</ul>
 
         </div>
       </div>
@@ -120,58 +87,58 @@
              
   <section id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline"></a></h1>
-<p>This tutorial contains step-by-step instructions for debugging a local application using <code class="docutils literal notranslate"><span class="pre">filibuster</span></code>. In this tutorial, you will:</p>
+<p>This tutorial contains step-by-step instructions for debugging a local application using Filibuster.</p>
+<p>In this tutorial, you will:</p>
 <ol class="arabic simple">
-<li><p>Create three Flask apps that work together to respond “foo bar baz” to a client (this contains a bug)</p></li>
-<li><p>Write functional tests for your Flask apps</p></li>
-<li><p>Run <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> to find the bug</p></li>
-<li><p>Fix the bug and verify fault tolerance with <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> locally and via Docker and Minikube</p></li>
+<li><p>Create three Flask apps that work together to respond “foo bar baz” to a client (one of which contains a bug.)</p></li>
+<li><p>Write functional tests for your Flask apps.</p></li>
+<li><p>Use Filibuster to find the bug.</p></li>
+<li><p>Fix the bug and verify resilience with Filibuster in your local, development environment.</p></li>
 </ol>
-<p>Please note that this tutorial assumes <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> is already in the namespace.</p>
 <section id="creating-your-flask-apps">
 <h2>Creating your Flask Apps<a class="headerlink" href="#creating-your-flask-apps" title="Permalink to this headline"></a></h2>
+<p>For this tutorial, we will build our example application in the style of an application in our corpus.  Therefore,
+you should first clone the Filibuster corpus.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone http://github.com/filibuster-testing/filibuster-corpus.git
+<span class="nb">cd</span> filibuster-corpus
+</pre></div>
+</div>
 <section id="flask-app-setup">
 <h3>Flask App Setup<a class="headerlink" href="#flask-app-setup" title="Permalink to this headline"></a></h3>
-<p>Navigate to <code class="docutils literal notranslate"><span class="pre">nufilibuster/examples</span></code>. Create the basic structure for your apps:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir filibuster-tutorial <span class="c1"># This is where you&#39;ll be putting all files for this tutorial.</span>
-mkdir filibuster-tutorial/services <span class="c1"># This is where you will write your apps.</span>
+<p>Navigate to <code class="docutils literal notranslate"><span class="pre">examples</span></code>.  Then, create the basic structure for your apps:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir filibuster-tutorial                                <span class="c1"># This is where you&#39;ll be putting all files for this tutorial.</span>
+mkdir filibuster-tutorial/services                       <span class="c1"># This is where you will write your apps.</span>
 mkdir filibuster-tutorial/functional
 touch filibuster-tutorial/functional/test_foo_bar_baz.py <span class="c1"># This is where you will write the functional test for your apps.</span>
-touch filibuster-tutorial/networking.json <span class="c1"># This is where you will write networking information for your apps.</span>
-touch filibuster-tutorial/Makefile <span class="c1"># This is where you will write the Makefile for your apps.</span>
+touch filibuster-tutorial/networking.json                <span class="c1"># This is where you will write networking information for your apps.</span>
+touch filibuster-tutorial/Makefile                       <span class="c1"># This is where you will write the Makefile for your apps.</span>
 </pre></div>
 </div>
 <section id="filibuster-tutorial-networking-json">
 <h4><code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/networking.json</span></code><a class="headerlink" href="#filibuster-tutorial-networking-json" title="Permalink to this headline"></a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/networking.json</span></code> allows you to specify networking information including ports, hosts, and timeout lengths
-for your apps. <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> uses this networking information to make requests to each of your services. Note that
-<code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/networking.json</span></code> specifies both a <code class="docutils literal notranslate"><span class="pre">docker-host</span></code> and <code class="docutils literal notranslate"><span class="pre">default-host</span></code> for each service. Since <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> can
-run locally, via Docker, and via Minikube, we need to provide different host names to accomodate the different environments
-<code class="docutils literal notranslate"><span class="pre">filibuster</span></code> is ran in. <code class="docutils literal notranslate"><span class="pre">docker-host</span></code> should always be the name of your service.</p>
+<p><code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/networking.json</span></code> specifies networking information including ports, hosts, and timeout
+lengths for your apps.  Our corpus has a makefile for starting, waiting for services to come online, and stopping
+services that uses this networking information to make requests to each of your services.</p>
 <p>In <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/networking.json</span></code>, add networking
 information for each of our three services (<code class="docutils literal notranslate"><span class="pre">foo</span></code>, <code class="docutils literal notranslate"><span class="pre">bar</span></code>, and <code class="docutils literal notranslate"><span class="pre">baz</span></code>) and <code class="docutils literal notranslate"><span class="pre">filibuster</span></code>:</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;foo&quot;</span> <span class="o">:</span> <span class="p">{</span>
       <span class="s2">&quot;port&quot;</span><span class="o">:</span> <span class="mi">5000</span><span class="p">,</span>
-      <span class="s2">&quot;docker-host&quot;</span><span class="o">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span>
       <span class="s2">&quot;default-host&quot;</span><span class="o">:</span> <span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span>
       <span class="s2">&quot;timeout-seconds&quot;</span><span class="o">:</span> <span class="mi">6</span>
     <span class="p">},</span>
     <span class="s2">&quot;bar&quot;</span> <span class="o">:</span> <span class="p">{</span>
       <span class="s2">&quot;port&quot;</span><span class="o">:</span> <span class="mi">5001</span><span class="p">,</span>
-      <span class="s2">&quot;docker-host&quot;</span><span class="o">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
       <span class="s2">&quot;default-host&quot;</span><span class="o">:</span> <span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span>
       <span class="s2">&quot;timeout-seconds&quot;</span><span class="o">:</span> <span class="mi">6</span>
     <span class="p">},</span>
     <span class="s2">&quot;baz&quot;</span> <span class="o">:</span> <span class="p">{</span>
       <span class="s2">&quot;port&quot;</span><span class="o">:</span> <span class="mi">5002</span><span class="p">,</span>
-      <span class="s2">&quot;docker-host&quot;</span><span class="o">:</span> <span class="s2">&quot;baz&quot;</span><span class="p">,</span>
       <span class="s2">&quot;default-host&quot;</span><span class="o">:</span> <span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span>
       <span class="s2">&quot;timeout-seconds&quot;</span><span class="o">:</span> <span class="mi">6</span>
     <span class="p">},</span>
     <span class="s2">&quot;filibuster&quot;</span><span class="o">:</span> <span class="p">{</span>
       <span class="s2">&quot;port&quot;</span><span class="o">:</span> <span class="mi">5005</span><span class="p">,</span>
-      <span class="s2">&quot;docker-host&quot;</span><span class="o">:</span> <span class="s2">&quot;filibuster&quot;</span><span class="p">,</span>
       <span class="s2">&quot;default-host&quot;</span><span class="o">:</span> <span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span>
       <span class="s2">&quot;timeout-seconds&quot;</span><span class="o">:</span> <span class="mi">10</span>
     <span class="p">}</span>
@@ -181,21 +148,22 @@ information for each of our three services (<code class="docutils literal notran
 </section>
 <section id="filibuster-tutorial-makefile">
 <h4><code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/Makefile</span></code><a class="headerlink" href="#filibuster-tutorial-makefile" title="Permalink to this headline"></a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/Makefile</span></code> specifies <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">targets</span></code> for building and running your apps using <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> locally, via Docker, and via Minikube.</p>
-<p>In <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/Makefile</span></code>, add the following:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="nx">PHONY</span><span class="o">:</span> <span class="nx">reqs</span> <span class="nx">unit</span> <span class="nx">functional</span>
+<p>In <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/Makefile</span></code>, add the following to define the services you are implementing, the ports that those
+services run on and then include the shared makefile that provides helpers for automatically starting and stopping each
+of your services.</p>
+<div class="highlight-make notranslate"><div class="highlight"><pre><span></span><span class="nf">.PHONY</span><span class="o">:</span> <span class="n">reqs</span> <span class="n">unit</span> <span class="n">functional</span>
 
-<span class="nx">example</span> <span class="o">=</span> <span class="nx">filibuster</span><span class="o">-</span><span class="nx">tutorial</span>
-<span class="nx">services</span> <span class="o">=</span> <span class="nx">foo</span> <span class="nx">bar</span> <span class="nx">baz</span>
-<span class="nx">ports</span> <span class="o">=</span> <span class="mi">5000</span> <span class="mi">5001</span> <span class="mi">5002</span>
-<span class="nx">filibuster</span><span class="o">-</span><span class="nx">port</span> <span class="o">=</span> <span class="mi">5005</span>
+<span class="nv">example</span> <span class="o">=</span> filibuster-tutorial
+<span class="nv">services</span> <span class="o">=</span> foo bar baz
+<span class="nv">ports</span> <span class="o">=</span> <span class="m">5000</span> <span class="m">5001</span> <span class="m">5002</span>
+<span class="nv">filibuster-port</span> <span class="o">=</span> <span class="m">5005</span>
 
-<span class="nx">include</span> <span class="p">..</span><span class="o">/</span><span class="nx">shared_build_examples</span><span class="p">.</span><span class="nx">mk</span>
+<span class="cp">include ../shared_build_examples.mk</span>
 </pre></div>
 </div>
 <p>Then create the files you will be working with for this tutorial. These files will specify the three different Flask apps needed
 to respond “foo bar baz” to a client. These files include <code class="docutils literal notranslate"><span class="pre">python</span></code> files as well as the infrastructure needed to run the apps
-using <code class="docutils literal notranslate"><span class="pre">filibuster</span></code>. Run the following:</p>
+using Filibuster. Run the following:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Loop through the three services that we want to create (and their associated ports) and create initial file structure.</span>
 <span class="c1"># Note the services and corresponding ports correspond to filibuster-tutorial/networking.json</span>
 <span class="k">for</span> i in <span class="s2">&quot;foo 5000&quot;</span> <span class="s2">&quot;bar 5001&quot;</span> <span class="s2">&quot;baz 5002&quot;</span>
@@ -206,11 +174,15 @@ using <code class="docutils literal notranslate"><span class="pre">filibuster</s
 
     mkdir -p <span class="s2">&quot;filibuster-tutorial/services/</span><span class="nv">$service</span><span class="s2">/</span><span class="nv">$service</span><span class="s2">&quot;</span>
     touch <span class="s2">&quot;filibuster-tutorial/services/</span><span class="nv">$service</span><span class="s2">/</span><span class="nv">$service</span><span class="s2">/__init__.py&quot;</span>
-    touch <span class="s2">&quot;filibuster-tutorial/services/</span><span class="nv">$service</span><span class="s2">/</span><span class="nv">$service</span><span class="s2">/app.py&quot;</span> <span class="c1"># This is where you will write the Flask functionality.</span>
 
-    <span class="c1"># Each service must have a Makefile specifying information for filibuster.</span>
+    <span class="c1"># This is where you will will implement your Flask apps.</span>
+    touch <span class="s2">&quot;filibuster-tutorial/services/</span><span class="nv">$service</span><span class="s2">/</span><span class="nv">$service</span><span class="s2">/app.py&quot;</span>
+
+    <span class="c1"># Each service must have a Makefile specifying information for Filibuster.</span>
     <span class="nv">makefile</span><span class="o">=</span><span class="s2">&quot;APP=filibuster-tutorial\nSERVICE=</span><span class="nv">$service</span><span class="s2">\nPORT=</span><span class="nv">$port</span><span class="s2">\n\n.PHONY: test reqs\n\ninclude ../../../shared_build_services.mk&quot;</span>
-    <span class="nb">echo</span> -e <span class="nv">$makefile</span> &gt;&gt; filibuster-tutorial/services/<span class="nv">$service</span>/Makefile <span class="c1"># Specify information about the service, used by filibuster.</span>
+
+    <span class="c1"># Specify information about the service, used by Filibuster.</span>
+    <span class="nb">echo</span> -e <span class="nv">$makefile</span> &gt;&gt; filibuster-tutorial/services/<span class="nv">$service</span>/Makefile
 <span class="k">done</span>
 </pre></div>
 </div>
@@ -218,7 +190,7 @@ using <code class="docutils literal notranslate"><span class="pre">filibuster</s
 </section>
 <section id="creating-the-baz-app">
 <h3>Creating the <code class="docutils literal notranslate"><span class="pre">baz</span></code> App<a class="headerlink" href="#creating-the-baz-app" title="Permalink to this headline"></a></h3>
-<p>In <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/service/baz/baz/app.py</span></code>, add the following code.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/service/baz/baz/app.py</span></code>, add the following code to implement the service.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span>
 <span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">ServiceUnavailable</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -845,7 +817,6 @@ services:
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Filibuster" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
