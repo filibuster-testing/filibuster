@@ -1,40 +1,46 @@
 Tutorial
 ========
 
-This tutorial contains step-by-step instructions for debugging a local application using ``filibuster``. In this tutorial, you will:
+This tutorial contains step-by-step instructions for debugging a local application using Filibuster.
 
-1. Create three Flask apps that work together to respond "foo bar baz" to a client (this contains a bug)
-2. Write functional tests for your Flask apps
-3. Run ``filibuster`` to find the bug
-4. Fix the bug and verify fault tolerance with ``filibuster`` locally and via Docker and Minikube
+In this tutorial, you will:
 
-Please note that this tutorial assumes ``filibuster`` is already in the namespace.
+1. Create three Flask apps that work together to respond "foo bar baz" to a client (one of which contains a bug.)
+2. Write functional tests for your Flask apps.
+3. Use Filibuster to find the bug.
+4. Fix the bug and verify resilience with Filibuster in your local, development environment.
 
 Creating your Flask Apps
 ------------------------
 
-Flask App Setup
-~~~~~~~~~~~~~~~
-
-Navigate to ``nufilibuster/examples``. Create the basic structure for your apps:
+For this tutorial, we will build our example application in the style of an application in our corpus.  Therefore,
+you should first clone the Filibuster corpus.
 
 .. code-block:: shell
 
-    mkdir filibuster-tutorial # This is where you'll be putting all files for this tutorial.
-    mkdir filibuster-tutorial/services # This is where you will write your apps.
+    git clone http://github.com/filibuster-testing/filibuster-corpus.git
+    cd filibuster-corpus
+
+Flask App Setup
+~~~~~~~~~~~~~~~
+
+Navigate to ``examples``.  Then, create the basic structure for your apps:
+
+.. code-block:: shell
+
+    mkdir filibuster-tutorial                                # This is where you'll be putting all files for this tutorial.
+    mkdir filibuster-tutorial/services                       # This is where you will write your apps.
     mkdir filibuster-tutorial/functional
     touch filibuster-tutorial/functional/test_foo_bar_baz.py # This is where you will write the functional test for your apps.
-    touch filibuster-tutorial/networking.json # This is where you will write networking information for your apps.
-    touch filibuster-tutorial/Makefile # This is where you will write the Makefile for your apps.
+    touch filibuster-tutorial/networking.json                # This is where you will write networking information for your apps.
+    touch filibuster-tutorial/Makefile                       # This is where you will write the Makefile for your apps.
 
 ``filibuster-tutorial/networking.json``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``filibuster-tutorial/networking.json`` allows you to specify networking information including ports, hosts, and timeout lengths 
-for your apps. ``filibuster`` uses this networking information to make requests to each of your services. Note that 
-``filibuster-tutorial/networking.json`` specifies both a ``docker-host`` and ``default-host`` for each service. Since ``filibuster`` can
-run locally, via Docker, and via Minikube, we need to provide different host names to accomodate the different environments 
-``filibuster`` is ran in. ``docker-host`` should always be the name of your service.
+``filibuster-tutorial/networking.json`` specifies networking information including ports, hosts, and timeout
+lengths for your apps.  Our corpus has a makefile for starting, waiting for services to come online, and stopping
+services that uses this networking information to make requests to each of your services.
 
 In ``filibuster-tutorial/networking.json``, add networking
 information for each of our three services (``foo``, ``bar``, and ``baz``) and ``filibuster``:
@@ -44,25 +50,21 @@ information for each of our three services (``foo``, ``bar``, and ``baz``) and `
     {
         "foo" : {
           "port": 5000,
-          "docker-host": "foo",
           "default-host": "0.0.0.0",
           "timeout-seconds": 6
         },
         "bar" : {
           "port": 5001,
-          "docker-host": "bar",
           "default-host": "0.0.0.0",
           "timeout-seconds": 6
         },
         "baz" : {
           "port": 5002,
-          "docker-host": "baz",
           "default-host": "0.0.0.0",
           "timeout-seconds": 6
         },
         "filibuster": {
           "port": 5005,
-          "docker-host": "filibuster",
           "default-host": "0.0.0.0",
           "timeout-seconds": 10
         }
@@ -71,11 +73,11 @@ information for each of our three services (``foo``, ``bar``, and ``baz``) and `
 ``filibuster-tutorial/Makefile``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``filibuster-tutorial/Makefile`` specifies ``make targets`` for building and running your apps using ``filibuster`` locally, via Docker, and via Minikube.
+In ``filibuster-tutorial/Makefile``, add the following to define the services you are implementing, the ports that those
+services run on and then include the shared makefile that provides helpers for automatically starting and stopping each
+of your services.
 
-In ``filibuster-tutorial/Makefile``, add the following:
-
-.. code-block:: javascript
+.. code-block:: make
 
     .PHONY: reqs unit functional
 
@@ -88,7 +90,7 @@ In ``filibuster-tutorial/Makefile``, add the following:
 
 Then create the files you will be working with for this tutorial. These files will specify the three different Flask apps needed
 to respond "foo bar baz" to a client. These files include ``python`` files as well as the infrastructure needed to run the apps 
-using ``filibuster``. Run the following:
+using Filibuster. Run the following:
 
 .. code-block:: shell
 
@@ -102,17 +104,21 @@ using ``filibuster``. Run the following:
 
         mkdir -p "filibuster-tutorial/services/$service/$service"
         touch "filibuster-tutorial/services/$service/$service/__init__.py"
-        touch "filibuster-tutorial/services/$service/$service/app.py" # This is where you will write the Flask functionality.
 
-        # Each service must have a Makefile specifying information for filibuster.
+        # This is where you will will implement your Flask apps.
+        touch "filibuster-tutorial/services/$service/$service/app.py"
+
+        # Each service must have a Makefile specifying information for Filibuster.
         makefile="APP=filibuster-tutorial\nSERVICE=$service\nPORT=$port\n\n.PHONY: test reqs\n\ninclude ../../../shared_build_services.mk"
-        echo -e $makefile >> filibuster-tutorial/services/$service/Makefile # Specify information about the service, used by filibuster.
+
+        # Specify information about the service, used by Filibuster.
+        echo -e $makefile >> filibuster-tutorial/services/$service/Makefile
     done
 
 Creating the ``baz`` App
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In ``filibuster-tutorial/service/baz/baz/app.py``, add the following code.
+In ``filibuster-tutorial/service/baz/baz/app.py``, add the following code to implement the service.
 
 .. code-block:: python
 
