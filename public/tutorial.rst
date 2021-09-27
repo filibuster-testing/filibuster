@@ -556,6 +556,18 @@ Finally, we can run Filibuster again and test for the whole default set of failu
 
 At this point, everything passes!
 
+Computing Coverage
+~~~~~~~~~~~~~~~~~~
+
+From here, you can use Filibuster to compute coverage.  Coverage files are not available until the services are shutdown,
+so we must shut the services down.  Then, we can use the Filibuster tool to generate coverage, which will be rendered as
+html in the ``htmlcov`` directory.
+
+.. code-block:: shell
+
+    make local-stop
+    filibuster-coverage
+
 Targeting Precise Errors
 ------------------------
 
