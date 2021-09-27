@@ -6,7 +6,7 @@ with open("requirements.txt", "r") as fh:
     requirements = fh.read()
 setup(
     name='filibuster',
-    version='0.0.3',
+    version='0.0.4',
     author='Christopher S. Meiklejohn',
     author_email='christopher.meiklejohn@gmail.com',
     license='Apache-2.0',
@@ -26,7 +26,8 @@ setup(
         "console_scripts": [
             "filibuster = filibuster_cli:test",
             "filibuster-analysis = filibuster_analysis_cli:analyze",
-            "filibuster-loadgen = filibuster_loadgen_cli:loadgen"
+            "filibuster-loadgen = filibuster_loadgen_cli:loadgen",
+            "filibuster-coverage = filibuster_coverage_cli:coverage"
         ]
     },
 )
