@@ -7,3 +7,4 @@ counterexample.json
 public/_build
 test.py
 analysis.json
+.coverage
