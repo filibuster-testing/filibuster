@@ -65,7 +65,7 @@ counterexample = None
 # Specific testing functions.
 
 
-def run_test(functional_test):
+def run_test(functional_test, only_initial_execution):
     global current_test_execution
     global test_executions_scheduled
     global requests_to_fail
@@ -120,59 +120,73 @@ def run_test(functional_test):
         iteration = 1
 
     # Loop until list is exhausted.
-    while test_executions_scheduled.size() > 0:
-        if os.environ.get("PAUSE_BETWEEN", ""):
-            input("Press Enter to start next test...")
+    if not only_initial_execution:
+        while test_executions_scheduled.size() > 0:
+            if os.environ.get("PAUSE_BETWEEN", ""):
+                input("Press Enter to start next test...")
 
-        iteration = iteration + 1
+            iteration = iteration + 1
 
-        # Quit early if we want to bound the number of tests.
-        if MAX_NUM_TESTS != -1 and iteration > MAX_NUM_TESTS:
-            break
+            # Quit early if we want to bound the number of tests.
+            if MAX_NUM_TESTS != -1 and iteration > MAX_NUM_TESTS:
+                break
 
-        # Get next test.
-        next_test_execution = test_executions_scheduled.pop()
+            # Get next test.
+            next_test_execution = test_executions_scheduled.pop()
 
-        info("Running test " + (str(iteration)))
-        info("Total tests pruned so far: " + str(len(test_executions_pruned)))
-        info("Total tests remaining: " + str(test_executions_scheduled.size()))
+            info("Running test " + (str(iteration)))
+            info("Total tests pruned so far: " + str(len(test_executions_pruned)))
+            info("Total tests remaining: " + str(test_executions_scheduled.size()))
 
-        # Reset requests to fail.
-        requests_to_fail = next_test_execution.failures
+            # Reset requests to fail.
+            requests_to_fail = next_test_execution.failures
 
-        # Set current test execution.
-        current_test_execution = next_test_execution
+            # Set current test execution.
+            current_test_execution = next_test_execution
 
-        describe_test_execution(current_test_execution, str(iteration), False)
+            describe_test_execution(current_test_execution, str(iteration), False)
 
-        if counterexample:
-            # We have to run.
-            run_test_with_fresh_state(functional_test, True, False)
+            if counterexample:
+                # We have to run.
+                run_test_with_fresh_state(functional_test, True, False)
 
-            # Add to history list.
-            current_test_execution = TestExecution(server_state.service_request_log,
-                                                   requests_to_fail,
-                                                   completed=True,
-                                                   retcon=test_executions_ran)
-            test_executions_attempted.append(next_test_execution)
-            test_executions_ran.append(current_test_execution)
-        else:
-            if not os.environ.get("DISABLE_DYNAMIC_REDUCTION", ''):
-                global cumulative_dynamic_pruning_time_in_ms
-                global mean_dynamic_pruning_time_in_ms
-                global cumulative_test_generation_time_in_ms
+                # Add to history list.
+                current_test_execution = TestExecution(server_state.service_request_log,
+                                                       requests_to_fail,
+                                                       completed=True,
+                                                       retcon=test_executions_ran)
+                test_executions_attempted.append(next_test_execution)
+                test_executions_ran.append(current_test_execution)
+            else:
+                if not os.environ.get("DISABLE_DYNAMIC_REDUCTION", ''):
+                    global cumulative_dynamic_pruning_time_in_ms
+                    global mean_dynamic_pruning_time_in_ms
+                    global cumulative_test_generation_time_in_ms
 
-                reduction_start_time = time.time_ns()
-                dynamic_full_history_reduce = reduce_dynamic_should_prune(current_test_execution, test_executions_ran)
-                reduction_end_time = time.time_ns()
+                    reduction_start_time = time.time_ns()
+                    dynamic_full_history_reduce = reduce_dynamic_should_prune(current_test_execution, test_executions_ran)
+                    reduction_end_time = time.time_ns()
 
-                dynamic_pruning_time_in_ms = (reduction_end_time - reduction_start_time) / (10 ** 6)
-                num_tests_compared_to = len(test_executions_ran)
-                cumulative_dynamic_pruning_time_in_ms += dynamic_pruning_time_in_ms
-                if num_tests_compared_to:
-                    mean_dynamic_pruning_time_in_ms.append(dynamic_pruning_time_in_ms / num_tests_compared_to)
+                    dynamic_pruning_time_in_ms = (reduction_end_time - reduction_start_time) / (10 ** 6)
+                    num_tests_compared_to = len(test_executions_ran)
+                    cumulative_dynamic_pruning_time_in_ms += dynamic_pruning_time_in_ms
+                    if num_tests_compared_to:
+                        mean_dynamic_pruning_time_in_ms.append(dynamic_pruning_time_in_ms / num_tests_compared_to)
 
-                if not dynamic_full_history_reduce:
+                    if not dynamic_full_history_reduce:
+                        # Run the test.
+                        run_test_with_fresh_state(functional_test, counterexample is not None, False)
+
+                        # Add to history list.
+                        current_test_execution = TestExecution(server_state.service_request_log,
+                                                               requests_to_fail,
+                                                               completed=True,
+                                                               retcon=test_executions_ran)
+                        test_executions_attempted.append(next_test_execution)
+                        test_executions_ran.append(current_test_execution)
+                    else:
+                        test_executions_pruned.append(current_test_execution)
+                else:
                     # Run the test.
                     run_test_with_fresh_state(functional_test, counterexample is not None, False)
 
@@ -183,21 +197,8 @@ def run_test(functional_test):
                                                            retcon=test_executions_ran)
                     test_executions_attempted.append(next_test_execution)
                     test_executions_ran.append(current_test_execution)
-                else:
-                    test_executions_pruned.append(current_test_execution)
-            else:
-                # Run the test.
-                run_test_with_fresh_state(functional_test, counterexample is not None, False)
 
-                # Add to history list.
-                current_test_execution = TestExecution(server_state.service_request_log,
-                                                       requests_to_fail,
-                                                       completed=True,
-                                                       retcon=test_executions_ran)
-                test_executions_attempted.append(next_test_execution)
-                test_executions_ran.append(current_test_execution)
-
-        info("Test " + (str(iteration)) + " completed.")
+            info("Test " + (str(iteration)) + " completed.")
 
     notice("Completed testing " + str(functional_test))
     info("")
@@ -778,7 +779,7 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     info("--------------- Loadgen Statistics ---------------")
 
 
-def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file):
+def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution):
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -786,7 +787,7 @@ def start_filibuster_server_and_run_test(functional_test, analysis_file, counter
     if counterexample_file:
         counterexample = load_counterexample(counterexample_file)
 
-    run_test(functional_test)
+    run_test(functional_test, only_initial_execution)
 
 
 def start_filibuster_server(analysis_file):
