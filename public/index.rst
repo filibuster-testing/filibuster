@@ -7,8 +7,6 @@
 
 |br|
 
-Something something...
-
 Overview
 --------
 
@@ -16,6 +14,10 @@ Overview
 
 Table of Contents
 -----------------
+
+Depending on your role, we recommend different sections of our documentation.
+
+* For *application developers*, looking to use Filibuster on their application to identify resilience issues, we recommend you start with the Filibuster tutorial.
 
 .. toctree::
    :maxdepth: 2
