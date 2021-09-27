@@ -485,9 +485,73 @@ Let's re-run the counterexample; with our updated assertion, the test should now
 
     filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
 
-Now, we can run Filibuster again and test for the whole default set of failures as well.  We leave any remaining
-bugs in the application as an exercise for the reader!
+Now, we can run Filibuster again and test for the whole default set of failures as well.
 
 .. code-block:: shell
 
-    filibuster --functional-test ./functional/test_foo_bar_baz.py 
+    filibuster --functional-test ./functional/test_foo_bar_baz.py
+
+After 10 tests, we run into another failure.
+
+.. code-block:: shell
+
+    [FILIBUSTER] [INFO]: Running test 11
+    [FILIBUSTER] [INFO]: Total tests pruned so far: 1
+    [FILIBUSTER] [INFO]: Total tests remaining: 0
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]: =====================================================================================
+    [FILIBUSTER] [INFO]: Test number: 11
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]: gen_id: 0
+    [FILIBUSTER] [INFO]:   module: requests
+    [FILIBUSTER] [INFO]:   method: get
+    [FILIBUSTER] [INFO]:   args: ['5001/bar/baz']
+    [FILIBUSTER] [INFO]:   kwargs: {}
+    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
+    [FILIBUSTER] [INFO]:   origin_vclock: {}
+    [FILIBUSTER] [INFO]:   execution_index: [["b13f73ac8ced79cb093a638972923de1", 1]]
+    [FILIBUSTER] [INFO]: * Failed with exception: {'name': 'requests.exceptions.ConnectionError', 'metadata': {}}
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]: Failures for this execution:
+    [FILIBUSTER] [INFO]: [["b13f73ac8ced79cb093a638972923de1", 1]]: {'name': 'requests.exceptions.ConnectionError', 'metadata': {}}
+    [FILIBUSTER] [INFO]: =====================================================================================
+    127.0.0.1 - - [27/Sep/2021 10:55:54] "GET /filibuster/new-test-execution/foo HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:55:54] "PUT /filibuster/create HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:55:54] "POST /filibuster/update HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:55:54] "GET /fault-injected HTTP/1.1" 200 -
+    Traceback (most recent call last):
+      File "/private/tmp/filibuster-corpus/filibuster-tutorial/./functional/test_foo_bar_baz.py", line 24, in <module>
+        test_functional_foo_bar_baz()
+      File "/private/tmp/filibuster-corpus/filibuster-tutorial/./functional/test_foo_bar_baz.py", line 21, in test_functional_foo_bar_baz
+        assert was_fault_injected() and response.status_code in [503, 404]
+    AssertionError
+    [FILIBUSTER] [FAIL]: Test failed; counterexample file written: counterexample.json
+
+Again, we have another counterexample file.  If we look at the precise fault that was injected, we can see that the
+request between ``foo`` and ``bar`` was failed with a ConnectionError exception.  Since the ``foo`` service does not
+have an exception handler for this fault, the service returns a 500 Internal Server Error: we do not expect this response
+in our functional test.
+
+Instead of altering our functional test to allow for a 500 Internal Server Error, we want the service to return a 503
+Service Unavailable if one of the dependencies is down.  Therefore, we will modify the implementation of the ``foo``
+service to handle this failure.
+
+.. code-block:: python
+
+    except requests.exceptions.ConnectionError:
+        raise ServiceUnavailable("The bar service is unavailable.")
+
+We can verify our fix using counterexample replay.
+
+.. code-block:: shell
+
+    filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
+
+Finally, we can run Filibuster again and test for the whole default set of failures as well.
+
+.. code-block:: shell
+
+    filibuster --functional-test ./functional/test_foo_bar_baz.py
+
+At this point, everything passes!
