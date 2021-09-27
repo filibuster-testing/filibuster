@@ -519,11 +519,65 @@ be used to write more precise assertions.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
 </pre></div>
 </div>
-<p>Now, we can run Filibuster again and test for the whole default set of failures as well.  We leave any remaining
-bugs in the application as an exercise for the reader!</p>
+<p>Now, we can run Filibuster again and test for the whole default set of failures as well.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py
 </pre></div>
 </div>
+<p>After 10 tests, we run into another failure.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Running <span class="nb">test</span> <span class="m">11</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Total tests pruned so far: <span class="m">1</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Total tests remaining: <span class="m">0</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">11</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: gen_id: <span class="m">0</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   module: requests
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   method: get
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   args: <span class="o">[</span><span class="s1">&#39;5001/bar/baz&#39;</span><span class="o">]</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   kwargs: <span class="o">{}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;b13f73ac8ced79cb093a638972923de1&quot;</span>, <span class="m">1</span><span class="o">]]</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with exception: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span>, <span class="s1">&#39;metadata&#39;</span>: <span class="o">{}}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">[[</span><span class="s2">&quot;b13f73ac8ced79cb093a638972923de1&quot;</span>, <span class="m">1</span><span class="o">]]</span>: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span>, <span class="s1">&#39;metadata&#39;</span>: <span class="o">{}}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:55:54<span class="o">]</span> <span class="s2">&quot;GET /filibuster/new-test-execution/foo HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:55:54<span class="o">]</span> <span class="s2">&quot;PUT /filibuster/create HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:55:54<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:55:54<span class="o">]</span> <span class="s2">&quot;GET /fault-injected HTTP/1.1&quot;</span> <span class="m">200</span> -
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+  File <span class="s2">&quot;/private/tmp/filibuster-corpus/filibuster-tutorial/./functional/test_foo_bar_baz.py&quot;</span>, line <span class="m">24</span>, in &lt;module&gt;
+    test_functional_foo_bar_baz<span class="o">()</span>
+  File <span class="s2">&quot;/private/tmp/filibuster-corpus/filibuster-tutorial/./functional/test_foo_bar_baz.py&quot;</span>, line <span class="m">21</span>, in test_functional_foo_bar_baz
+    assert was_fault_injected<span class="o">()</span> and response.status_code in <span class="o">[</span><span class="m">503</span>, <span class="m">404</span><span class="o">]</span>
+AssertionError
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>FAIL<span class="o">]</span>: Test failed<span class="p">;</span> counterexample file written: counterexample.json
+</pre></div>
+</div>
+<p>Again, we have another counterexample file.  If we look at the precise fault that was injected, we can see that the
+request between <code class="docutils literal notranslate"><span class="pre">foo</span></code> and <code class="docutils literal notranslate"><span class="pre">bar</span></code> was failed with a ConnectionError exception.  Since the <code class="docutils literal notranslate"><span class="pre">foo</span></code> service does not
+have an exception handler for this fault, the service returns a 500 Internal Server Error: we do not expect this response
+in our functional test.</p>
+<p>Instead of altering our functional test to allow for a 500 Internal Server Error, we want the service to return a 503
+Service Unavailable if one of the dependencies is down.  Therefore, we will modify the implementation of the <code class="docutils literal notranslate"><span class="pre">foo</span></code>
+service to handle this failure.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">ServiceUnavailable</span><span class="p">(</span><span class="s2">&quot;The bar service is unavailable.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can verify our fix using counterexample replay.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
+</pre></div>
+</div>
+<p>Finally, we can run Filibuster again and test for the whole default set of failures as well.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py
+</pre></div>
+</div>
+<p>At this point, everything passes!</p>
 </section>
 </section>
 
