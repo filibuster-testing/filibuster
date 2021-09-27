@@ -24,7 +24,7 @@ you should first clone the Filibuster corpus.
 Flask App Setup
 ~~~~~~~~~~~~~~~
 
-Navigate to ``examples``.  Then, create the basic structure for your apps:
+Create the basic structure for your apps:
 
 .. code-block:: shell
 
@@ -247,43 +247,15 @@ In ``filibuster-tutorial/service/foo/foo/app.py``, add the following code.
 
     app = Flask(__name__)
 
-    ## Start OpenTelemetry Configuration
-
-    from opentelemetry import trace
-    from opentelemetry.exporter import jaeger
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
-    from opentelemetry.instrumentation.flask import FlaskInstrumentor
-    from opentelemetry.instrumentation.requests import RequestsInstrumentor
-
-    trace.set_tracer_provider(TracerProvider())
-
-    jaeger_exporter = jaeger.JaegerSpanExporter(
-        service_name="foo",
-        agent_host_name=helper.jaeger_agent_host_name(),
-        agent_port=helper.jaeger_agent_port()
-    )
-
-    trace.get_tracer_provider().add_span_processor(
-        BatchExportSpanProcessor(jaeger_exporter)
-    )
-
-    tracer = trace.get_tracer(__name__)
-
     ## Instrument using filibuster
 
     sys.path.append(os.path.dirname(examples_path))
-    from filibuster.instrumentation.requests import RequestsInstrumentor as FilibusterRequestsInstrumentor
 
-    FilibusterRequestsInstrumentor().instrument(service_name="foo",
-                                                filibuster_url=helper.get_service_url('filibuster'))
+    from filibuster.instrumentation.requests import RequestsInstrumentor as FilibusterRequestsInstrumentor
+    FilibusterRequestsInstrumentor().instrument(service_name="foo", filibuster_url=helper.get_service_url('filibuster'))
 
     from filibuster.instrumentation.flask import FlaskInstrumentor as FilibusterFlaskInstrumentor
-
-    FilibusterFlaskInstrumentor().instrument_app(app, service_name="foo",
-                                                filibuster_url=helper.get_service_url('filibuster'))
-
-    RequestsInstrumentor().instrument()
+    FilibusterFlaskInstrumentor().instrument_app(app, service_name="foo", filibuster_url=helper.get_service_url('filibuster'))
 
     # filibuster requires a health check app to ensure service is running
     @app.route("/health-check", methods=['GET'])
@@ -314,6 +286,8 @@ the following code.
 
 .. code-block:: python
 
+    #!/usr/bin/env python
+
     import requests
     import os
     import sys
@@ -332,386 +306,126 @@ the following code.
     if __name__ == "__main__":
         test_functional_foo_bar_baz()
 
-Now, verify that the functional test passes:
 
-``cd filibuster-tutorial; make local-functional-via-filibuster-server``
-
-You should get something like the following output:
+Now, let's verify that the functional test passes.  First, let's start the required services.
 
 .. code-block:: shell
 
-    [FILIBUSTER] [NOTICE]: Running test test_functional_foo_bar_baz
-    [FILIBUSTER] [INFO]: Running initial non-failing execution (test 1) &ltmodule 'test_foo_bar_baz' from '/Users/filibuster-user/nufilibuster/examples/filibuster-tutorial/functional/test_foo_bar_baz.py'&gt
-    [FILIBUSTER] [INFO]: [DONE] Running initial non-failing execution (test 1)
-    [FILIBUSTER] [NOTICE]: Completed testing test_functional_foo_bar_baz
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Test executions actually ran:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 1
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: None.
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Test executions actually pruned:
-    [FILIBUSTER] [INFO]: None.
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Number of tests attempted: 1
-    [FILIBUSTER] [INFO]: Number of test executions ran: 1
-    [FILIBUSTER] [INFO]: Test executions pruned with only dynamic pruning: 0
-    [FILIBUSTER] [INFO]: Total tests: 1
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Time elapsed: 0.134443998336792 seconds.
+    cd filibuster-tutorial
+    make local-start
 
+Now, run the functional test.
+
+.. code-block:: shell
+
+    chmod 755 functionaal/test_foo_bar_baz.py
+    ./functional/test_foo_bar_baz.py
+
+At this point, your test should pass.  If it doesn't, please make sure your services were implemented correctly as
+described above, and that you have started the services using the ``local-start`` make target.
 
 Finding the Bug
 ---------------
 
-Now, we will use ``filibuster`` to inject faults.
+Let's use Filibuster to identify bugs using fault injection.  First, we can use Filibuster to identify bugs using a
+default set of faults for the application.  We can do that using the Filibuster CLI tool.
 
-First we need to update our test a bit. Instead of only ensuring that our three apps successfully return "foo bar baz" to a client,
-we also want to allow the request to ``foo`` to fail gracefully. To ensure the request fails only when it should, we should use the
-``helper`` module. ``helper``'s ``fault_injected()`` tells us whether:
-
-* a fault has been injected, meaning ``response.status_code`` should be a failure status code
-* or not, meaning ``response.status_code`` should be ``200`` and "foo bar baz" should be returned
-
-Adjust ``filibuster-tutorial/functional/test_foo_bar_baz.py`` to incorporate ``helper``'s ``fault_injected()`` so that it matches the following:
-
-.. code-block:: python
-
-    import requests
-    import os
-    import sys
-
-    examples_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-    sys.path.append(examples_path)
-
-    import helper
-    helper = helper.Helper("filibuster-tutorial")
-
-    # Note that tests should be prefixed with test_functional for filibuster compatibility
-    def test_functional_foo_bar_baz():
-        response = requests.get("{}/foo/bar/baz".format(helper.get_service_url('foo')), timeout=helper.get_timeout('foo'))
-        if response.status_code == 200:
-            assert (not helper.fault_injected()) and response.text == "foo bar baz"
-        else:
-            assert helper.fault_injected() and response.status_code in [503, 404]
-
-    if __name__ == "__main__":
-        test_functional_foo_bar_baz()
-
-Run the following:
-
-``cd filibuster-tutorial; make local-functional-with-fault-injection-bypass-stop-start``
-
-You should get the following output:
+First, install Filibuster.
 
 .. code-block:: shell
 
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 8
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]: * Failed with exception: {'name': 'requests.exceptions.ConnectionError'}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 0: {'name': 'requests.exceptions.ConnectionError'}
-    [FILIBUSTER] [INFO]: =====================================================================================
-    127.0.0.1 - - [18/May/2021 17:02:25] "GET /filibuster/new-test-execution/foo HTTP/1.1" 200 -
-    127.0.0.1 - - [18/May/2021 17:02:25] "PUT /filibuster/create HTTP/1.1" 200 -
-    127.0.0.1 - - [18/May/2021 17:02:25] "POST /filibuster/update HTTP/1.1" 200 -
-    127.0.0.1 - - [18/May/2021 17:02:25] "POST /filibuster/update HTTP/1.1" 200 -
-    Traceback (most recent call last):
-      File "/Users/filibuster-user/nufilibuster/examples/filibuster-tutorial/functional/test_foo_bar_baz.py", line 20, in <module>
-        test_functional_foo_bar_baz()
-      File "/Users/filibuster-user/nufilibuster/examples/filibuster-tutorial/functional/test_foo_bar_baz.py", line 17, in test_functional_foo_bar_baz
-        assert helper.fault_injected() and response.status_code in [503, 404]
-    AssertionError
+    pip install filibuster
 
-Fixing the Bug
---------------
-
-Clearly there is a bug! To fix the bug, we see that a Connection Error caused a failed assertion. We forgot to handle the case where ``foo``'s request to ``bar`` fails due to a ``ConnectionError``. In ``filibuster-tutorial/service/foo/foo/app.py``'s ``foo`` method, add the following code right after ``foo`` handles the timeout.
-
-.. code-block:: python
-
-    except requests.exceptions.ConnectionError:
-        raise ServiceUnavailable("The bar service is unavailable.")
-
-Testing the Fix
----------------
-
-Now, verify that the bug is fixed. Rerun just the specific bug we found using (note the ``RUN_COUNTEREXAMPLE`` flag which allows us to rerun just the failed test):
-
-``cd filibuster-tutorial; RUN_COUNTEREXAMPLE=true make local-functional-with-fault-injection``
-
-The previously failed test should pass:
+Next, provide the Filibuster CLI tool with the path to the functional test.  If we don't specify what faults to inject,
+Filibuster will use test default set of common faults.
 
 .. code-block:: shell
 
-    [FILIBUSTER] [NOTICE]: Completed testing test_functional_foo_bar_baz
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Test executions actually ran:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 1
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]: * Failed with exception: {'name': 'requests.exceptions.ConnectionError'}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 0: {'name': 'requests.exceptions.ConnectionError'}
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Test executions actually pruned:
-    [FILIBUSTER] [INFO]: None.
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Number of tests attempted: 1
-    [FILIBUSTER] [INFO]: Number of test executions ran: 1
-    [FILIBUSTER] [INFO]: Test executions pruned with only dynamic pruning: 0
-    [FILIBUSTER] [INFO]: Total tests: 1
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Time elapsed: 2.2366678714752197 seconds.
+    filibuster --functional-test ./functional/test_foo_bar_baz.py
 
-Lastly, run all of the ``filibuster`` tests again to verify fault tolerance:
-
-``cd filibuster-tutorial; make local-functional-with-fault-injection-bypass-start-stop``
-
-Now, all tests should pass! There should be a total of 8 tests generated by ``filibuster``:
+We should see output like the following:
 
 .. code-block:: shell
 
-    [FILIBUSTER] [NOTICE]: Completed testing test_functional_foo_bar_baz
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Test executions actually ran:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 1
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 1: args: ['http://0.0.0.0:5002/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1], ["19341e59858927e30ff947bd62841716", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1, 'bar': 1}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: None.
-    [FILIBUSTER] [INFO]: =====================================================================================
+     * Serving Flask app "filibuster.server" (lazy loading)
+     * Environment: production
+       WARNING: Do not use the development server in a production environment.
+       Use a production WSGI server instead.
+     * Debug mode: off
+     * Running on all addresses.
+       WARNING: This is a development server. Do not use it in a production deployment.
+     * Running on http://100.68.79.169:5005/ (Press CTRL+C to quit)
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "GET /health-check HTTP/1.1" 200 -
+    [FILIBUSTER] [NOTICE]: Running test ./functional/test_foo_bar_baz.py
+    [FILIBUSTER] [INFO]: Running initial non-failing execution (test 1) ./functional/test_foo_bar_baz.py
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "GET /filibuster/new-test-execution/foo HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "PUT /filibuster/create HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "POST /filibuster/update HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "GET /filibuster/new-test-execution/bar HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "PUT /filibuster/create HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "POST /filibuster/update HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "POST /filibuster/update HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "POST /filibuster/update HTTP/1.1" 200 -
+    [FILIBUSTER] [INFO]: [DONE] Running initial non-failing execution (test 1)
+    [FILIBUSTER] [INFO]: Running test 2
+    [FILIBUSTER] [INFO]: Total tests pruned so far: 0
+    [FILIBUSTER] [INFO]: Total tests remaining: 9
     [FILIBUSTER] [INFO]:
     [FILIBUSTER] [INFO]: =====================================================================================
     [FILIBUSTER] [INFO]: Test number: 2
     [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
+    [FILIBUSTER] [INFO]: gen_id: 0
+    [FILIBUSTER] [INFO]:   module: requests
+    [FILIBUSTER] [INFO]:   method: get
+    [FILIBUSTER] [INFO]:   args: ['5001/bar/baz']
+    [FILIBUSTER] [INFO]:   kwargs: {}
     [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
+    [FILIBUSTER] [INFO]:   origin_vclock: {}
+    [FILIBUSTER] [INFO]:   execution_index: [["b13f73ac8ced79cb093a638972923de1", 1]]
     [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 1: args: ['http://0.0.0.0:5002/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1], ["19341e59858927e30ff947bd62841716", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {'foo': 1}
+    [FILIBUSTER] [INFO]: gen_id: 1
+    [FILIBUSTER] [INFO]:   module: requests
+    [FILIBUSTER] [INFO]:   method: get
+    [FILIBUSTER] [INFO]:   args: ['5002/baz']
+    [FILIBUSTER] [INFO]:   kwargs: {}
     [FILIBUSTER] [INFO]:   vclock: {'foo': 1, 'bar': 1}
-    [FILIBUSTER] [INFO]: * Failed with metadata: [('return_value', {'status_code': 500})]
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 1: [('return_value', {'status_code': 500})]
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 3
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 1: args: ['http://0.0.0.0:5002/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1], ["19341e59858927e30ff947bd62841716", 1]]
     [FILIBUSTER] [INFO]:   origin_vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1, 'bar': 1}
-    [FILIBUSTER] [INFO]: * Failed with exception: {'name': 'requests.exceptions.Timeout'}
+    [FILIBUSTER] [INFO]:   execution_index: [["b13f73ac8ced79cb093a638972923de1", 1], ["e654c4b77587b601e5a5767a82a27f45", 1]]
+    [FILIBUSTER] [INFO]: * Failed with metadata: [('return_value', {'status_code': '503'})]
     [FILIBUSTER] [INFO]:
     [FILIBUSTER] [INFO]:
     [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 1: {'name': 'requests.exceptions.Timeout'}
+    [FILIBUSTER] [INFO]: [["b13f73ac8ced79cb093a638972923de1", 1], ["e654c4b77587b601e5a5767a82a27f45", 1]]: [('return_value', {'status_code': '503'})]
     [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 4
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 1: args: ['http://0.0.0.0:5002/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1], ["19341e59858927e30ff947bd62841716", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1, 'bar': 1}
-    [FILIBUSTER] [INFO]: * Failed with exception: {'name': 'requests.exceptions.ConnectionError'}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 1: {'name': 'requests.exceptions.ConnectionError'}
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 5
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]: * Failed with metadata: [('return_value', {'status_code': 500})]
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 0: [('return_value', {'status_code': 500})]
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 6
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]: * Failed with exception: {'name': 'requests.exceptions.Timeout'}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 0: {'name': 'requests.exceptions.Timeout'}
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 7
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]: * Failed with exception: {'name': 'requests.exceptions.ConnectionError'}
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 0: {'name': 'requests.exceptions.ConnectionError'}
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Test executions actually pruned:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]: Test number: 1
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: 0: args: ['http://0.0.0.0:5001/bar/baz'] kwargs: {}
-    [FILIBUSTER] [INFO]:   execution_index: [["82c72a199994ec4617027843481fafce", 1]]
-    [FILIBUSTER] [INFO]:   origin_vclock: {}
-    [FILIBUSTER] [INFO]:   vclock: {'foo': 1}
-    [FILIBUSTER] [INFO]: * Failed with metadata: [('return_value', {'status_code': 503})]
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Failures for this execution:
-    [FILIBUSTER] [INFO]: 0: [('return_value', {'status_code': 503})]
-    [FILIBUSTER] [INFO]: =====================================================================================
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Number of tests attempted: 7
-    [FILIBUSTER] [INFO]: Number of test executions ran: 7
-    [FILIBUSTER] [INFO]: Test executions pruned with only dynamic pruning: 1
-    [FILIBUSTER] [INFO]: Total tests: 8
-    [FILIBUSTER] [INFO]:
-    [FILIBUSTER] [INFO]: Time elapsed: 1.0523009300231934 seconds.
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "GET /filibuster/new-test-execution/foo HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "PUT /filibuster/create HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "POST /filibuster/update HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "GET /filibuster/new-test-execution/bar HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "PUT /filibuster/create HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "POST /filibuster/update HTTP/1.1" 200 -
+    127.0.0.1 - - [27/Sep/2021 10:35:05] "POST /filibuster/update HTTP/1.1" 200 -
+    Traceback (most recent call last):
+      File "/private/tmp/filibuster-corpus/filibuster-tutorial/./functional/test_foo_bar_baz.py", line 19, in <module>
+        test_functional_foo_bar_baz()
+      File "/private/tmp/filibuster-corpus/filibuster-tutorial/./functional/test_foo_bar_baz.py", line 16, in test_functional_foo_bar_baz
+        assert response.status_code == 200 and response.text == "foo bar baz"
+    AssertionError
+    [FILIBUSTER] [FAIL]: Test failed; counterexample file written: counterexample.json
 
-Integrating Docker
-------------------
-
-Once your application runs with ``filibuster`` locally, by adding just a few files you can make run your application using Docker. Add and populate some of the files:
+What we see here is an assertion failure: the status code and text do not match when a fault was injected.  We can see
+from further back in the output the precise fault that was injected.
 
 .. code-block:: shell
 
-    touch filibuster-tutorial/docker-compose.yaml
-    reqs="Flask==1.0.0\npytest\nrequests\nopentelemetry-sdk==1.0.0rc1\nopentelemetry-api==1.0.0rc1\nopentelemetry-instrumentation==0.18b0\nopentelemetry-exporter-jaeger==1.0.0rc1\nopentelemetry-instrumentation-flask==0.18b1\nopentelemetry-instrumentation-requests==0.18b1\ndocker\nkubernetes"
-    echo -e $reqs >> filibuster-tutorial/base_requirements.txt
-    for service in foo bar baz
-    do
-        # Each service must have a Dockerfile.
-        dockerfile="FROM filibuster-tutorial:configuration\n\nWORKDIR /nufilibuster/examples/filibuster-tutorial/services/$service\n\nCOPY . /nufilibuster/examples/filibuster-tutorial/services/$service\n\nENTRYPOINT [ \"python3\" ]\nCMD [ \"-m\", \"$service.app\" ] "
-        echo -e $dockerfile >> filibuster-tutorial/services/$service/Dockerfile
-    done
+    [FILIBUSTER] [INFO]: gen_id: 1
+    [FILIBUSTER] [INFO]:   module: requests
+    [FILIBUSTER] [INFO]:   method: get
+    [FILIBUSTER] [INFO]:   args: ['5002/baz']
+    [FILIBUSTER] [INFO]:   kwargs: {}
+    [FILIBUSTER] [INFO]:   vclock: {'foo': 1, 'bar': 1}
+    [FILIBUSTER] [INFO]:   origin_vclock: {'foo': 1}
+    [FILIBUSTER] [INFO]:   execution_index: [["b13f73ac8ced79cb093a638972923de1", 1], ["e654c4b77587b601e5a5767a82a27f45", 1]]
+    [FILIBUSTER] [INFO]: * Failed with metadata: [('return_value', {'status_code': '503'})]
 
-In ``filibuster-tutorial/docker-compose.yaml`` add:
+Here, we see that the request from ``bar`` to ``baz`` was failed with a 503 Service Unavailable response.  This response caused the entire request to no longer return a 200 OK containing "foo bar baz".
 
-.. code-block:: dockerfile
-
-    version: '3'
-
-    services:
-        foo:
-            image: ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/filibuster-tutorial:foo
-            build:
-                context: './services/foo/'
-                dockerfile: './Dockerfile'
-            ports:
-                - "5000:5000"
-        bar:
-            image: ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/filibuster-tutorial:bar
-            build:
-                context: './services/bar'
-                dockerfile: './Dockerfile'
-            ports:
-                - "5001:5001"
-        baz:
-            image: ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/filibuster-tutorial:baz
-            build:
-                context: './services/baz'
-                dockerfile: './Dockerfile'
-            ports:
-                - "5002:5002"
-
-Now you can run things using Docker. Try running ``cd filibuster-tutorial; make docker-functional-with-fault-injection-bypass-start-stop``.
-
-
-Integrating Minikube
---------------------
-Finally, once your application runs with ``filibuster`` using docker, you can easily make it run using Minikube. Define service and deployment files as follows for each of the services:
-
-.. code-block:: shell
-
-    # Note the services and corresponding ports correspond to filibuster-tutorial/networking.json
-    for i in "foo 5000" "bar 5001" "baz 5002"
-    do
-        set -- $i
-        service=$1
-        port=$2
-
-        serviceyaml="apiVersion: v1\nkind: Service\nmetadata:\n  name: $service\nspec:\n  type: NodePort\n  ports:\n    - name: \"$port\"\n      port: $port\n      targetPort: $port\n  selector:\n    io.kompose.service: $service\n"
-        deploymentyaml="apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  labels:\n    io.kompose.service: $service\n  name: $service\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      io.kompose.service: $service\n  template:\n    metadata:\n      labels:\n        io.kompose.service: $service\n    spec:\n      containers:\n        - image: \${AWS_ACCOUNT_ID}.dkr.ecr.\${REGION}.amazonaws.com/filibuster-tutorial:$service\n          name: $service\n          ports:\n          - containerPort: $port\n          imagePullPolicy: IfNotPresent\n      restartPolicy: Always\n      imagePullSecrets:\n        - name: regcred"
-
-        mkdir filibuster-tutorial/services/$service/k8s
-        echo -e "$serviceyaml" >> filibuster-tutorial/services/$service/k8s/service.yaml
-        echo -e "$deploymentyaml" >> filibuster-tutorial/services/$service/k8s/deployment.yaml
-    done
-    env="example=filibuster-tutorial\nservices=\"foo bar baz\""
-    echo -e $env >> filibuster-tutorial/env.txt
-
-Now you can run things using Minikube. Try running ``cd filibuster-tutorial; make minikube-functional-with-fault-injection-bypass-start-stop``.

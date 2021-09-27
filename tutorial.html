@@ -54,10 +54,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#functional-testing">Functional Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#finding-the-bug">Finding the Bug</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#fixing-the-bug">Fixing the Bug</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#testing-the-fix">Testing the Fix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#integrating-docker">Integrating Docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#integrating-minikube">Integrating Minikube</a></li>
 </ul>
 </li>
 </ul>
@@ -106,7 +102,7 @@ you should first clone the Filibuster corpus.</p>
 </div>
 <section id="flask-app-setup">
 <h3>Flask App Setup<a class="headerlink" href="#flask-app-setup" title="Permalink to this headline"></a></h3>
-<p>Navigate to <code class="docutils literal notranslate"><span class="pre">examples</span></code>.  Then, create the basic structure for your apps:</p>
+<p>Create the basic structure for your apps:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir filibuster-tutorial                                <span class="c1"># This is where you&#39;ll be putting all files for this tutorial.</span>
 mkdir filibuster-tutorial/services                       <span class="c1"># This is where you will write your apps.</span>
 mkdir filibuster-tutorial/functional
@@ -308,43 +304,15 @@ different fault combinations.</p>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="c1">## Start OpenTelemetry Configuration</span>
-
-<span class="kn">from</span> <span class="nn">opentelemetry</span> <span class="kn">import</span> <span class="n">trace</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.exporter</span> <span class="kn">import</span> <span class="n">jaeger</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.sdk.trace</span> <span class="kn">import</span> <span class="n">TracerProvider</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.sdk.trace.export</span> <span class="kn">import</span> <span class="n">BatchExportSpanProcessor</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.instrumentation.flask</span> <span class="kn">import</span> <span class="n">FlaskInstrumentor</span>
-<span class="kn">from</span> <span class="nn">opentelemetry.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span>
-
-<span class="n">trace</span><span class="o">.</span><span class="n">set_tracer_provider</span><span class="p">(</span><span class="n">TracerProvider</span><span class="p">())</span>
-
-<span class="n">jaeger_exporter</span> <span class="o">=</span> <span class="n">jaeger</span><span class="o">.</span><span class="n">JaegerSpanExporter</span><span class="p">(</span>
-    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span>
-    <span class="n">agent_host_name</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">jaeger_agent_host_name</span><span class="p">(),</span>
-    <span class="n">agent_port</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">jaeger_agent_port</span><span class="p">()</span>
-<span class="p">)</span>
-
-<span class="n">trace</span><span class="o">.</span><span class="n">get_tracer_provider</span><span class="p">()</span><span class="o">.</span><span class="n">add_span_processor</span><span class="p">(</span>
-    <span class="n">BatchExportSpanProcessor</span><span class="p">(</span><span class="n">jaeger_exporter</span><span class="p">)</span>
-<span class="p">)</span>
-
-<span class="n">tracer</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">get_tracer</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
 <span class="c1">## Instrument using filibuster</span>
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">examples_path</span><span class="p">))</span>
-<span class="kn">from</span> <span class="nn">filibuster.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterRequestsInstrumentor</span>
 
-<span class="n">FilibusterRequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span>
-                                            <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
+<span class="kn">from</span> <span class="nn">filibuster.instrumentation.requests</span> <span class="kn">import</span> <span class="n">RequestsInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterRequestsInstrumentor</span>
+<span class="n">FilibusterRequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
 
 <span class="kn">from</span> <span class="nn">filibuster.instrumentation.flask</span> <span class="kn">import</span> <span class="n">FlaskInstrumentor</span> <span class="k">as</span> <span class="n">FilibusterFlaskInstrumentor</span>
-
-<span class="n">FilibusterFlaskInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span>
-                                            <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
-
-<span class="n">RequestsInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument</span><span class="p">()</span>
+<span class="n">FilibusterFlaskInstrumentor</span><span class="p">()</span><span class="o">.</span><span class="n">instrument_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">filibuster_url</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;filibuster&#39;</span><span class="p">))</span>
 
 <span class="c1"># filibuster requires a health check app to ensure service is running</span>
 <span class="nd">@app.route</span><span class="p">(</span><span class="s2">&quot;/health-check&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
@@ -374,7 +342,9 @@ different fault combinations.</p>
 <p>Now that your Flask apps are created, write a functional test. This test will ensure that our three apps work
 together to return “foo bar baz” to a client. In <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/functional/test_foo_bar_baz.py</span></code>, add
 the following code.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
@@ -393,360 +363,113 @@ the following code.</p>
     <span class="n">test_functional_foo_bar_baz</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Now, verify that the functional test passes:</p>
-<p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">filibuster-tutorial;</span> <span class="pre">make</span> <span class="pre">local-functional-via-filibuster-server</span></code></p>
-<p>You should get something like the following output:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>NOTICE<span class="o">]</span>: Running <span class="nb">test</span> test_functional_foo_bar_baz
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Running initial non-failing execution <span class="o">(</span><span class="nb">test</span> <span class="m">1</span><span class="o">)</span> <span class="p">&amp;</span>ltmodule <span class="s1">&#39;test_foo_bar_baz&#39;</span> from <span class="s1">&#39;/Users/filibuster-user/nufilibuster/examples/filibuster-tutorial/functional/test_foo_bar_baz.py&#39;</span><span class="p">&amp;</span>gt
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">[</span>DONE<span class="o">]</span> Running initial non-failing execution <span class="o">(</span><span class="nb">test</span> <span class="m">1</span><span class="o">)</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>NOTICE<span class="o">]</span>: Completed testing test_functional_foo_bar_baz
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions actually ran:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: None.
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions actually pruned:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: None.
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Number of tests attempted: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Number of <span class="nb">test</span> executions ran: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions pruned with only dynamic pruning: <span class="m">0</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Total tests: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Time elapsed: <span class="m">0</span>.134443998336792 seconds.
+<p>Now, let’s verify that the functional test passes.  First, let’s start the required services.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> filibuster-tutorial
+make local-start
 </pre></div>
 </div>
+<p>Now, run the functional test.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>chmod <span class="m">755</span> functionaal/test_foo_bar_baz.py
+./functional/test_foo_bar_baz.py
+</pre></div>
+</div>
+<p>At this point, your test should pass.  If it doesn’t, please make sure your services were implemented correctly as
+described above, and that you have started the services using the <code class="docutils literal notranslate"><span class="pre">local-start</span></code> make target.</p>
 </section>
 <section id="finding-the-bug">
 <h2>Finding the Bug<a class="headerlink" href="#finding-the-bug" title="Permalink to this headline"></a></h2>
-<p>Now, we will use <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> to inject faults.</p>
-<p>First we need to update our test a bit. Instead of only ensuring that our three apps successfully return “foo bar baz” to a client,
-we also want to allow the request to <code class="docutils literal notranslate"><span class="pre">foo</span></code> to fail gracefully. To ensure the request fails only when it should, we should use the
-<code class="docutils literal notranslate"><span class="pre">helper</span></code> module. <code class="docutils literal notranslate"><span class="pre">helper</span></code>’s <code class="docutils literal notranslate"><span class="pre">fault_injected()</span></code> tells us whether:</p>
-<ul class="simple">
-<li><p>a fault has been injected, meaning <code class="docutils literal notranslate"><span class="pre">response.status_code</span></code> should be a failure status code</p></li>
-<li><p>or not, meaning <code class="docutils literal notranslate"><span class="pre">response.status_code</span></code> should be <code class="docutils literal notranslate"><span class="pre">200</span></code> and “foo bar baz” should be returned</p></li>
-</ul>
-<p>Adjust <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/functional/test_foo_bar_baz.py</span></code> to incorporate <code class="docutils literal notranslate"><span class="pre">helper</span></code>’s <code class="docutils literal notranslate"><span class="pre">fault_injected()</span></code> so that it matches the following:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-
-<span class="n">examples_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))))</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">examples_path</span><span class="p">)</span>
-
-<span class="kn">import</span> <span class="nn">helper</span>
-<span class="n">helper</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">Helper</span><span class="p">(</span><span class="s2">&quot;filibuster-tutorial&quot;</span><span class="p">)</span>
-
-<span class="c1"># Note that tests should be prefixed with test_functional for filibuster compatibility</span>
-<span class="k">def</span> <span class="nf">test_functional_foo_bar_baz</span><span class="p">():</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;{}/foo/bar/baz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_timeout</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="p">(</span><span class="ow">not</span> <span class="n">helper</span><span class="o">.</span><span class="n">fault_injected</span><span class="p">())</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;foo bar baz&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">helper</span><span class="o">.</span><span class="n">fault_injected</span><span class="p">()</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">503</span><span class="p">,</span> <span class="mi">404</span><span class="p">]</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">test_functional_foo_bar_baz</span><span class="p">()</span>
+<p>Let’s use Filibuster to identify bugs using fault injection.  First, we can use Filibuster to identify bugs using a
+default set of faults for the application.  We can do that using the Filibuster CLI tool.</p>
+<p>First, install Filibuster.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install filibuster
 </pre></div>
 </div>
-<p>Run the following:</p>
-<p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">filibuster-tutorial;</span> <span class="pre">make</span> <span class="pre">local-functional-with-fault-injection-bypass-stop-start</span></code></p>
-<p>You should get the following output:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">8</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with exception: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">18</span>/May/2021 <span class="m">17</span>:02:25<span class="o">]</span> <span class="s2">&quot;GET /filibuster/new-test-execution/foo HTTP/1.1&quot;</span> <span class="m">200</span> -
-<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">18</span>/May/2021 <span class="m">17</span>:02:25<span class="o">]</span> <span class="s2">&quot;PUT /filibuster/create HTTP/1.1&quot;</span> <span class="m">200</span> -
-<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">18</span>/May/2021 <span class="m">17</span>:02:25<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
-<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">18</span>/May/2021 <span class="m">17</span>:02:25<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
-Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
-  File <span class="s2">&quot;/Users/filibuster-user/nufilibuster/examples/filibuster-tutorial/functional/test_foo_bar_baz.py&quot;</span>, line <span class="m">20</span>, in &lt;module&gt;
-    test_functional_foo_bar_baz<span class="o">()</span>
-  File <span class="s2">&quot;/Users/filibuster-user/nufilibuster/examples/filibuster-tutorial/functional/test_foo_bar_baz.py&quot;</span>, line <span class="m">17</span>, in test_functional_foo_bar_baz
-    assert helper.fault_injected<span class="o">()</span> and response.status_code in <span class="o">[</span><span class="m">503</span>, <span class="m">404</span><span class="o">]</span>
-AssertionError
+<p>Next, provide the Filibuster CLI tool with the path to the functional test.  If we don’t specify what faults to inject,
+Filibuster will use test default set of common faults.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py
 </pre></div>
 </div>
-</section>
-<section id="fixing-the-bug">
-<h2>Fixing the Bug<a class="headerlink" href="#fixing-the-bug" title="Permalink to this headline"></a></h2>
-<p>Clearly there is a bug! To fix the bug, we see that a Connection Error caused a failed assertion. We forgot to handle the case where <code class="docutils literal notranslate"><span class="pre">foo</span></code>’s request to <code class="docutils literal notranslate"><span class="pre">bar</span></code> fails due to a <code class="docutils literal notranslate"><span class="pre">ConnectionError</span></code>. In <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/service/foo/foo/app.py</span></code>’s <code class="docutils literal notranslate"><span class="pre">foo</span></code> method, add the following code right after <code class="docutils literal notranslate"><span class="pre">foo</span></code> handles the timeout.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="n">ServiceUnavailable</span><span class="p">(</span><span class="s2">&quot;The bar service is unavailable.&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="testing-the-fix">
-<h2>Testing the Fix<a class="headerlink" href="#testing-the-fix" title="Permalink to this headline"></a></h2>
-<p>Now, verify that the bug is fixed. Rerun just the specific bug we found using (note the <code class="docutils literal notranslate"><span class="pre">RUN_COUNTEREXAMPLE</span></code> flag which allows us to rerun just the failed test):</p>
-<p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">filibuster-tutorial;</span> <span class="pre">RUN_COUNTEREXAMPLE=true</span> <span class="pre">make</span> <span class="pre">local-functional-with-fault-injection</span></code></p>
-<p>The previously failed test should pass:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>NOTICE<span class="o">]</span>: Completed testing test_functional_foo_bar_baz
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions actually ran:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with exception: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions actually pruned:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: None.
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Number of tests attempted: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Number of <span class="nb">test</span> executions ran: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions pruned with only dynamic pruning: <span class="m">0</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Total tests: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Time elapsed: <span class="m">2</span>.2366678714752197 seconds.
-</pre></div>
-</div>
-<p>Lastly, run all of the <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> tests again to verify fault tolerance:</p>
-<p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">filibuster-tutorial;</span> <span class="pre">make</span> <span class="pre">local-functional-with-fault-injection-bypass-start-stop</span></code></p>
-<p>Now, all tests should pass! There should be a total of 8 tests generated by <code class="docutils literal notranslate"><span class="pre">filibuster</span></code>:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>NOTICE<span class="o">]</span>: Completed testing test_functional_foo_bar_baz
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions actually ran:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">1</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5002/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]</span>, <span class="o">[</span><span class="s2">&quot;19341e59858927e30ff947bd62841716&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span>, <span class="s1">&#39;bar&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: None.
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
+<p>We should see output like the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span> * Serving Flask app <span class="s2">&quot;filibuster.server&quot;</span> <span class="o">(</span>lazy loading<span class="o">)</span>
+ * Environment: production
+   WARNING: Do not use the development server in a production environment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://100.68.79.169:5005/ <span class="o">(</span>Press CTRL+C to quit<span class="o">)</span>
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;GET /health-check HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>NOTICE<span class="o">]</span>: Running <span class="nb">test</span> ./functional/test_foo_bar_baz.py
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Running initial non-failing execution <span class="o">(</span><span class="nb">test</span> <span class="m">1</span><span class="o">)</span> ./functional/test_foo_bar_baz.py
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;GET /filibuster/new-test-execution/foo HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;PUT /filibuster/create HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;GET /filibuster/new-test-execution/bar HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;PUT /filibuster/create HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">[</span>DONE<span class="o">]</span> Running initial non-failing execution <span class="o">(</span><span class="nb">test</span> <span class="m">1</span><span class="o">)</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Running <span class="nb">test</span> <span class="m">2</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Total tests pruned so far: <span class="m">0</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Total tests remaining: <span class="m">9</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">2</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: gen_id: <span class="m">0</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   module: requests
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   method: get
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   args: <span class="o">[</span><span class="s1">&#39;5001/bar/baz&#39;</span><span class="o">]</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   kwargs: <span class="o">{}</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;b13f73ac8ced79cb093a638972923de1&quot;</span>, <span class="m">1</span><span class="o">]]</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">1</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5002/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]</span>, <span class="o">[</span><span class="s2">&quot;19341e59858927e30ff947bd62841716&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: gen_id: <span class="m">1</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   module: requests
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   method: get
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   args: <span class="o">[</span><span class="s1">&#39;5002/baz&#39;</span><span class="o">]</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   kwargs: <span class="o">{}</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span>, <span class="s1">&#39;bar&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with metadata: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="m">500</span><span class="o">})]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">1</span>: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="m">500</span><span class="o">})]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">3</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">1</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5002/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]</span>, <span class="o">[</span><span class="s2">&quot;19341e59858927e30ff947bd62841716&quot;</span>, <span class="m">1</span><span class="o">]]</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span>, <span class="s1">&#39;bar&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with exception: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.Timeout&#39;</span><span class="o">}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;b13f73ac8ced79cb093a638972923de1&quot;</span>, <span class="m">1</span><span class="o">]</span>, <span class="o">[</span><span class="s2">&quot;e654c4b77587b601e5a5767a82a27f45&quot;</span>, <span class="m">1</span><span class="o">]]</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with metadata: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="s1">&#39;503&#39;</span><span class="o">})]</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">1</span>: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.Timeout&#39;</span><span class="o">}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">[[</span><span class="s2">&quot;b13f73ac8ced79cb093a638972923de1&quot;</span>, <span class="m">1</span><span class="o">]</span>, <span class="o">[</span><span class="s2">&quot;e654c4b77587b601e5a5767a82a27f45&quot;</span>, <span class="m">1</span><span class="o">]]</span>: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="s1">&#39;503&#39;</span><span class="o">})]</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">4</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">1</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5002/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]</span>, <span class="o">[</span><span class="s2">&quot;19341e59858927e30ff947bd62841716&quot;</span>, <span class="m">1</span><span class="o">]]</span>
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;GET /filibuster/new-test-execution/foo HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;PUT /filibuster/create HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;GET /filibuster/new-test-execution/bar HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;PUT /filibuster/create HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
+<span class="m">127</span>.0.0.1 - - <span class="o">[</span><span class="m">27</span>/Sep/2021 <span class="m">10</span>:35:05<span class="o">]</span> <span class="s2">&quot;POST /filibuster/update HTTP/1.1&quot;</span> <span class="m">200</span> -
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+  File <span class="s2">&quot;/private/tmp/filibuster-corpus/filibuster-tutorial/./functional/test_foo_bar_baz.py&quot;</span>, line <span class="m">19</span>, in &lt;module&gt;
+    test_functional_foo_bar_baz<span class="o">()</span>
+  File <span class="s2">&quot;/private/tmp/filibuster-corpus/filibuster-tutorial/./functional/test_foo_bar_baz.py&quot;</span>, line <span class="m">16</span>, in test_functional_foo_bar_baz
+    assert response.status_code <span class="o">==</span> <span class="m">200</span> and response.text <span class="o">==</span> <span class="s2">&quot;foo bar baz&quot;</span>
+AssertionError
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>FAIL<span class="o">]</span>: Test failed<span class="p">;</span> counterexample file written: counterexample.json
+</pre></div>
+</div>
+<p>What we see here is an assertion failure: the status code and text do not match when a fault was injected.  We can see
+from further back in the output the precise fault that was injected.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: gen_id: <span class="m">1</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   module: requests
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   method: get
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   args: <span class="o">[</span><span class="s1">&#39;5002/baz&#39;</span><span class="o">]</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   kwargs: <span class="o">{}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span>, <span class="s1">&#39;bar&#39;</span>: <span class="m">1</span><span class="o">}</span>
 <span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span>, <span class="s1">&#39;bar&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with exception: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">1</span>: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">5</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with metadata: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="m">500</span><span class="o">})]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="m">500</span><span class="o">})]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">6</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with exception: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.Timeout&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.Timeout&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">7</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with exception: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: <span class="o">{</span><span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;requests.exceptions.ConnectionError&#39;</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions actually pruned:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test number: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: args: <span class="o">[</span><span class="s1">&#39;http://0.0.0.0:5001/bar/baz&#39;</span><span class="o">]</span> kwargs: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;82c72a199994ec4617027843481fafce&quot;</span>, <span class="m">1</span><span class="o">]]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   origin_vclock: <span class="o">{}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   vclock: <span class="o">{</span><span class="s1">&#39;foo&#39;</span>: <span class="m">1</span><span class="o">}</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with metadata: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="m">503</span><span class="o">})]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Failures <span class="k">for</span> this execution:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="m">0</span>: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="m">503</span><span class="o">})]</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: <span class="o">=====================================================================================</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Number of tests attempted: <span class="m">7</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Number of <span class="nb">test</span> executions ran: <span class="m">7</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Test executions pruned with only dynamic pruning: <span class="m">1</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Total tests: <span class="m">8</span>
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
-<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Time elapsed: <span class="m">1</span>.0523009300231934 seconds.
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:   execution_index: <span class="o">[[</span><span class="s2">&quot;b13f73ac8ced79cb093a638972923de1&quot;</span>, <span class="m">1</span><span class="o">]</span>, <span class="o">[</span><span class="s2">&quot;e654c4b77587b601e5a5767a82a27f45&quot;</span>, <span class="m">1</span><span class="o">]]</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * Failed with metadata: <span class="o">[(</span><span class="s1">&#39;return_value&#39;</span>, <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="s1">&#39;503&#39;</span><span class="o">})]</span>
 </pre></div>
 </div>
-</section>
-<section id="integrating-docker">
-<h2>Integrating Docker<a class="headerlink" href="#integrating-docker" title="Permalink to this headline"></a></h2>
-<p>Once your application runs with <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> locally, by adding just a few files you can make run your application using Docker. Add and populate some of the files:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>touch filibuster-tutorial/docker-compose.yaml
-<span class="nv">reqs</span><span class="o">=</span><span class="s2">&quot;Flask==1.0.0\npytest\nrequests\nopentelemetry-sdk==1.0.0rc1\nopentelemetry-api==1.0.0rc1\nopentelemetry-instrumentation==0.18b0\nopentelemetry-exporter-jaeger==1.0.0rc1\nopentelemetry-instrumentation-flask==0.18b1\nopentelemetry-instrumentation-requests==0.18b1\ndocker\nkubernetes&quot;</span>
-<span class="nb">echo</span> -e <span class="nv">$reqs</span> &gt;&gt; filibuster-tutorial/base_requirements.txt
-<span class="k">for</span> service in foo bar baz
-<span class="k">do</span>
-    <span class="c1"># Each service must have a Dockerfile.</span>
-    <span class="nv">dockerfile</span><span class="o">=</span><span class="s2">&quot;FROM filibuster-tutorial:configuration\n\nWORKDIR /nufilibuster/examples/filibuster-tutorial/services/</span><span class="nv">$service</span><span class="s2">\n\nCOPY . /nufilibuster/examples/filibuster-tutorial/services/</span><span class="nv">$service</span><span class="s2">\n\nENTRYPOINT [ \&quot;python3\&quot; ]\nCMD [ \&quot;-m\&quot;, \&quot;</span><span class="nv">$service</span><span class="s2">.app\&quot; ] &quot;</span>
-    <span class="nb">echo</span> -e <span class="nv">$dockerfile</span> &gt;&gt; filibuster-tutorial/services/<span class="nv">$service</span>/Dockerfile
-<span class="k">done</span>
-</pre></div>
-</div>
-<p>In <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/docker-compose.yaml</span></code> add:</p>
-<div class="highlight-dockerfile notranslate"><div class="highlight"><pre><span></span>version: <span class="s1">&#39;3&#39;</span>
-
-services:
-    foo:
-        image: <span class="si">${</span><span class="nv">AWS_ACCOUNT_ID</span><span class="si">}</span>.dkr.ecr.<span class="si">${</span><span class="nv">REGION</span><span class="si">}</span>.amazonaws.com/filibuster-tutorial:foo
-        build:
-            context: <span class="s1">&#39;./services/foo/&#39;</span>
-            dockerfile: <span class="s1">&#39;./Dockerfile&#39;</span>
-        ports:
-            - <span class="s2">&quot;5000:5000&quot;</span>
-    bar:
-        image: <span class="si">${</span><span class="nv">AWS_ACCOUNT_ID</span><span class="si">}</span>.dkr.ecr.<span class="si">${</span><span class="nv">REGION</span><span class="si">}</span>.amazonaws.com/filibuster-tutorial:bar
-        build:
-            context: <span class="s1">&#39;./services/bar&#39;</span>
-            dockerfile: <span class="s1">&#39;./Dockerfile&#39;</span>
-        ports:
-            - <span class="s2">&quot;5001:5001&quot;</span>
-    baz:
-        image: <span class="si">${</span><span class="nv">AWS_ACCOUNT_ID</span><span class="si">}</span>.dkr.ecr.<span class="si">${</span><span class="nv">REGION</span><span class="si">}</span>.amazonaws.com/filibuster-tutorial:baz
-        build:
-            context: <span class="s1">&#39;./services/baz&#39;</span>
-            dockerfile: <span class="s1">&#39;./Dockerfile&#39;</span>
-        ports:
-            - <span class="s2">&quot;5002:5002&quot;</span>
-</pre></div>
-</div>
-<p>Now you can run things using Docker. Try running <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">filibuster-tutorial;</span> <span class="pre">make</span> <span class="pre">docker-functional-with-fault-injection-bypass-start-stop</span></code>.</p>
-</section>
-<section id="integrating-minikube">
-<h2>Integrating Minikube<a class="headerlink" href="#integrating-minikube" title="Permalink to this headline"></a></h2>
-<p>Finally, once your application runs with <code class="docutils literal notranslate"><span class="pre">filibuster</span></code> using docker, you can easily make it run using Minikube. Define service and deployment files as follows for each of the services:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note the services and corresponding ports correspond to filibuster-tutorial/networking.json</span>
-<span class="k">for</span> i in <span class="s2">&quot;foo 5000&quot;</span> <span class="s2">&quot;bar 5001&quot;</span> <span class="s2">&quot;baz 5002&quot;</span>
-<span class="k">do</span>
-    <span class="nb">set</span> -- <span class="nv">$i</span>
-    <span class="nv">service</span><span class="o">=</span><span class="nv">$1</span>
-    <span class="nv">port</span><span class="o">=</span><span class="nv">$2</span>
-
-    <span class="nv">serviceyaml</span><span class="o">=</span><span class="s2">&quot;apiVersion: v1\nkind: Service\nmetadata:\n  name: </span><span class="nv">$service</span><span class="s2">\nspec:\n  type: NodePort\n  ports:\n    - name: \&quot;</span><span class="nv">$port</span><span class="s2">\&quot;\n      port: </span><span class="nv">$port</span><span class="s2">\n      targetPort: </span><span class="nv">$port</span><span class="s2">\n  selector:\n    io.kompose.service: </span><span class="nv">$service</span><span class="s2">\n&quot;</span>
-    <span class="nv">deploymentyaml</span><span class="o">=</span><span class="s2">&quot;apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  labels:\n    io.kompose.service: </span><span class="nv">$service</span><span class="s2">\n  name: </span><span class="nv">$service</span><span class="s2">\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      io.kompose.service: </span><span class="nv">$service</span><span class="s2">\n  template:\n    metadata:\n      labels:\n        io.kompose.service: </span><span class="nv">$service</span><span class="s2">\n    spec:\n      containers:\n        - image: \${AWS_ACCOUNT_ID}.dkr.ecr.\${REGION}.amazonaws.com/filibuster-tutorial:</span><span class="nv">$service</span><span class="s2">\n          name: </span><span class="nv">$service</span><span class="s2">\n          ports:\n          - containerPort: </span><span class="nv">$port</span><span class="s2">\n          imagePullPolicy: IfNotPresent\n      restartPolicy: Always\n      imagePullSecrets:\n        - name: regcred&quot;</span>
-
-    mkdir filibuster-tutorial/services/<span class="nv">$service</span>/k8s
-    <span class="nb">echo</span> -e <span class="s2">&quot;</span><span class="nv">$serviceyaml</span><span class="s2">&quot;</span> &gt;&gt; filibuster-tutorial/services/<span class="nv">$service</span>/k8s/service.yaml
-    <span class="nb">echo</span> -e <span class="s2">&quot;</span><span class="nv">$deploymentyaml</span><span class="s2">&quot;</span> &gt;&gt; filibuster-tutorial/services/<span class="nv">$service</span>/k8s/deployment.yaml
-<span class="k">done</span>
-<span class="nv">env</span><span class="o">=</span><span class="s2">&quot;example=filibuster-tutorial\nservices=\&quot;foo bar baz\&quot;&quot;</span>
-<span class="nb">echo</span> -e <span class="nv">$env</span> &gt;&gt; filibuster-tutorial/env.txt
-</pre></div>
-</div>
-<p>Now you can run things using Minikube. Try running <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">filibuster-tutorial;</span> <span class="pre">make</span> <span class="pre">minikube-functional-with-fault-injection-bypass-start-stop</span></code>.</p>
+<p>Here, we see that the request from <code class="docutils literal notranslate"><span class="pre">bar</span></code> to <code class="docutils literal notranslate"><span class="pre">baz</span></code> was failed with a 503 Service Unavailable response.  This response caused the entire request to no longer return a 200 OK containing “foo bar baz”.</p>
 </section>
 </section>
 
