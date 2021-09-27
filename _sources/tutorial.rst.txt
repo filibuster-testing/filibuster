@@ -429,3 +429,65 @@ from further back in the output the precise fault that was injected.
 
 Here, we see that the request from ``bar`` to ``baz`` was failed with a 503 Service Unavailable response.  This response caused the entire request to no longer return a 200 OK containing "foo bar baz".
 
+If we want to re-run that precise test, we can using the counterexample that Filibuster provided.
+
+.. code-block:: shell
+
+    filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
+
+Updating our Functional Test
+----------------------------
+
+In order to keep testing, we need to update our assertions in our test to reflect the behavior we expect under failure.
+
+Instead of only ensuring that our three apps successfully return "foo bar baz" to a client, we also want to allow the
+request to ``foo`` to fail gracefully.  To ensure the request fails only when it should, we should use the
+``filibuster.assertions`` module. ``filibuster.assertions``'s ``was_fault_injected()`` tells us whether:
+
+* a fault has been injected, meaning ``response.status_code`` should be a failure status code
+* or not, meaning ``response.status_code`` should be ``200`` and "foo bar baz" should be returned
+
+Adjust ``filibuster-tutorial/functional/test_foo_bar_baz.py`` to incorporate ``filibuster.assertions``'s ``was_fault_injected()`` so that it matches the following:
+
+.. code-block:: python
+
+    #!/usr/bin/env python
+
+    import requests
+    import os
+    import sys
+
+    from filibuster.assertions import was_fault_injected
+
+    examples_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    sys.path.append(examples_path)
+
+    import helper
+    helper = helper.Helper("filibuster-tutorial")
+
+    # Note that tests should be prefixed with test_functional for filibuster compatibility
+    def test_functional_foo_bar_baz():
+        response = requests.get("{}/foo/bar/baz".format(helper.get_service_url('foo')), timeout=helper.get_timeout('foo'))
+        if response.status_code == 200:
+            assert (not was_fault_injected()) and response.text == "foo bar baz"
+        else:
+            assert was_fault_injected() and response.status_code in [503, 404]
+
+    if __name__ == "__main__":
+        test_functional_foo_bar_baz()
+
+Filibuster's assertions module also provides a more granular assertion: ``was_fault_injected_on(service_name)`` that can
+be used to write more precise assertions.
+
+Let's re-run the counterexample; with our updated assertion, the test should now pass!
+
+.. code-block:: shell
+
+    filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
+
+Now, we can run Filibuster again and test for the whole default set of failures as well.  We leave any remaining
+bugs in the application as an exercise for the reader!
+
+.. code-block:: shell
+
+    filibuster --functional-test ./functional/test_foo_bar_baz.py 

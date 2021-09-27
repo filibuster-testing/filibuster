@@ -54,6 +54,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#functional-testing">Functional Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#finding-the-bug">Finding the Bug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#updating-our-functional-test">Updating our Functional Test</a></li>
 </ul>
 </li>
 </ul>
@@ -470,6 +471,59 @@ from further back in the output the precise fault that was injected.</p>
 </pre></div>
 </div>
 <p>Here, we see that the request from <code class="docutils literal notranslate"><span class="pre">bar</span></code> to <code class="docutils literal notranslate"><span class="pre">baz</span></code> was failed with a 503 Service Unavailable response.  This response caused the entire request to no longer return a 200 OK containing “foo bar baz”.</p>
+<p>If we want to re-run that precise test, we can using the counterexample that Filibuster provided.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
+</pre></div>
+</div>
+</section>
+<section id="updating-our-functional-test">
+<h2>Updating our Functional Test<a class="headerlink" href="#updating-our-functional-test" title="Permalink to this headline"></a></h2>
+<p>In order to keep testing, we need to update our assertions in our test to reflect the behavior we expect under failure.</p>
+<p>Instead of only ensuring that our three apps successfully return “foo bar baz” to a client, we also want to allow the
+request to <code class="docutils literal notranslate"><span class="pre">foo</span></code> to fail gracefully.  To ensure the request fails only when it should, we should use the
+<code class="docutils literal notranslate"><span class="pre">filibuster.assertions</span></code> module. <code class="docutils literal notranslate"><span class="pre">filibuster.assertions</span></code>’s <code class="docutils literal notranslate"><span class="pre">was_fault_injected()</span></code> tells us whether:</p>
+<ul class="simple">
+<li><p>a fault has been injected, meaning <code class="docutils literal notranslate"><span class="pre">response.status_code</span></code> should be a failure status code</p></li>
+<li><p>or not, meaning <code class="docutils literal notranslate"><span class="pre">response.status_code</span></code> should be <code class="docutils literal notranslate"><span class="pre">200</span></code> and “foo bar baz” should be returned</p></li>
+</ul>
+<p>Adjust <code class="docutils literal notranslate"><span class="pre">filibuster-tutorial/functional/test_foo_bar_baz.py</span></code> to incorporate <code class="docutils literal notranslate"><span class="pre">filibuster.assertions</span></code>’s <code class="docutils literal notranslate"><span class="pre">was_fault_injected()</span></code> so that it matches the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">filibuster.assertions</span> <span class="kn">import</span> <span class="n">was_fault_injected</span>
+
+<span class="n">examples_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">examples_path</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">helper</span>
+<span class="n">helper</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">Helper</span><span class="p">(</span><span class="s2">&quot;filibuster-tutorial&quot;</span><span class="p">)</span>
+
+<span class="c1"># Note that tests should be prefixed with test_functional for filibuster compatibility</span>
+<span class="k">def</span> <span class="nf">test_functional_foo_bar_baz</span><span class="p">():</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;{}/foo/bar/baz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">helper</span><span class="o">.</span><span class="n">get_service_url</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">helper</span><span class="o">.</span><span class="n">get_timeout</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="ow">not</span> <span class="n">was_fault_injected</span><span class="p">())</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;foo bar baz&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">was_fault_injected</span><span class="p">()</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">503</span><span class="p">,</span> <span class="mi">404</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">test_functional_foo_bar_baz</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Filibuster’s assertions module also provides a more granular assertion: <code class="docutils literal notranslate"><span class="pre">was_fault_injected_on(service_name)</span></code> that can
+be used to write more precise assertions.</p>
+<p>Let’s re-run the counterexample; with our updated assertion, the test should now pass!</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
+</pre></div>
+</div>
+<p>Now, we can run Filibuster again and test for the whole default set of failures as well.  We leave any remaining
+bugs in the application as an exercise for the reader!</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py
+</pre></div>
+</div>
 </section>
 </section>
 
