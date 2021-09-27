@@ -20,7 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Filibuster" href="index.html" /> 
+    <link rel="next" title="Running" href="running.html" />
+    <link rel="prev" title="Filibuster: Service-level Fault Injection Testing" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,7 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Using Filibuster</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#creating-your-flask-apps">Creating your Flask Apps</a><ul>
@@ -52,11 +53,45 @@
 <li class="toctree-l3"><a class="reference internal" href="#creating-the-foo-app">Creating the <code class="docutils literal notranslate"><span class="pre">foo</span></code> App</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#functional-testing">Functional Testing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#finding-the-bug">Finding the Bug</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#updating-our-functional-test">Updating our Functional Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functional-testing">Functional Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#finding-the-bug">Finding the Bug</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-our-functional-test">Updating our Functional Test</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#targeting-precise-errors">Targeting Precise Errors</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Corpus</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cinema-examples.html">Cinema Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="industry-examples.html">Industry Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
 </ul>
 
         </div>
@@ -376,9 +411,8 @@ make local-start
 </div>
 <p>At this point, your test should pass.  If it doesn’t, please make sure your services were implemented correctly as
 described above, and that you have started the services using the <code class="docutils literal notranslate"><span class="pre">local-start</span></code> make target.</p>
-</section>
 <section id="finding-the-bug">
-<h2>Finding the Bug<a class="headerlink" href="#finding-the-bug" title="Permalink to this headline"></a></h2>
+<h3>Finding the Bug<a class="headerlink" href="#finding-the-bug" title="Permalink to this headline"></a></h3>
 <p>Let’s use Filibuster to identify bugs using fault injection.  First, we can use Filibuster to identify bugs using a
 default set of faults for the application.  We can do that using the Filibuster CLI tool.</p>
 <p>First, install Filibuster.</p>
@@ -477,7 +511,7 @@ from further back in the output the precise fault that was injected.</p>
 </div>
 </section>
 <section id="updating-our-functional-test">
-<h2>Updating our Functional Test<a class="headerlink" href="#updating-our-functional-test" title="Permalink to this headline"></a></h2>
+<h3>Updating our Functional Test<a class="headerlink" href="#updating-our-functional-test" title="Permalink to this headline"></a></h3>
 <p>In order to keep testing, we need to update our assertions in our test to reflect the behavior we expect under failure.</p>
 <p>Instead of only ensuring that our three apps successfully return “foo bar baz” to a client, we also want to allow the
 request to <code class="docutils literal notranslate"><span class="pre">foo</span></code> to fail gracefully.  To ensure the request fails only when it should, we should use the
@@ -580,12 +614,60 @@ service to handle this failure.</p>
 <p>At this point, everything passes!</p>
 </section>
 </section>
+<section id="targeting-precise-errors">
+<h2>Targeting Precise Errors<a class="headerlink" href="#targeting-precise-errors" title="Permalink to this headline"></a></h2>
+<p>Up to now, we have been using Filibuster with a default set of faults.  However, what if your application generates
+a failure that is not included in the default set?  To do that, we can use the Filibuster analysis tool to generate
+a custom list of faults and failures to inject.</p>
+<p>To do this, we run the following command.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster-analysis --services-directory services --output-file analysis.json
+</pre></div>
+</div>
+<p>This command will invoke the Filibuster static analysis tool.  The analysis tool will look in the directory <code class="docutils literal notranslate"><span class="pre">services</span></code>
+for the implementation of each service and output an <code class="docutils literal notranslate"><span class="pre">analysis.json</span></code> file that can be provided to Filibuster for
+more targeted fault injection.</p>
+<p>You should see output like the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: About to analyze directory: services
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * found service implementation: services/foo
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * found service implementation: services/baz
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * found service implementation: services/bar
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Found services: <span class="o">[</span><span class="s1">&#39;foo&#39;</span>, <span class="s1">&#39;baz&#39;</span>, <span class="s1">&#39;bar&#39;</span><span class="o">]</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Analyzing service foo at directory services/foo
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * starting analysis of Python file: services/foo/foo/__init__.py
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * identified HTTP error: <span class="o">{</span><span class="s1">&#39;return_value&#39;</span>: <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="s1">&#39;500&#39;</span><span class="o">}}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * starting analysis of Python file: services/foo/foo/app.py
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * identified HTTP error: <span class="o">{</span><span class="s1">&#39;return_value&#39;</span>: <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="s1">&#39;503&#39;</span><span class="o">}}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Analyzing service baz at directory services/baz
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * starting analysis of Python file: services/baz/baz/__init__.py
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * identified HTTP error: <span class="o">{</span><span class="s1">&#39;return_value&#39;</span>: <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="s1">&#39;500&#39;</span><span class="o">}}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * starting analysis of Python file: services/baz/baz/app.py
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Analyzing service bar at directory services/bar
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * starting analysis of Python file: services/bar/bar/__init__.py
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * identified HTTP error: <span class="o">{</span><span class="s1">&#39;return_value&#39;</span>: <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="s1">&#39;500&#39;</span><span class="o">}}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * starting analysis of Python file: services/bar/bar/app.py
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: * identified HTTP error: <span class="o">{</span><span class="s1">&#39;return_value&#39;</span>: <span class="o">{</span><span class="s1">&#39;status_code&#39;</span>: <span class="s1">&#39;503&#39;</span><span class="o">}}</span>
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>:
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Writing output file: analysis.json
+<span class="o">[</span>FILIBUSTER<span class="o">]</span> <span class="o">[</span>INFO<span class="o">]</span>: Done.
+</pre></div>
+</div>
+<p>From here, you can provide the analysis file directly to the Filibuster tool.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>filibuster --functional-test ./functional/test_foo_bar_baz.py --analysis-file analysis.json
+</pre></div>
+</div>
+</section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Filibuster" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Filibuster: Service-level Fault Injection Testing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="running.html" class="btn btn-neutral float-right" title="Running" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

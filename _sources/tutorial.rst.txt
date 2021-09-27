@@ -325,7 +325,7 @@ At this point, your test should pass.  If it doesn't, please make sure your serv
 described above, and that you have started the services using the ``local-start`` make target.
 
 Finding the Bug
----------------
+~~~~~~~~~~~~~~~
 
 Let's use Filibuster to identify bugs using fault injection.  First, we can use Filibuster to identify bugs using a
 default set of faults for the application.  We can do that using the Filibuster CLI tool.
@@ -436,7 +436,7 @@ If we want to re-run that precise test, we can using the counterexample that Fil
     filibuster --functional-test ./functional/test_foo_bar_baz.py --counterexample-file counterexample.json
 
 Updating our Functional Test
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to keep testing, we need to update our assertions in our test to reflect the behavior we expect under failure.
 
@@ -555,3 +555,57 @@ Finally, we can run Filibuster again and test for the whole default set of failu
     filibuster --functional-test ./functional/test_foo_bar_baz.py
 
 At this point, everything passes!
+
+Targeting Precise Errors
+------------------------
+
+Up to now, we have been using Filibuster with a default set of faults.  However, what if your application generates
+a failure that is not included in the default set?  To do that, we can use the Filibuster analysis tool to generate
+a custom list of faults and failures to inject.
+
+To do this, we run the following command.
+
+.. code-block:: shell
+
+    filibuster-analysis --services-directory services --output-file analysis.json
+
+This command will invoke the Filibuster static analysis tool.  The analysis tool will look in the directory ``services``
+for the implementation of each service and output an ``analysis.json`` file that can be provided to Filibuster for
+more targeted fault injection.
+
+You should see output like the following:
+
+.. code-block:: shell
+
+    [FILIBUSTER] [INFO]: About to analyze directory: services
+    [FILIBUSTER] [INFO]: * found service implementation: services/foo
+    [FILIBUSTER] [INFO]: * found service implementation: services/baz
+    [FILIBUSTER] [INFO]: * found service implementation: services/bar
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]: Found services: ['foo', 'baz', 'bar']
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]: Analyzing service foo at directory services/foo
+    [FILIBUSTER] [INFO]: * starting analysis of Python file: services/foo/foo/__init__.py
+    [FILIBUSTER] [INFO]: * identified HTTP error: {'return_value': {'status_code': '500'}}
+    [FILIBUSTER] [INFO]: * starting analysis of Python file: services/foo/foo/app.py
+    [FILIBUSTER] [INFO]: * identified HTTP error: {'return_value': {'status_code': '503'}}
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]: Analyzing service baz at directory services/baz
+    [FILIBUSTER] [INFO]: * starting analysis of Python file: services/baz/baz/__init__.py
+    [FILIBUSTER] [INFO]: * identified HTTP error: {'return_value': {'status_code': '500'}}
+    [FILIBUSTER] [INFO]: * starting analysis of Python file: services/baz/baz/app.py
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]: Analyzing service bar at directory services/bar
+    [FILIBUSTER] [INFO]: * starting analysis of Python file: services/bar/bar/__init__.py
+    [FILIBUSTER] [INFO]: * identified HTTP error: {'return_value': {'status_code': '500'}}
+    [FILIBUSTER] [INFO]: * starting analysis of Python file: services/bar/bar/app.py
+    [FILIBUSTER] [INFO]: * identified HTTP error: {'return_value': {'status_code': '503'}}
+    [FILIBUSTER] [INFO]:
+    [FILIBUSTER] [INFO]: Writing output file: analysis.json
+    [FILIBUSTER] [INFO]: Done.
+
+From here, you can provide the analysis file directly to the Filibuster tool.
+
+.. code-block:: shell
+
+    filibuster --functional-test ./functional/test_foo_bar_baz.py --analysis-file analysis.json

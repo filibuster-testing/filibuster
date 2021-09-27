@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Filibuster &mdash; filibuster  documentation</title>
+  <title>Filibuster: Service-level Fault Injection Testing &mdash; filibuster  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -38,9 +38,40 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Using Filibuster</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Corpus</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cinema-examples.html">Cinema Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="industry-examples.html">Industry Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a></li>
 </ul>
 
         </div>
@@ -57,7 +88,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>Filibuster</li>
+      <li>Filibuster: Service-level Fault Injection Testing</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -67,21 +98,144 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="filibuster">
-<h1>Filibuster<a class="headerlink" href="#filibuster" title="Permalink to this headline"></a></h1>
+  <section id="filibuster-service-level-fault-injection-testing">
+<h1>Filibuster: Service-level Fault Injection Testing<a class="headerlink" href="#filibuster-service-level-fault-injection-testing" title="Permalink to this headline"></a></h1>
 <img alt="_images/filibuster-header.png" src="_images/filibuster-header.png" />
 <p>…</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h2>
 <p>…</p>
+</section>
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline"></a></h2>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<p class="caption" role="heading"><span class="caption-text">Using Filibuster</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#creating-your-flask-apps">Creating your Flask Apps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#functional-testing">Functional Testing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#finding-the-bug">Finding the Bug</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#updating-our-functional-test">Updating our Functional Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#targeting-precise-errors">Targeting Precise Errors</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Filibuster Corpus</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="running.html#local">Local</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html#docker">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html#minikube">Minikube</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html#eks">EKS</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cinema-examples.html">Cinema Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cinema-examples.html#cinema-1"><code class="docutils literal notranslate"><span class="pre">cinema-1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinema-examples.html#cinema-2"><code class="docutils literal notranslate"><span class="pre">cinema-2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinema-examples.html#cinema-3"><code class="docutils literal notranslate"><span class="pre">cinema-3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinema-examples.html#cinema-4"><code class="docutils literal notranslate"><span class="pre">cinema-4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinema-examples.html#cinema-5"><code class="docutils literal notranslate"><span class="pre">cinema-5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinema-examples.html#cinema-6"><code class="docutils literal notranslate"><span class="pre">cinema-6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinema-examples.html#cinema-7"><code class="docutils literal notranslate"><span class="pre">cinema-7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinema-examples.html#cinema-8"><code class="docutils literal notranslate"><span class="pre">cinema-8</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="industry-examples.html">Industry Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="industry-examples.html#audible"><code class="docutils literal notranslate"><span class="pre">audible</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="industry-examples.html#expedia"><code class="docutils literal notranslate"><span class="pre">expedia</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="industry-examples.html#mailchimp"><code class="docutils literal notranslate"><span class="pre">mailchimp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="industry-examples.html#netflix"><code class="docutils literal notranslate"><span class="pre">netflix</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Extending Filibuster</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-overview.html">Instrumentation Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-overview.html#goals">Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-overview.html#filibuster-architecture">Filibuster Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-overview.html#anatomy-of-a-request">Anatomy of a Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-overview.html#metadata-propagation">Metadata Propagation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-flask.html">Instrumentation Example: Flask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-requests.html">Instrumentation Example: Requests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-requests.html#metadata-reception">Metadata Reception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-requests.html#fault-injection">Fault Injection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-requests.html#metadata-propagation">Metadata Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-requests.html#response-notification">Response Notification</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: GRPC</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-overview.html">Instrumenting GRPC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-overview.html#tracking-invocations">Tracking Invocations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-overview.html#metadata-propagation">Metadata Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-overview.html#differences-between-grpc-and-http">Differences between GRPC and HTTP</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client.html">Instrumenting Remote Service Calls</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#identifying-the-call-site">Identifying the Call Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#potentially-reset-state">Potentially Reset State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#update-the-vector-clock">Update the Vector Clock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#update-the-execution-index">Update the Execution Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#keep-track-of-the-origin-vclock">Keep Track of the Origin VClock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#record-the-invocation">Record the Invocation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#add-metadata-to-request">Add Metadata to Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#invocation-completed-success">Invocation Completed: Success</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client.html#invocation-completed-exception">Invocation Completed: Exception</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-server.html">Instrumenting Services To Receive Calls</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-server.html#metadata-propagation">Metadata Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-server.html#instrumentation-call">Instrumentation Call</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-fi.html">Enabling Fault-Injection in the Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client-fi.html#parse-invocation-response">Parse Invocation Response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client-fi.html#instantiate-exception">Instantiate Exception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-grpc-client-fi.html#raise-and-record">Raise and Record</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-grpc-client-analysis.html">Static Analysis</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Writing Instrumentation: Java</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-java-overview.html">Java Instrumentors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-java-overview.html#client-instrumentor">Client Instrumentor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-java-overview.html#server-instrumentor">Server Instrumentor</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Filibuster Server API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-formats.html">Data Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-formats.html#instrumentation-type">Instrumentation Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-formats.html#vector-clocks">Vector Clocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-formats.html#execution-index">Execution Index</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-create.html">HTTP API: Create</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-server-create.html#request">Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-server-create.html#response">Response</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-update.html">HTTP API: Update</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-server-update.html#request">Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-server-update.html#response">Response</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrumentation-server-new-test-execution.html">HTTP API: New Test Execution</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-server-new-test-execution.html#request">Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrumentation-server-new-test-execution.html#response">Response</a></li>
 </ul>
 </li>
 </ul>
