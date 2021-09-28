@@ -28,6 +28,7 @@ Depending on your role, we recommend different sections of our documentation.
    :caption: Using Filibuster
 
    tutorial
+   tools
 
 .. toctree::
    :maxdepth: 2

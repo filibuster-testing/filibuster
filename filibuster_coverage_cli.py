@@ -5,8 +5,7 @@ from filibuster.server import start_filibuster_server_and_run_test
 
 
 @click.command()
-@click.option('--coverage', type=bool, is_flag=True, help="Compute coverage for Python applications.")
-def coverage(coverage):
+def coverage():
     """Compute coverage for an application."""
 
     coverage_command = abspath(os.path.dirname(os.path.realpath(__file__)) + "/bin/aggregate-python-coverage.sh")
