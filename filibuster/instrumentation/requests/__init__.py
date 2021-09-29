@@ -35,10 +35,10 @@ from filibuster.global_context import set_value as _filibuster_global_context_se
 from filibuster.execution_index import execution_index_new, execution_index_fromstring, \
     execution_index_tostring, execution_index_push, execution_index_pop
 from filibuster.instrumentation.helpers import get_full_traceback_hash
-from filibuster.logger import warning, debug, notice
+from filibuster.logger import warning, debug, notice, info
 from filibuster.vclock import vclock_new, vclock_tostring, vclock_fromstring, vclock_increment, vclock_merge
 from filibuster.nginx_http_special_response import get_response
-from filibuster.server_helpers import should_fail_request_with
+from filibuster.server_helpers import should_fail_request_with, load_counterexample
 from filibuster.datatypes import TestExecution
 from filibuster.instrumentation.helpers import get_full_traceback_hash
 
@@ -82,6 +82,18 @@ ei_and_vclock_mutex = Lock()
 # (this is mutated under the same mutex as the vclock.)
 _FILIBUSTER_EI_BY_REQUEST_KEY = "filibuster_execution_indices_by_request"
 _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, {})
+
+from os.path import exists
+
+COUNTEREXAMPLE_FILE = "/tmp/filibuster/counterexample.json"
+if exists(COUNTEREXAMPLE_FILE):
+    notice("Counterexample file present!")
+    counterexample = load_counterexample(COUNTEREXAMPLE_FILE)
+    counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution']) if counterexample else None
+    print(counterexample_test_execution.failures)
+else:
+    counterexample = None
+
 
 # pylint: disable=unused-argument
 # pylint: disable=R0915
@@ -210,10 +222,11 @@ def _instrument(service_name=None, filibuster_url=None):
                 # Figure out if we should reset the node's vector clock, which should happen in between test executions.
                 debug("Setting Filibuster instrumentation key...")
                 token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
-                
+
                 response = None
-                if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
-                    response = wrapped_request(self, 'get', filibuster_new_test_execution_url(filibuster_url, service_name))
+                if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
+                    response = wrapped_request(self, 'get',
+                                               filibuster_new_test_execution_url(filibuster_url, service_name))
                     if response is not None:
                         response = response.json()
 
@@ -232,10 +245,10 @@ def _instrument(service_name=None, filibuster_url=None):
                     # Reset everything, since there is a new test execution.
                     debug("New test execution. Resetting vclocks_by_request and execution_indices_by_request.")
 
-                    vclocks_by_request = { request_id_string: vclock_new() }
+                    vclocks_by_request = {request_id_string: vclock_new()}
                     _filibuster_global_context_set_value(_FILIBUSTER_VCLOCK_BY_REQUEST_KEY, vclocks_by_request)
 
-                    execution_indices_by_request = { request_id_string: execution_index_new() }
+                    execution_indices_by_request = {request_id_string: execution_index_new()}
                     _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, execution_indices_by_request)
 
                 # Incoming clock from the request that triggered this service to be reached.
@@ -270,7 +283,8 @@ def _instrument(service_name=None, filibuster_url=None):
                     incoming_execution_index = execution_index_fromstring(incoming_execution_index_string)
                 else:
                     execution_indices_by_request = _filibuster_global_context_get_value(_FILIBUSTER_EI_BY_REQUEST_KEY)
-                    incoming_execution_index = execution_indices_by_request.get(request_id_string, execution_index_new())
+                    incoming_execution_index = execution_indices_by_request.get(request_id_string,
+                                                                                execution_index_new())
 
                 if os.environ.get("PRETTY_EXECUTION_INDEXES", ""):
                     execution_index_hash = url
@@ -286,10 +300,12 @@ def _instrument(service_name=None, filibuster_url=None):
                     url = url.replace('http://', '')
                     if ":" in url:
                         url = url.split(":", 1)[1]
-                    execution_index_hash = unique_request_hash([full_traceback_hash, 'requests', method, json.dumps(url)])
+                    execution_index_hash = unique_request_hash(
+                        [full_traceback_hash, 'requests', method, json.dumps(url)])
 
                 execution_indices_by_request = _filibuster_global_context_get_value(_FILIBUSTER_EI_BY_REQUEST_KEY)
-                execution_indices_by_request[request_id_string] = execution_index_push(execution_index_hash, incoming_execution_index)
+                execution_indices_by_request[request_id_string] = execution_index_push(execution_index_hash,
+                                                                                       incoming_execution_index)
                 execution_index = execution_indices_by_request[request_id_string]
                 _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, execution_indices_by_request)
 
@@ -335,17 +351,18 @@ def _instrument(service_name=None, filibuster_url=None):
                 response = _record_call(self, method, [url], callsite_file, callsite_line, full_traceback_hash, vclock,
                                         incoming_origin_vclock, execution_index_tostring(execution_index), kwargs)
 
-                if response is not None:                    
+                if response is not None:
                     if 'generated_id' in response:
                         generated_id = response['generated_id']
-                    
+
                     if 'execution_index' in response:
                         has_execution_index = True
 
                     if 'forced_exception' in response:
                         exception = response['forced_exception']['name']
 
-                        if 'metadata' in response['forced_exception'] and response['forced_exception']['metadata'] is not None:
+                        if 'metadata' in response['forced_exception'] and response['forced_exception'][
+                            'metadata'] is not None:
                             exception_metadata = response['forced_exception']['metadata']
                             if 'abort' in exception_metadata and exception_metadata['abort'] is not None:
                                 should_abort = exception_metadata['abort']
@@ -355,7 +372,8 @@ def _instrument(service_name=None, filibuster_url=None):
                         should_inject_fault = True
 
                     if 'failure_metadata' in response:
-                        if 'return_value' in response['failure_metadata'] and 'status_code' in response['failure_metadata']['return_value']:
+                        if 'return_value' in response['failure_metadata'] and 'status_code' in \
+                                response['failure_metadata']['return_value']:
                             status_code = response['failure_metadata']['return_value']['status_code']
                             should_inject_fault = True
 
@@ -438,7 +456,8 @@ def _instrument(service_name=None, filibuster_url=None):
 
             # Notify the filibuster server of the actual response.
             if generated_id is not None:
-                _record_successful_response(self, generated_id, execution_index_tostring(execution_index), vclock, result)
+                _record_successful_response(self, generated_id, execution_index_tostring(execution_index), vclock,
+                                            result)
 
             if result.raw and result.raw.version:
                 version = (str(result.raw.version)[:1] + "." + str(result.raw.version)[:-1])
@@ -477,7 +496,8 @@ def _instrument(service_name=None, filibuster_url=None):
 
                 # Notify the filibuster server of the actual exception we encountered.
                 if generated_id is not None:
-                    _record_exceptional_response(self, generated_id, execution_index_tostring(execution_index), vclock, exception, should_sleep_interval, should_abort)
+                    _record_exceptional_response(self, generated_id, execution_index_tostring(execution_index), vclock,
+                                                 exception, should_sleep_interval, should_abort)
 
                 if use_traceback:
                     raise exception.with_traceback(exception.__traceback__)
@@ -528,14 +548,22 @@ def _instrument(service_name=None, filibuster_url=None):
                 except ValueError:
                     pass
 
-            if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
-                response = wrapped_request(self, 'put', filibuster_create_url(filibuster_url), json=payload)
-            else:
+            if counterexample is not None and counterexample_test_execution is not None:
+                notice("Using counterexample without contacting server.")
+                response = should_fail_request_with(payload, counterexample_test_execution.failures)
+                if response is None:
+                    response = {'execution_index': execution_index}
+                print(response)
+            if os.environ.get('DISABLE_SERVER_COMMUNICATION', ''):
                 warning("Server communication disabled.")
+            elif counterexample is not None:
+                notice("Skipping request, replaying from local counterexample.")
+            else:
+                response = wrapped_request(self, 'put', filibuster_create_url(filibuster_url), json=payload)
         except Exception as e:
-                warning("Exception raised (_record_call)!")
-                print(e, file=sys.stderr)
-                return None
+            warning("Exception raised (_record_call)!")
+            print(e, file=sys.stderr)
+            return None
         finally:
             debug("Removing instrumentation key for Filibuster.")
             context.detach(token)
@@ -560,16 +588,16 @@ def _instrument(service_name=None, filibuster_url=None):
         execution_indices_by_request = _filibuster_global_context_get_value(_FILIBUSTER_EI_BY_REQUEST_KEY)
         request_id_string = context.get_value(_FILIBUSTER_REQUEST_ID_KEY)
         if request_id_string in execution_indices_by_request:
-            execution_indices_by_request[request_id_string] = execution_index_pop(execution_indices_by_request[request_id_string])
+            execution_indices_by_request[request_id_string] = execution_index_pop(
+                execution_indices_by_request[request_id_string])
             _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, execution_indices_by_request)
 
         ei_and_vclock_mutex.release()
 
-
     def _record_successful_response(self, generated_id, execution_index, vclock, result):
         # assumes no asynchrony or threads at calling service.
 
-        if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
+        if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
             try:
                 debug("Setting Filibuster instrumentation key...")
                 token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
@@ -596,7 +624,8 @@ def _instrument(service_name=None, filibuster_url=None):
 
         return True
 
-    def _record_exceptional_response(self, generated_id, execution_index, vclock, exception, should_sleep_interval, should_abort):
+    def _record_exceptional_response(self, generated_id, execution_index, vclock, exception, should_sleep_interval,
+                                     should_abort):
         # assumes no asynchrony or threads at calling service.
 
         if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
