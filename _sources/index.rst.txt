@@ -14,7 +14,12 @@ Filibuster is the prototype implementation of Service-level Fault Injection Test
 
 Service-level Fault Injection Testing is a technique for identifying resilience issues in microservice-based applications in development, before code ships to production.  Filibuster has been designed to be easy to use, lightweight, and able to be integrated into a continuous integration environment, like GitHub Actions or Amazon's CodeBuild CI/CD environment.
 
-Filibuster open-source and available on `GitHub <https://github.com/filibuster-testing>`_.  Filibuster currently supports Python services implemented in Flask that communicate using either gRPC or HTTP (``requests``).  Java support for `Armeria <https://armeria.dev/>`_ web services that communicate using gRPC or HTTP has been completed and is currently being tested.
+Filibuster open-source and available on `GitHub <https://github.com/filibuster-testing>`_.
+
+Roadmap
+^^^^^^^
+
+Filibuster currently supports Python services implemented in Flask that communicate using either gRPC or HTTP.  Java support for `Armeria <https://armeria.dev/>`_ web services that communicate using gRPC or HTTP has been completed and is currently being tested.
 
 Table of Contents
 -----------------
@@ -58,12 +63,6 @@ Depending on your role, we recommend different sections of our documentation.
    instrumentation-grpc-server
    instrumentation-grpc-client-fi
    instrumentation-grpc-client-analysis
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Writing Instrumentation: Java
-
-   instrumentation-java-overview
 
 .. toctree::
    :maxdepth: 2
