@@ -35,6 +35,7 @@ from grpc._cython import cygrpc
 from opentelemetry import context
 from opentelemetry import propagators, trace
 
+from filibuster.datatypes import TestExecution
 from filibuster.execution_index import execution_index_new, execution_index_fromstring, execution_index_push, \
     execution_index_tostring, execution_index_pop
 from filibuster.instrumentation.grpc import grpcext
@@ -50,7 +51,7 @@ from filibuster.instrumentation.helpers import get_full_traceback_hash
 from filibuster.vclock import vclock_new, vclock_merge, vclock_fromstring, vclock_increment, vclock_tostring
 from filibuster.global_context import get_value as _filibuster_global_context_get_value
 from filibuster.global_context import set_value as _filibuster_global_context_set_value
-from filibuster.server_helpers import should_fail_request_with
+from filibuster.server_helpers import should_fail_request_with, load_counterexample
 from filibuster.instrumentation.helpers import get_full_traceback_hash
 
 
@@ -124,6 +125,17 @@ class _GuardedSpan:
 ## *******************************************************************************************
 ## START FILIBUSTER HELPERS
 ## *******************************************************************************************
+
+from os.path import exists
+
+COUNTEREXAMPLE_FILE = "/tmp/filibuster/counterexample.json"
+if exists(COUNTEREXAMPLE_FILE):
+    notice("Counterexample file present!")
+    counterexample = load_counterexample(COUNTEREXAMPLE_FILE)
+    counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution']) if counterexample else None
+    print(counterexample_test_execution.failures)
+else:
+    counterexample = None
 
 # For a given request, return a unique hash that can be used to identify it.
 def unique_request_hash(args):
@@ -253,7 +265,7 @@ class OpenTelemetryClientInterceptor(
         debug("Setting Filibuster instrumentation key...")
         token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
         response = None
-        if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
+        if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
             response = requests.get(filibuster_new_test_execution_url(filibuster_url, service_name))
             if response is not None:
                 response = response.json()
@@ -394,10 +406,17 @@ class OpenTelemetryClientInterceptor(
             if client_info.timeout is not None:
                 payload['metadata']['timeout'] = client_info.timeout
 
-            if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
-                response = requests.put(filibuster_create_url(filibuster_url), json=payload)
-            else: 
+            if counterexample is not None and counterexample_test_execution is not None:
+                notice("Using counterexample without contacting server.")
+                response = should_fail_request_with(payload, counterexample_test_execution.failures)
+                if response is None:
+                    response = {'execution_index': execution_index}
+                print(response)
+            elif os.environ.get('DISABLE_SERVER_COMMUNICATION', ''):
                 warning("Server communication disabled.")
+            else:
+                warning("Issuing request")
+                response = requests.put(filibuster_create_url(filibuster_url), json=payload)
         except Exception as e:
             warning("Exception raised (invocation)!")
             print(e, file=sys.stderr)
@@ -530,7 +549,7 @@ class OpenTelemetryClientInterceptor(
                 _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, execution_indices_by_request)
 
                 # Notify the Filibuster server that the call succeeded.
-                if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
+                if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
                     try:
                         debug("Setting Filibuster instrumentation key...")
                         token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
@@ -582,7 +601,7 @@ class OpenTelemetryClientInterceptor(
                     _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, execution_indices_by_request)
 
                     # Notify the Filibuster server that the call succeeded.
-                    if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
+                    if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
                         try:
                             debug("Setting Filibuster instrumentation key...")
                             token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
@@ -622,7 +641,7 @@ class OpenTelemetryClientInterceptor(
                     _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, execution_indices_by_request)
 
                     # Notify the Filibuster server that the call succeeded.
-                    if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
+                    if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
                         try:
                             debug("Setting Filibuster instrumentation key...")
                             token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))

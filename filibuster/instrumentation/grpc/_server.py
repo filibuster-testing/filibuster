@@ -36,7 +36,9 @@ from opentelemetry.context import attach, detach, set_value
 from opentelemetry.trace.propagation.textmap import DictGetter
 from opentelemetry.trace.status import Status, StatusCode
 
+from filibuster.datatypes import TestExecution
 from filibuster.logger import notice, debug, warning
+from filibuster.server_helpers import load_counterexample
 from filibuster.vclock import vclock_fromstring
 
 from filibuster.global_context import get_value as _filibuster_global_context_get_value
@@ -59,6 +61,17 @@ service_name = None
 
 # Filibuster URL, set from global context during instrumentor instantiation.
 filibuster_url = None
+
+from os.path import exists
+
+COUNTEREXAMPLE_FILE = "/tmp/filibuster/counterexample.json"
+if exists(COUNTEREXAMPLE_FILE):
+    notice("Counterexample file present!")
+    counterexample = load_counterexample(COUNTEREXAMPLE_FILE)
+    counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution']) if counterexample else None
+    print(counterexample_test_execution.failures)
+else:
+    counterexample = None
 
 ## *******************************************************************************************
 ## END FILIBUSTER CONSTANTS
@@ -354,7 +367,8 @@ class OpenTelemetryServerInterceptor(grpc.ServerInterceptor):
                         'target_service_name': service_name
                     }
 
-                    if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
+                    if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
+                        warning("Making a call to the server.")
                         try:
                             token = attach(set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
                             requests.post(filibuster_update_url(filibuster_url), json=payload)
