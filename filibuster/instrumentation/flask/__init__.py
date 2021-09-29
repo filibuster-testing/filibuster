@@ -58,6 +58,7 @@ import uuid
 
 import opentelemetry.instrumentation.wsgi as otel_wsgi
 
+from filibuster.datatypes import TestExecution
 from filibuster.logger import error, warning, notice, info, debug
 
 from opentelemetry import context, propagators, trace
@@ -65,6 +66,8 @@ from opentelemetry.instrumentation.flask.version import __version__
 from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 from opentelemetry.util import time_ns
 from opentelemetry.util.http import get_excluded_urls
+
+from filibuster.server_helpers import load_counterexample
 
 _logger = getLogger(__name__)
 
@@ -80,6 +83,18 @@ _FILIBUSTER_EXECUTION_INDEX_KEY = "filibuster_execution_index"
 _FILIBUSTER_REQUEST_ID_KEY = "filibuster_request_id"
 
 _excluded_urls = get_excluded_urls("FLASK")
+
+from os.path import exists
+
+COUNTEREXAMPLE_FILE = "/tmp/filibuster/counterexample.json"
+if exists(COUNTEREXAMPLE_FILE):
+    notice("Counterexample file present!")
+    counterexample = load_counterexample(COUNTEREXAMPLE_FILE)
+    counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution']) if counterexample else None
+    print(counterexample_test_execution.failures)
+else:
+    counterexample = None
+
 
 def get_default_span_name():
     span_name = ""
@@ -164,7 +179,7 @@ def _wrapped_before_request(name_callback, service_name, filibuster_url):
             context.attach(context.set_value(_FILIBUSTER_ORIGIN_VCLOCK_KEY, flask.request.headers['X-Filibuster-Origin-VClock']))
             debug("** [FLASK] [" + service_name + "]: origin-vclock attached to context: " + str(context.get_value(_FILIBUSTER_ORIGIN_VCLOCK_KEY)))
 
-            if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
+            if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
                 try:
                     debug("Setting Filibuster instrumentation key...")
                     token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))

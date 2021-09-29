@@ -18,8 +18,7 @@ def load_counterexample(path):
     try:
         f = open(path)
         counterexample = json.load(f)
-        info(
-            "Counterexample found. Running the following counterexample: {}.".format(counterexample['functional_test']))
+        info("Counterexample loaded from file.")
         f.close()
     except IOError:
         raise Exception("No counterexample found at {}; aborting.".format(path))
