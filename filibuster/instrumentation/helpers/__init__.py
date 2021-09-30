@@ -1,6 +1,8 @@
+import os
 import traceback
 import re
 import hashlib
+from os.path import exists
 
 from filibuster.logger import info, debug
 
@@ -9,6 +11,15 @@ TEST_PREFIX = "test_"
 
 # We're making an assumption here that test files start with test_ (Pytest)
 INSTRUMENTATION_PREFIX = "filibuster/instrumentation"
+
+
+def counterexample_file():
+    return os.environ.get('COUNTEREXAMPLE_FILE', '')
+
+
+def should_load_counterexample_file():
+    return exists(counterexample_file())
+
 
 def get_full_traceback_hash(service_name):
     raw_callsite = None
