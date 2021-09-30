@@ -451,7 +451,7 @@ def hello():
     })
 
 
-@app.route("/fault-injected", methods=['GET'])
+@app.route("/filibuster/fault-injected", methods=['GET'])
 def faults_injected_index():
     global counterexample
     global current_test_execution
@@ -470,7 +470,7 @@ def faults_injected_index():
 
 
 # TODO: really not efficient, needs to be fixed with memoization
-@app.route("/fault-injected/<service_name>", methods=['GET'])
+@app.route("/filibuster/fault-injected/<service_name>", methods=['GET'])
 def faults_injected_by_service(service_name):
     global counterexample
     global test_executions_ran

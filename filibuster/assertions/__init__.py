@@ -8,7 +8,7 @@ TIMEOUT = 10
 
 
 def was_fault_injected():
-    uri = "http://{}:{}/fault-injected".format(FILIBUSTER_HOST, FILIBUSTER_PORT)
+    uri = "http://{}:{}/filibuster/fault-injected".format(FILIBUSTER_HOST, FILIBUSTER_PORT)
     response = requests.get(uri, timeout=TIMEOUT)
 
     if response.status_code == 200:
@@ -20,7 +20,7 @@ def was_fault_injected():
 
 
 def was_fault_injected_on(service_name):
-    uri = "http://{}:{}/fault-injected/{}".format(FILIBUSTER_HOST, FILIBUSTER_PORT, service_name)
+    uri = "http://{}:{}/filibuster/fault-injected/{}".format(FILIBUSTER_HOST, FILIBUSTER_PORT, service_name)
     response = requests.get(uri, timeout=TIMEOUT)
 
     if response.status_code == 200:
