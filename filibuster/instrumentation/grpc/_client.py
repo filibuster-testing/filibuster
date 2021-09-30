@@ -47,7 +47,8 @@ from opentelemetry.trace.status import Status, StatusCode
 # A key to a context variable to avoid creating duplicate spans when instrumenting
 # both, Session.request and Session.send, since Session.request calls into Session.send
 from filibuster.logger import notice, warning, debug
-from filibuster.instrumentation.helpers import get_full_traceback_hash
+from filibuster.instrumentation.helpers import get_full_traceback_hash, counterexample_file, \
+    should_load_counterexample_file
 from filibuster.vclock import vclock_new, vclock_merge, vclock_fromstring, vclock_increment, vclock_tostring
 from filibuster.global_context import get_value as _filibuster_global_context_get_value
 from filibuster.global_context import set_value as _filibuster_global_context_set_value
@@ -126,12 +127,9 @@ class _GuardedSpan:
 ## START FILIBUSTER HELPERS
 ## *******************************************************************************************
 
-from os.path import exists
-
-COUNTEREXAMPLE_FILE = "/tmp/filibuster/counterexample.json"
-if exists(COUNTEREXAMPLE_FILE):
+if should_load_counterexample_file():
     notice("Counterexample file present!")
-    counterexample = load_counterexample(COUNTEREXAMPLE_FILE)
+    counterexample = load_counterexample(counterexample_file())
     counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution']) if counterexample else None
     print(counterexample_test_execution.failures)
 else:

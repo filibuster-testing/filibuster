@@ -34,7 +34,8 @@ from filibuster.global_context import get_value as _filibuster_global_context_ge
 from filibuster.global_context import set_value as _filibuster_global_context_set_value
 from filibuster.execution_index import execution_index_new, execution_index_fromstring, \
     execution_index_tostring, execution_index_push, execution_index_pop
-from filibuster.instrumentation.helpers import get_full_traceback_hash
+from filibuster.instrumentation.helpers import get_full_traceback_hash, should_load_counterexample_file, \
+    counterexample_file
 from filibuster.logger import warning, debug, notice, info
 from filibuster.vclock import vclock_new, vclock_tostring, vclock_fromstring, vclock_increment, vclock_merge
 from filibuster.nginx_http_special_response import get_response
@@ -83,12 +84,9 @@ ei_and_vclock_mutex = Lock()
 _FILIBUSTER_EI_BY_REQUEST_KEY = "filibuster_execution_indices_by_request"
 _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, {})
 
-from os.path import exists
-
-COUNTEREXAMPLE_FILE = "/tmp/filibuster/counterexample.json"
-if exists(COUNTEREXAMPLE_FILE):
+if should_load_counterexample_file():
     notice("Counterexample file present!")
-    counterexample = load_counterexample(COUNTEREXAMPLE_FILE)
+    counterexample = load_counterexample(counterexample_file())
     counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution']) if counterexample else None
     print(counterexample_test_execution.failures)
 else:

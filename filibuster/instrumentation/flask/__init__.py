@@ -59,6 +59,7 @@ import uuid
 import opentelemetry.instrumentation.wsgi as otel_wsgi
 
 from filibuster.datatypes import TestExecution
+from filibuster.instrumentation.helpers import should_load_counterexample_file, counterexample_file
 from filibuster.logger import error, warning, notice, info, debug
 
 from opentelemetry import context, propagators, trace
@@ -84,12 +85,9 @@ _FILIBUSTER_REQUEST_ID_KEY = "filibuster_request_id"
 
 _excluded_urls = get_excluded_urls("FLASK")
 
-from os.path import exists
-
-COUNTEREXAMPLE_FILE = "/tmp/filibuster/counterexample.json"
-if exists(COUNTEREXAMPLE_FILE):
+if should_load_counterexample_file():
     notice("Counterexample file present!")
-    counterexample = load_counterexample(COUNTEREXAMPLE_FILE)
+    counterexample = load_counterexample(counterexample_file())
     counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution']) if counterexample else None
     print(counterexample_test_execution.failures)
 else:

@@ -37,6 +37,7 @@ from opentelemetry.trace.propagation.textmap import DictGetter
 from opentelemetry.trace.status import Status, StatusCode
 
 from filibuster.datatypes import TestExecution
+from filibuster.instrumentation.helpers import should_load_counterexample_file, counterexample_file
 from filibuster.logger import notice, debug, warning
 from filibuster.server_helpers import load_counterexample
 from filibuster.vclock import vclock_fromstring
@@ -62,12 +63,9 @@ service_name = None
 # Filibuster URL, set from global context during instrumentor instantiation.
 filibuster_url = None
 
-from os.path import exists
-
-COUNTEREXAMPLE_FILE = "/tmp/filibuster/counterexample.json"
-if exists(COUNTEREXAMPLE_FILE):
+if should_load_counterexample_file():
     notice("Counterexample file present!")
-    counterexample = load_counterexample(COUNTEREXAMPLE_FILE)
+    counterexample = load_counterexample(counterexample_file())
     counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution']) if counterexample else None
     print(counterexample_test_execution.failures)
 else:
