@@ -10,7 +10,7 @@ from filibuster.server import start_filibuster_server_and_run_test
 @click.option('--counterexample-file', type=str, help='Counterexample file to run.')
 @click.option('--only-initial-execution', type=bool, is_flag=True, help='Only run the initial, fault-free execution '
                                                                         'of the test.')
-@click.option('--disable-dynamic-reduction', type=bool, is_flag=True, help='Disable dyanmic reduction.')
+@click.option('--disable-dynamic-reduction', type=bool, is_flag=True, help='Disable dynamic reduction.')
 def test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction):
     """Test a microservice application using Filibuster."""
 
