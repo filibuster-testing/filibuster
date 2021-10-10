@@ -10,13 +10,18 @@ from filibuster.server import start_filibuster_server_and_run_test
 @click.option('--counterexample-file', type=str, help='Counterexample file to run.')
 @click.option('--only-initial-execution', type=bool, is_flag=True, help='Only run the initial, fault-free execution '
                                                                         'of the test.')
-def test(functional_test, analysis_file, counterexample_file, only_initial_execution):
+@click.option('--disable-dynamic-reduction', type=bool, is_flag=True, help='Disable dynamic reduction.')
+def test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction):
     """Test a microservice application using Filibuster."""
 
     # Resolve full path of analysis file.
     abs_analysis_file = abspath(os.path.dirname(os.path.realpath(__file__)) + "/" + analysis_file)
 
-    start_filibuster_server_and_run_test(functional_test, abs_analysis_file, counterexample_file, only_initial_execution)
+    start_filibuster_server_and_run_test(functional_test,
+                                         abs_analysis_file,
+                                         counterexample_file,
+                                         only_initial_execution,
+                                         disable_dynamic_reduction)
 
 
 if __name__ == '__main__':
