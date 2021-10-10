@@ -82,6 +82,7 @@ _FILIBUSTER_VCLOCK_KEY = "filibuster_vclock"
 _FILIBUSTER_ORIGIN_VCLOCK_KEY = "filibuster_origin_vclock"
 _FILIBUSTER_EXECUTION_INDEX_KEY = "filibuster_execution_index"
 _FILIBUSTER_REQUEST_ID_KEY = "filibuster_request_id"
+_FILIBUSTER_FAULTS_ENABLED_KEY = "filibuster_faults_enabled"
 
 _excluded_urls = get_excluded_urls("FLASK")
 

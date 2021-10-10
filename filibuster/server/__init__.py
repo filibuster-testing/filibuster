@@ -65,7 +65,7 @@ counterexample = None
 # Specific testing functions.
 
 
-def run_test(functional_test, only_initial_execution):
+def run_test(functional_test, only_initial_execution, disable_dynamic_reduction):
     global current_test_execution
     global test_executions_scheduled
     global requests_to_fail
@@ -158,7 +158,7 @@ def run_test(functional_test, only_initial_execution):
                 test_executions_attempted.append(next_test_execution)
                 test_executions_ran.append(current_test_execution)
             else:
-                if not os.environ.get("DISABLE_DYNAMIC_REDUCTION", ''):
+                if not disable_dynamic_reduction:
                     global cumulative_dynamic_pruning_time_in_ms
                     global mean_dynamic_pruning_time_in_ms
                     global cumulative_test_generation_time_in_ms
@@ -779,7 +779,7 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     info("--------------- Loadgen Statistics ---------------")
 
 
-def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution):
+def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction):
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -787,7 +787,7 @@ def start_filibuster_server_and_run_test(functional_test, analysis_file, counter
     if counterexample_file:
         counterexample = load_counterexample(counterexample_file)
 
-    run_test(functional_test, only_initial_execution)
+    run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
 
 
 def start_filibuster_server(analysis_file):
