@@ -81,14 +81,17 @@ from wrapt import wrap_function_wrapper
 import functools
 import types
 import json
+import time
 
 import sys
-import requests
 import re
 import hashlib
 import os
 
 from threading import Lock
+
+import requests
+from requests.models import Response
 
 from opentelemetry import context
 from opentelemetry import trace
@@ -181,6 +184,8 @@ def _instrument(
     service_name=None,
     filibuster_url=None
 ):
+    def filibuster_update_url(filibuster_url):
+        return "{}/{}/update".format(filibuster_url, 'filibuster')
 
     def filibuster_create_url(filibuster_url):
         return "{}/{}/create".format(filibuster_url, 'filibuster')
@@ -244,8 +249,6 @@ def _instrument(
             execution_index = None
 
             debug("_instrumented_redis_call entering; method: " + name)
-
-            fuck = context.get_value("suppress_instrumentation")
 
             # Record that a call is being made to an external service
             if not context.get_value("suppress_instrumentation"):
@@ -382,9 +385,62 @@ def _instrument(
             else:
                 debug("Instrumentation suppressed, skipping Filibuster instrumentation.")
 
-            response = func(*args, **kwargs)
+            try:
+                ## TODO: don't need to do this
+                # debug("Setting Filibuster instrumentation key...")
+                # token = context.attach(context.set_value(_FILIBUSTER_SUPPRESS_REQUESTS_INSTRUMENTATION_KEY, True))
 
-            return response
+                if not should_inject_fault:
+                    # no need to propagate vclock and origin vclock forward,
+                    # since redis-server won't use it
+                    result = func(*args, **kwargs)
+                elif should_inject_fault and not should_abort:
+                    # If we should delay the request to simulate timeouts, do it.
+                    if should_sleep_interval != 0:
+                        time.sleep(should_sleep_interval)
+
+                    # no need to propagate vclock and origin vclock forward,
+                    # since redis-server won't use it
+                    result = func(*args, **kwargs)
+                else:
+                    # Return entirely fake response and do not make request.
+                    #
+                    # Since this isn't a real result object, there's some attribute that's
+                    # being set to None and that's causing -- for these requests -- the opentelemetry
+                    # to not be able to report this correctly with the following error in the output:
+                    #
+                    # "Invalid type NoneType for attribute value.
+                    # Expected one of ['bool', 'str', 'int', 'float'] or a sequence of those types"
+                    #
+                    # I'm going to ignore this for now, because if we reorder the instrumentation
+                    # so that the opentelemetry is installed *before* the Filibuster instrumentation
+                    # we should be able to avoid this -- it's because we're returning an invalid
+                    # object through the opentelemetry instrumentation.
+                    #
+                    result = Response()
+            except Exception as exc:
+                exception = exc
+                result = getattr(exc, "response", None)
+            finally:
+                debug("Removing instrumentation key for Filibuster.")
+                # context.detach(token)
+
+            # Result was an actual response.
+            if isinstance(result, Response) and (exception is None or exception == "None"):
+                debug("_instrumented_requests_call got response!")
+
+                if has_execution_index:
+                    _update_execution_index()
+
+                 # Notify the filibuster server of the actual response.
+                if generated_id is not None:
+                    _record_successful_response(generated_id, execution_index_tostring(execution_index), vclock,
+                                                result)
+
+            # Result was an exception
+            ## TODO
+
+            return result
 
     def _record_call(service_name, func, name, args, callsite_file, callsite_line, full_traceback, vclock, origin_vclock,
                      execution_index, **kwargs):
@@ -449,6 +505,43 @@ def _instrument(
 
         return parsed_content
 
+    def _update_execution_index():
+        global ei_and_vclock_mutex
+
+        ei_and_vclock_mutex.acquire()
+
+        execution_indices_by_request = _filibuster_global_context_get_value(_FILIBUSTER_EI_BY_REQUEST_KEY)
+        request_id_string = context.get_value(_FILIBUSTER_REQUEST_ID_KEY)
+        if request_id_string in execution_indices_by_request:
+            execution_indices_by_request[request_id_string] = execution_index_pop(
+                execution_indices_by_request[request_id_string])
+            _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, execution_indices_by_request)
+
+        ei_and_vclock_mutex.release()
+
+    def _record_successful_response(generated_id, execution_index, vclock, result):
+        # assumes no asynchrony or threads at calling service.
+
+        if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
+            try:
+                debug("Setting Filibuster instrumentation key...")
+                token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
+
+                return_value = {
+                    ## TODO
+                }
+                payload = {
+                    ## TODO
+                }
+                requests.post(filibuster_update_url(filibuster_url), json=payload)
+            except Exception as e:
+                warning("Exception raised (_record_successful_response)!")
+                print(e, file=sys.stderr)
+            finally:
+                debug("Removing instrumentation key for Filibuster.")
+                context.detach(token)
+
+        return True
     # For a given request, return a unique hash that can be used to identify it.
     def unique_request_hash(args):
         for arg in args:
