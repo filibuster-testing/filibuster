@@ -83,6 +83,7 @@ import types
 import json
 
 import sys
+import requests
 import re
 import hashlib
 import os
@@ -177,8 +178,13 @@ def _instrument(
     tracer,
     request_hook: _RequestHookT = None,
     response_hook: _ResponseHookT = None,
-    service_name=None
+    service_name=None,
+    filibuster_url=None
 ):
+
+    def filibuster_create_url(filibuster_url):
+        return "{}/{}/create".format(filibuster_url, 'filibuster')
+
     def _traced_execute_command(func, instance, args, kwargs):
         query = _format_command_args(args)
         name = ""
@@ -306,12 +312,142 @@ def _instrument(
 
                 ei_and_vclock_mutex.release()
 
-                response = func(*args, **kwargs)
+                # Origin VClock Handling.
 
+                # origin-vclock are used to track the explicit request chain
+                # that caused this call to be made: more precise than
+                # happens-before and required for the reduction strategy to
+                # work.
+                #
+                # For example, if Service A does 4 requests, in sequence,
+                # before making a call to Service B, happens-before can be used
+                # to show those four requests happened before the call to
+                # Service B.  This is correct: vector/Lamport clock track both
+                # program order and the communication between nodes in their encoding.
+                #
+                # However, for the reduction strategy to work, we need to know
+                # precisely *what* call in in Service A triggered the call to
+                # Service B (and, recursively if Service B is to make any
+                # calls, as well.) This is because the key to the reduction
+                # strategy is to remove tests from the execution list where
+                # there is no observable difference at the boundary between the
+                # two services. Therefore, we need to identify precisely where
+                # these boundary points are.
+                #
+
+                # This is a clock that's been received through Flask as part of processing the current request.
+                # (flask receives context via header and sets into context object; requests reads it.)
+                incoming_origin_vclock_string = context.get_value(_FILIBUSTER_ORIGIN_VCLOCK_KEY)
+                debug("** [REQUESTS] [" + service_name + "]: getting incoming origin vclock string: " + str(
+                    incoming_origin_vclock_string))
+
+                # This isn't used in the record_call, but just propagated through the headers in the subsequent request.
+                origin_vclock = vclock
+
+                # Record call with the incoming origin clock and advanced clock.
+                if incoming_origin_vclock_string is not None:
+                    incoming_origin_vclock = vclock_fromstring(incoming_origin_vclock_string)
+                else:
+                    incoming_origin_vclock = vclock_new()
+                response = _record_call(service_name, func, name, args, callsite_file, callsite_line, full_traceback_hash, vclock,
+                                        incoming_origin_vclock, execution_index_tostring(execution_index), **kwargs)
+
+                if response is not None:
+                    if 'generated_id' in response:
+                        generated_id = response['generated_id']
+
+                    if 'execution_index' in response:
+                        has_execution_index = True
+
+                    if 'forced_exception' in response:
+                        exception = response['forced_exception']['name']
+
+                        if 'metadata' in response['forced_exception'] and response['forced_exception'][
+                            'metadata'] is not None:
+                            exception_metadata = response['forced_exception']['metadata']
+                            if 'abort' in exception_metadata and exception_metadata['abort'] is not None:
+                                should_abort = exception_metadata['abort']
+                            if 'sleep' in exception_metadata and exception_metadata['sleep'] is not None:
+                                should_sleep_interval = exception_metadata['sleep']
+
+                        should_inject_fault = True
+
+                    if 'failure_metadata' in response:
+                        if 'return_value' in response['failure_metadata'] and 'status_code' in \
+                                response['failure_metadata']['return_value']:
+                            status_code = response['failure_metadata']['return_value']['status_code']
+                            should_inject_fault = True
+                debug("Finished recording call using Filibuster instrumentation service. ***********")
+                debug("")
             else:
                 debug("Instrumentation suppressed, skipping Filibuster instrumentation.")
-                response = func(*args, **kwargs)
+
+            response = func(*args, **kwargs)
+
             return response
+
+    def _record_call(service_name, func, name, args, callsite_file, callsite_line, full_traceback, vclock, origin_vclock,
+                     execution_index, **kwargs):
+        response = None
+        parsed_content = None
+
+        try:
+            debug("Setting Filibuster instrumentation key...")
+            token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
+
+            payload = {
+                'instrumentation_type': 'invocation',
+                'source_service_name': service_name,
+                'module': 'redis',
+                ## TODO: fix this hardcoding
+                'method': "execute_command",
+                'args': args,
+                'kwargs': {},
+                'callsite_file': callsite_file,
+                'callsite_line': callsite_line,
+                'full_traceback': full_traceback,
+                'metadata': {},
+                'vclock': vclock,
+                'origin_vclock': origin_vclock,
+                'execution_index': execution_index
+            }
+
+            if 'timeout' in kwargs:
+                if kwargs['timeout'] is not None:
+                    debug("=> timeout for call is set to " + str(kwargs['timeout']))
+                    payload['metadata']['timeout'] = kwargs['timeout']
+
+            if counterexample is not None and counterexample_test_execution is not None:
+                notice("Using counterexample without contacting server.")
+                response = should_fail_request_with(payload, counterexample_test_execution.failures)
+                if response is None:
+                    response = {'execution_index': execution_index}
+                print(response)
+            if os.environ.get('DISABLE_SERVER_COMMUNICATION', ''):
+                warning("Server communication disabled.")
+            elif counterexample is not None:
+                notice("Skipping request, replaying from local counterexample.")
+            else:
+                requests.post(filibuster_create_url(filibuster_url), json = payload)
+        except Exception as e:
+            warning("Exception raised (_record_call)!")
+            print(e, file=sys.stderr)
+            return None
+        finally:
+            debug("Removing instrumentation key for Filibuster.")
+            context.detach(token)
+
+        if isinstance(response, dict):
+            parsed_content = response
+        elif response is not None:
+            try:
+                parsed_content = response.json()
+            except Exception as e:
+                warning("Exception raised (_record_call get_json)!")
+                print(e, file=sys.stderr)
+                return None
+
+        return parsed_content
 
     # For a given request, return a unique hash that can be used to identify it.
     def unique_request_hash(args):
@@ -362,7 +498,8 @@ class RedisInstrumentor(BaseInstrumentor):
             tracer,
             request_hook=kwargs.get("request_hook"),
             response_hook=kwargs.get("response_hook"),
-            service_name=kwargs.get("service_name")
+            service_name=kwargs.get("service_name"),
+            filibuster_url=kwargs.get("filibuster_url")
         )
 
     def _uninstrument(self, **kwargs):
