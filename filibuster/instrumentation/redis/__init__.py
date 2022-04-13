@@ -417,7 +417,7 @@ def _instrument(
                     # we should be able to avoid this -- it's because we're returning an invalid
                     # object through the opentelemetry instrumentation.
                     #
-                    result = Response()
+                    result = None
             except Exception as exc:
                 exception = exc
                 result = getattr(exc, "response", None)
@@ -426,7 +426,7 @@ def _instrument(
                 # context.detach(token)
 
             # Result was an actual response.
-            if isinstance(result, Response) and (exception is None or exception == "None"):
+            if not result is None and (exception is None or exception == "None"):
                 debug("_instrumented_requests_call got response!")
 
                 if has_execution_index:
@@ -437,8 +437,47 @@ def _instrument(
                     _record_successful_response(generated_id, execution_index_tostring(execution_index), vclock,
                                                 result)
 
-            # Result was an exception
+            # Result was an exception.
             ## TODO
+            # if exception is not None and exception != "None":
+            #     if isinstance(exception, str):
+            #         exception_class = eval(exception)
+            #         exception = exception_class()
+            #         use_traceback = False
+            #     else:
+            #         if context.get_value(_FILIBUSTER_INSTRUMENTATION_KEY):
+            #             # If the Filibuster instrumentation call failed, ignore.  This just means
+            #             # that the test server is unavailable.
+            #             warning("Filibuster instrumentation server unreachable, ignoring...")
+            #             warning("If fault injection is enabled... this indicates that something isn't working properly.")
+            #         else:
+            #             try:
+            #                 exception_info = exception.rsplit('.', 1)
+            #                 m = importlib.import_module(exception_info[0])
+            #                 exception = getattr(m, exception_info[1])
+            #             except Exception:
+            #                 warning("Couldn't get actual exception due to exception parse error.")
+
+            #         use_traceback = True
+
+            #     if not context.get_value(_FILIBUSTER_INSTRUMENTATION_KEY):
+            #         debug("got exception!")
+            #         debug("=> exception: " + str(exception))
+
+            #         if has_execution_index:
+            #             _update_execution_index(self)
+
+            #         # Notify the filibuster server of the actual exception we encountered.
+            #         if generated_id is not None:
+            #             _record_exceptional_response(self, generated_id, execution_index_tostring(execution_index), vclock,
+            #                                         exception, should_sleep_interval, should_abort)
+
+            #         if use_traceback:
+            #             raise exception.with_traceback(exception.__traceback__)
+            #         else:
+            #             raise exception
+
+            # debug("_instrumented_requests_call exiting; method: " + method + " url: " + url)
 
             return result
 
@@ -527,11 +566,14 @@ def _instrument(
                 debug("Setting Filibuster instrumentation key...")
                 token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
 
-                return_value = {
-                    ## TODO
-                }
+                ## TODO: double check if this is ok
+                return_value = { result }
                 payload = {
-                    ## TODO
+                    'instrumentation_type': 'invocation_complete',
+                    'generated_id': generated_id,
+                    'execution_index': execution_index,
+                    'vclock': vclock,
+                    'return_value': return_value
                 }
                 requests.post(filibuster_update_url(filibuster_url), json=payload)
             except Exception as e:
