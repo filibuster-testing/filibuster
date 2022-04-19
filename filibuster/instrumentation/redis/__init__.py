@@ -105,6 +105,8 @@ from opentelemetry.instrumentation.utils import unwrap
 from opentelemetry.semconv.trace import SpanAttributes
 from opentelemetry.trace import Span
 
+import importlib
+
 from filibuster.global_context import get_value as _filibuster_global_context_get_value
 from filibuster.global_context import set_value as _filibuster_global_context_set_value
 from filibuster.execution_index import execution_index_new, execution_index_fromstring, \
@@ -117,10 +119,6 @@ from filibuster.nginx_http_special_response import get_response
 from filibuster.server_helpers import should_fail_request_with, load_counterexample
 from filibuster.datatypes import TestExecution
 from filibuster.instrumentation.helpers import get_full_traceback_hash
-
-# A key to a context variable to avoid creating duplicate spans when instrumenting
-# both, Session.request and Session.send, since Session.request calls into Session.send
-_FILIBUSTER_SUPPRESS_REQUESTS_INSTRUMENTATION_KEY = "filibuster_suppress_requests_instrumentation"
 
 # We do not want to instrument the instrumentation, so use this key to detect when we
 # are inside of a Filibuster instrumentation call to suppress further instrumentation.
@@ -190,6 +188,9 @@ def _instrument(
     def filibuster_create_url(filibuster_url):
         return "{}/{}/create".format(filibuster_url, 'filibuster')
 
+    def filibuster_new_test_execution_url(filibuster_url, service_name):
+        return "{}/{}/new-test-execution/{}".format(filibuster_url, 'filibuster', service_name)
+
     def _traced_execute_command(func, instance, args, kwargs):
         query = _format_command_args(args)
         name = ""
@@ -240,7 +241,6 @@ def _instrument(
             generated_id = None
             has_execution_index = False
             exception = None
-            status_code = None
             should_inject_fault = False
             should_abort = True
             should_sleep_interval = 0
@@ -258,14 +258,36 @@ def _instrument(
 
                 # VClock handling
 
-                # TODO: did not do stuff with new-test-excution
+                # Figure out if we should reset the node's vector clock, which should happen in between test executions.
+                debug("Setting Filibuster instrumentation key...")
+                token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
+
+                response = None
+                if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
+                    requests.post('get', filibuster_new_test_execution_url(filibuster_url, service_name))
+                    if response is not None:
+                        response = response.json()
+
+                debug("Removing instrumentation key for Filibuster.")
+                context.detach(token)
+                reset_local_vclock = False
+                if response and ('new-test-execution' in response) and (response['new-test-execution']):
+                    reset_local_vclock = True
 
                 global ei_and_vclock_mutex
                 ei_and_vclock_mutex.acquire()
 
                 request_id_string = context.get_value(_FILIBUSTER_REQUEST_ID_KEY)
 
-                ## TODO: did not reset local vclock, since we don't reset things for new test executions?
+                if reset_local_vclock:
+                    # Reset everything, since there is a new test execution.
+                    debug("New test execution. Resetting vclocks_by_request and execution_indices_by_request.")
+
+                    vclocks_by_request = {request_id_string: vclock_new()}
+                    _filibuster_global_context_set_value(_FILIBUSTER_VCLOCK_BY_REQUEST_KEY, vclocks_by_request)
+
+                    execution_indices_by_request = {request_id_string: execution_index_new()}
+                    _filibuster_global_context_set_value(_FILIBUSTER_EI_BY_REQUEST_KEY, execution_indices_by_request)
 
                 # Incoming clock from the request that triggered this service to be reached.
                 incoming_vclock_string = context.get_value(_FILIBUSTER_VCLOCK_KEY)
@@ -304,8 +326,10 @@ def _instrument(
 
                 ## TODO: double check if this url replacement is ok
                 ## TODO: pretty print execution_index_hash, like in requests code?
+                ## TODO: need use url instead (on two different redis nodes)
+                ## TODO: name could be execute_command instead
                 execution_index_hash = unique_request_hash(
-                    [full_traceback_hash, 'redis', name, json.dumps(args), json.dumps(kwargs)])
+                    [full_traceback_hash, 'redis', 'execute_command', json.dumps(args), json.dumps(kwargs)])
 
                 execution_indices_by_request = _filibuster_global_context_get_value(_FILIBUSTER_EI_BY_REQUEST_KEY)
                 execution_indices_by_request[request_id_string] = execution_index_push(execution_index_hash,
@@ -375,21 +399,18 @@ def _instrument(
 
                         should_inject_fault = True
 
+                    ## TODO: fix once Filibuster injects faulty responses
                     if 'failure_metadata' in response:
                         if 'return_value' in response['failure_metadata'] and 'status_code' in \
                                 response['failure_metadata']['return_value']:
-                            status_code = response['failure_metadata']['return_value']['status_code']
                             should_inject_fault = True
+
                 debug("Finished recording call using Filibuster instrumentation service. ***********")
                 debug("")
             else:
                 debug("Instrumentation suppressed, skipping Filibuster instrumentation.")
 
             try:
-                ## TODO: don't need to do this
-                # debug("Setting Filibuster instrumentation key...")
-                # token = context.attach(context.set_value(_FILIBUSTER_SUPPRESS_REQUESTS_INSTRUMENTATION_KEY, True))
-
                 if not should_inject_fault:
                     # no need to propagate vclock and origin vclock forward,
                     # since redis-server won't use it
@@ -404,19 +425,7 @@ def _instrument(
                     result = func(*args, **kwargs)
                 else:
                     # Return entirely fake response and do not make request.
-                    #
-                    # Since this isn't a real result object, there's some attribute that's
-                    # being set to None and that's causing -- for these requests -- the opentelemetry
-                    # to not be able to report this correctly with the following error in the output:
-                    #
-                    # "Invalid type NoneType for attribute value.
-                    # Expected one of ['bool', 'str', 'int', 'float'] or a sequence of those types"
-                    #
-                    # I'm going to ignore this for now, because if we reorder the instrumentation
-                    # so that the opentelemetry is installed *before* the Filibuster instrumentation
-                    # we should be able to avoid this -- it's because we're returning an invalid
-                    # object through the opentelemetry instrumentation.
-                    #
+                    ## TODO: fix (redis may return 0 for s.ismember if it doesn't find it)
                     result = None
             except Exception as exc:
                 exception = exc
@@ -438,46 +447,45 @@ def _instrument(
                                                 result)
 
             # Result was an exception.
-            ## TODO
-            # if exception is not None and exception != "None":
-            #     if isinstance(exception, str):
-            #         exception_class = eval(exception)
-            #         exception = exception_class()
-            #         use_traceback = False
-            #     else:
-            #         if context.get_value(_FILIBUSTER_INSTRUMENTATION_KEY):
-            #             # If the Filibuster instrumentation call failed, ignore.  This just means
-            #             # that the test server is unavailable.
-            #             warning("Filibuster instrumentation server unreachable, ignoring...")
-            #             warning("If fault injection is enabled... this indicates that something isn't working properly.")
-            #         else:
-            #             try:
-            #                 exception_info = exception.rsplit('.', 1)
-            #                 m = importlib.import_module(exception_info[0])
-            #                 exception = getattr(m, exception_info[1])
-            #             except Exception:
-            #                 warning("Couldn't get actual exception due to exception parse error.")
+            if exception is not None and exception != "None":
+                if isinstance(exception, str):
+                    exception_class = eval(exception)
+                    exception = exception_class()
+                    use_traceback = False
+                else:
+                    if context.get_value(_FILIBUSTER_INSTRUMENTATION_KEY):
+                        # If the Filibuster instrumentation call failed, ignore.  This just means
+                        # that the test server is unavailable.
+                        warning("Filibuster instrumentation server unreachable, ignoring...")
+                        warning("If fault injection is enabled... this indicates that something isn't working properly.")
+                    else:
+                        try:
+                            exception_info = exception.rsplit('.', 1)
+                            m = importlib.import_module(exception_info[0])
+                            exception = getattr(m, exception_info[1])
+                        except Exception:
+                            warning("Couldn't get actual exception due to exception parse error.")
 
-            #         use_traceback = True
+                    use_traceback = True
 
-            #     if not context.get_value(_FILIBUSTER_INSTRUMENTATION_KEY):
-            #         debug("got exception!")
-            #         debug("=> exception: " + str(exception))
+                if not context.get_value(_FILIBUSTER_INSTRUMENTATION_KEY):
+                    debug("got exception!")
+                    debug("=> exception: " + str(exception))
 
-            #         if has_execution_index:
-            #             _update_execution_index(self)
+                    if has_execution_index:
+                        _update_execution_index()
 
-            #         # Notify the filibuster server of the actual exception we encountered.
-            #         if generated_id is not None:
-            #             _record_exceptional_response(self, generated_id, execution_index_tostring(execution_index), vclock,
-            #                                         exception, should_sleep_interval, should_abort)
+                    # Notify the filibuster server of the actual exception we encountered.
+                    if generated_id is not None:
+                        _record_exceptional_response(generated_id, execution_index_tostring(execution_index), vclock,
+                                                    exception, should_sleep_interval, should_abort)
 
-            #         if use_traceback:
-            #             raise exception.with_traceback(exception.__traceback__)
-            #         else:
-            #             raise exception
+                    if use_traceback:
+                        raise exception.with_traceback(exception.__traceback__)
+                    else:
+                        raise exception
 
-            # debug("_instrumented_requests_call exiting; method: " + method + " url: " + url)
+            debug("_instrumented_requests_call exiting; method: " + name)
 
             return result
 
@@ -517,7 +525,7 @@ def _instrument(
                 response = should_fail_request_with(payload, counterexample_test_execution.failures)
                 if response is None:
                     response = {'execution_index': execution_index}
-                print(response)
+
             if os.environ.get('DISABLE_SERVER_COMMUNICATION', ''):
                 warning("Server communication disabled.")
             elif counterexample is not None:
@@ -567,7 +575,11 @@ def _instrument(
                 token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
 
                 ## TODO: double check if this is ok
-                return_value = { result }
+                return_value = {
+                    '__class__': str(result.__class__.__name__),
+                    'value': result,
+                    'text': hashlib.md5(result.text.encode()).hexdigest()
+                }
                 payload = {
                     'instrumentation_type': 'invocation_complete',
                     'generated_id': generated_id,
@@ -584,10 +596,48 @@ def _instrument(
                 context.detach(token)
 
         return True
+
+    def _record_exceptional_response(generated_id, execution_index, vclock, exception, should_sleep_interval,
+                                     should_abort):
+        # assumes no asynchrony or threads at calling service.
+        if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')):
+            try:
+                debug("Setting Filibuster instrumentation key...")
+                token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
+
+                exception_to_string = str(type(exception))
+                parsed_exception_string = re.findall(r"'(.*?)'", exception_to_string, re.DOTALL)[0]
+                payload = {
+                    'instrumentation_type': 'invocation_complete',
+                    'generated_id': generated_id,
+                    'execution_index': execution_index,
+                    'vclock': vclock,
+                    'exception': {
+                        'name': parsed_exception_string,
+                        'metadata': {
+
+                        }
+                    }
+                }
+
+                if should_sleep_interval > 0:
+                    payload['exception']['metadata']['sleep'] = should_sleep_interval
+
+                if should_abort is not True:
+                    payload['exception']['metadata']['abort'] = should_abort
+
+                requests.post(filibuster_update_url(filibuster_url), json=payload)
+            except Exception as e:
+                warning("Exception raised (_record_exceptional_response)!")
+                print(e, file=sys.stderr)
+            finally:
+                debug("Removing instrumentation key for Filibuster.")
+                context.detach(token)
+
+        return True
+
     # For a given request, return a unique hash that can be used to identify it.
     def unique_request_hash(args):
-        for arg in args:
-            print(arg)
         hash_string = "-".join(args)
         hex_digest = hashlib.md5(hash_string.encode()).hexdigest()
         return hex_digest
