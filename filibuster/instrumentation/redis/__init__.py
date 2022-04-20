@@ -76,6 +76,7 @@ import typing
 from typing import Any, Collection
 
 import redis
+import redis.exceptions
 from wrapt import wrap_function_wrapper
 
 import functools
@@ -210,7 +211,7 @@ def _instrument(
             if callable(request_hook):
                 request_hook(span, instance, args, kwargs)
 
-            response = _instrumented_redis_call(service_name, func, name, args, **kwargs)
+            response = _instrumented_redis_call(service_name, func, "execute_command", args, **kwargs)
             if callable(response_hook):
                 response_hook(span, instance, response)
             return response
@@ -236,7 +237,7 @@ def _instrument(
             return response
 
     def _instrumented_redis_call(
-            service_name, func, name: str, args, **kwargs
+            service_name, func, method: str, args, **kwargs
         ):
             generated_id = None
             has_execution_index = False
@@ -248,7 +249,7 @@ def _instrument(
             origin_vclock = None
             execution_index = None
 
-            debug("_instrumented_redis_call entering; method: " + name)
+            debug("_instrumented_redis_call entering; method: " + method)
 
             # Record that a call is being made to an external service
             if not context.get_value("suppress_instrumentation"):
@@ -264,7 +265,7 @@ def _instrument(
 
                 response = None
                 if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
-                    requests.post('get', filibuster_new_test_execution_url(filibuster_url, service_name))
+                    requests.get(filibuster_new_test_execution_url(filibuster_url, service_name))
                     if response is not None:
                         response = response.json()
 
@@ -329,7 +330,7 @@ def _instrument(
                 ## TODO: need use url instead (on two different redis nodes)
                 ## TODO: name could be execute_command instead
                 execution_index_hash = unique_request_hash(
-                    [full_traceback_hash, 'redis', 'execute_command', json.dumps(args), json.dumps(kwargs)])
+                    [full_traceback_hash, 'redis', method, json.dumps(args), json.dumps(kwargs)])
 
                 execution_indices_by_request = _filibuster_global_context_get_value(_FILIBUSTER_EI_BY_REQUEST_KEY)
                 execution_indices_by_request[request_id_string] = execution_index_push(execution_index_hash,
@@ -376,7 +377,7 @@ def _instrument(
                     incoming_origin_vclock = vclock_fromstring(incoming_origin_vclock_string)
                 else:
                     incoming_origin_vclock = vclock_new()
-                response = _record_call(service_name, func, name, args, callsite_file, callsite_line, full_traceback_hash, vclock,
+                response = _record_call(service_name, func, method, args, callsite_file, callsite_line, full_traceback_hash, vclock,
                                         incoming_origin_vclock, execution_index_tostring(execution_index), **kwargs)
 
                 if response is not None:
@@ -485,11 +486,11 @@ def _instrument(
                     else:
                         raise exception
 
-            debug("_instrumented_requests_call exiting; method: " + name)
+            debug("_instrumented_requests_call exiting; method: " + method)
 
             return result
 
-    def _record_call(service_name, func, name, args, callsite_file, callsite_line, full_traceback, vclock, origin_vclock,
+    def _record_call(service_name, func, method, args, callsite_file, callsite_line, full_traceback, vclock, origin_vclock,
                      execution_index, **kwargs):
         response = None
         parsed_content = None
@@ -531,7 +532,7 @@ def _instrument(
             elif counterexample is not None:
                 notice("Skipping request, replaying from local counterexample.")
             else:
-                requests.post(filibuster_create_url(filibuster_url), json = payload)
+                requests.put(filibuster_create_url(filibuster_url), json = payload)
         except Exception as e:
             warning("Exception raised (_record_call)!")
             print(e, file=sys.stderr)

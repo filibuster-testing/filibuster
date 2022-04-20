@@ -58,6 +58,20 @@
       }
     ]
   },
+  "python.redis": {
+    "pattern": "redis\\.execute\\_command",
+    "exceptions": [
+      {
+        "name": "redis.exceptions.ConnectionError"
+      },
+      {
+        "name": "redis.exceptions.TimeoutError"
+      },
+      {
+        "name": "redis.exceptions.ResponseError"
+      }
+    ]
+  },
   "http": {
     "pattern": "(((requests\\.(get|put|post|head))|(WebClient\\.(GET|PUT|POST|HEAD))))",
     "errors": [
@@ -93,6 +107,23 @@
             "exception": {
               "metadata": {
                 "code": "NOT_FOUND"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "redis": {
+    "pattern": "redis\\.execute\\_command",
+    "errors": [
+      {
+        "service_name": ".*",
+        "types": [
+          {
+            "exception": {
+              "metadata": {
+                "code": "redis.exceptions.RedisError"
               }
             }
           }

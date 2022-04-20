@@ -160,6 +160,25 @@ def java_header_to_status_code(constant):
         print("Found constant with no match: " + constant)
         raise Exception("Analysis failed: unknown java header constant.")
 
+def add_python_redis_exceptions():
+    # Setup.
+    instrumentation['python.redis'] = {}
+    instrumentation['python.redis']['pattern'] = "redis\\.execute\\_command"
+    instrumentation['python.redis']['exceptions'] = []
+
+    # Base exceptions.
+    # ConnectionError raised when the redis-server has disconnected
+    instrumentation['python.redis']['exceptions'].append(
+        {'name': 'redis.exceptions.ConnectionError'})
+    instrumentation['python.redis']['exceptions'].append(
+        {'name': 'redis.exceptions.TimeoutError'})
+    # ResponseError raised when set operations are used on a key whose value is not a set
+    instrumentation['python.redis']['exceptions'].append(
+        {'name': 'redis.exceptions.ResponseError'})
+    # TODO: check this
+    # base class of all redis exceptions, don't raise this by default
+    # instrumentation['python.redis']['exceptions'].append(
+        # {'name': 'redis.exceptions.RedisError'})
 
 def exception_to_status_code(exception):
     if exception == "Forbidden":
@@ -248,6 +267,14 @@ def analyze_python(service, filename):
                 info("* identified HTTP error: " + str(general_failure_type))
                 services_and_errors['types'].append(general_failure_type)
 
+    ## TODO: not exactly sure what default failure type I should put here
+    redis_failure_type = {'exception': {'metadata': {'code': 'redis.exceptions.RedisError'}}}
+    for services_and_errors in instrumentation['redis']['errors']:
+        if services_and_errors['service_name'] == service:
+            if failure_type not in services_and_errors['types']:
+                info("* identified redis error: " + str(redis_failure_type))
+                services_and_errors['types'].append(redis_failure_type)
+
     # Get pb2 specific errors.
     file = open(filename, "r")
     for line in file:
@@ -330,6 +357,8 @@ def analyze_services_directory(output, directory):
     # Add Java grpc callsite exceptions.
     add_java_grpc_exceptions()
 
+    add_python_redis_exceptions()
+
     ##################################################################################################################
     # Fill out placeholder information for parsable file.
     ##################################################################################################################
@@ -340,13 +369,17 @@ def analyze_services_directory(output, directory):
 
     if 'grpc' not in instrumentation:
         instrumentation['grpc'] = {}
-        instrumentation['grpc']['pattern'] = "((grpc\\.insecure\_channel)|(.*Service/.*))"
+        instrumentation['grpc']['pattern'] = "((grpc\\.insecure\\_channel)|(.*Service/.*))"
 
     if 'errors' not in instrumentation['http']:
         instrumentation['http']['errors'] = []
 
     if 'errors' not in instrumentation['grpc']:
         instrumentation['grpc']['errors'] = []
+
+    if 'redis' not in instrumentation:
+            instrumentation['redis'] = {}
+            instrumentation['redis']['pattern'] = "redis\\.execute\\_command"
 
     ##################################################################################################################
     # Analyze each service.
@@ -370,6 +403,7 @@ def analyze_services_directory(output, directory):
     for service in services:
         instrumentation['http']['errors'].append({'service_name': service, 'types': []})
         instrumentation['grpc']['errors'].append({'service_name': service, 'types': []})
+        instrumentation['redis']['errors'].append({'service_name': service, 'types': []})
 
     for service in services:
         service_directory = os.path.join(directory, service)
