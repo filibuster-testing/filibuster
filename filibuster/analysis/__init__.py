@@ -175,10 +175,6 @@ def add_python_redis_exceptions():
     # ResponseError raised when set operations are used on a key whose value is not a set
     instrumentation['python.redis']['exceptions'].append(
         {'name': 'redis.exceptions.ResponseError'})
-    # TODO: check this
-    # base class of all redis exceptions, don't raise this by default
-    # instrumentation['python.redis']['exceptions'].append(
-        # {'name': 'redis.exceptions.RedisError'})
 
 def exception_to_status_code(exception):
     if exception == "Forbidden":
@@ -266,14 +262,6 @@ def analyze_python(service, filename):
             if general_failure_type not in services_and_errors['types']:
                 info("* identified HTTP error: " + str(general_failure_type))
                 services_and_errors['types'].append(general_failure_type)
-
-    ## TODO: not exactly sure what default failure type I should put here
-    redis_failure_type = {'exception': {'metadata': {'code': 'redis.exceptions.RedisError'}}}
-    for services_and_errors in instrumentation['redis']['errors']:
-        if services_and_errors['service_name'] == service:
-            if failure_type not in services_and_errors['types']:
-                info("* identified redis error: " + str(redis_failure_type))
-                services_and_errors['types'].append(redis_failure_type)
 
     # Get pb2 specific errors.
     file = open(filename, "r")
@@ -377,10 +365,6 @@ def analyze_services_directory(output, directory):
     if 'errors' not in instrumentation['grpc']:
         instrumentation['grpc']['errors'] = []
 
-    if 'redis' not in instrumentation:
-            instrumentation['redis'] = {}
-            instrumentation['redis']['pattern'] = "redis\\.execute\\_command"
-
     ##################################################################################################################
     # Analyze each service.
     ##################################################################################################################
@@ -403,7 +387,6 @@ def analyze_services_directory(output, directory):
     for service in services:
         instrumentation['http']['errors'].append({'service_name': service, 'types': []})
         instrumentation['grpc']['errors'].append({'service_name': service, 'types': []})
-        instrumentation['redis']['errors'].append({'service_name': service, 'types': []})
 
     for service in services:
         service_directory = os.path.join(directory, service)

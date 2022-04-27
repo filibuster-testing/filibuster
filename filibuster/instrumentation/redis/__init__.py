@@ -265,7 +265,7 @@ def _instrument(
 
                 response = None
                 if not (os.environ.get('DISABLE_SERVER_COMMUNICATION', '')) and counterexample is None:
-                    requests.get(filibuster_new_test_execution_url(filibuster_url, service_name))
+                    response = requests.get(filibuster_new_test_execution_url(filibuster_url, service_name))
                     if response is not None:
                         response = response.json()
 
@@ -433,7 +433,6 @@ def _instrument(
                 result = getattr(exc, "response", None)
             finally:
                 debug("Removing instrumentation key for Filibuster.")
-                # context.detach(token)
 
             # Result was an actual response.
             if not result is None and (exception is None or exception == "None"):
@@ -532,7 +531,7 @@ def _instrument(
             elif counterexample is not None:
                 notice("Skipping request, replaying from local counterexample.")
             else:
-                requests.put(filibuster_create_url(filibuster_url), json = payload)
+                response = requests.put(filibuster_create_url(filibuster_url), json = payload)
         except Exception as e:
             warning("Exception raised (_record_call)!")
             print(e, file=sys.stderr)
@@ -576,11 +575,20 @@ def _instrument(
                 token = context.attach(context.set_value(_FILIBUSTER_INSTRUMENTATION_KEY, True))
 
                 ## TODO: double check if this is ok
+                # Need to change the 'text' field depending on the type of result
+                class_name = str(result.__class__.__name__)
+                if class_name == "dict":
+                    text = json.dumps(result).encode()
+                elif class_name == "list":
+                    text =','.join([str(elem) for elem in result]).encode()
+                else:
+                    text = str(result).encode()
                 return_value = {
-                    '__class__': str(result.__class__.__name__),
+                    '__class__': class_name,
                     'value': result,
-                    'text': hashlib.md5(result.text.encode()).hexdigest()
+                    'text': hashlib.md5(text).hexdigest()
                 }
+
                 payload = {
                     'instrumentation_type': 'invocation_complete',
                     'generated_id': generated_id,
