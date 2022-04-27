@@ -113,22 +113,5 @@
         ]
       }
     ]
-  },
-  "redis": {
-    "pattern": "redis\\.execute\\_command",
-    "errors": [
-      {
-        "service_name": ".*",
-        "types": [
-          {
-            "exception": {
-              "metadata": {
-                "code": "redis.exceptions.RedisError"
-              }
-            }
-          }
-        ]
-      }
-    ]
   }
 }
