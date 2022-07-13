@@ -4,6 +4,7 @@ from filibuster.logger import info, debug
 def print_requests(test_execution):
     for entry in test_execution.log:
         info("gen_id: {} ".format(str(entry['generated_id'])))
+        info("  source_service_name: " + str(entry['source_service_name']))
         info("  module: " + str(entry['module']))
         info("  method: " + str(entry['method']))
         info("  args: " + str(entry['args']))
