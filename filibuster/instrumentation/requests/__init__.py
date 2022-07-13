@@ -551,7 +551,6 @@ def _instrument(service_name=None, filibuster_url=None):
                 response = should_fail_request_with(payload, counterexample_test_execution.failures)
                 if response is None:
                     response = {'execution_index': execution_index}
-                print(response)
             if os.environ.get('DISABLE_SERVER_COMMUNICATION', ''):
                 warning("Server communication disabled.")
             elif counterexample is not None:
