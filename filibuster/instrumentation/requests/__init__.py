@@ -306,8 +306,13 @@ def _instrument(service_name=None, filibuster_url=None):
                     url = url.replace('http://', '')
                     if ":" in url:
                         url = url.split(":", 1)[1]
-                    execution_index_hash = unique_request_hash(
-                        [full_traceback_hash, 'requests', method, json.dumps(url)])
+
+                    if os.environ.get("EI_DISABLE_CALL_STACK_HASH", ""):
+                        execution_index_hash = unique_request_hash(
+                            ['requests', method, json.dumps(url)])
+                    else:
+                        execution_index_hash = unique_request_hash(
+                            [full_traceback_hash, 'requests', method, json.dumps(url)])
 
                 execution_indices_by_request = _filibuster_global_context_get_value(_FILIBUSTER_EI_BY_REQUEST_KEY)
                 execution_indices_by_request[request_id_string] = execution_index_push(execution_index_hash,
