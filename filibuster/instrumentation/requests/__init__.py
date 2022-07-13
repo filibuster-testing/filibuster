@@ -547,7 +547,7 @@ def _instrument(service_name=None, filibuster_url=None):
                     pass
 
             if counterexample is not None and counterexample_test_execution is not None:
-                notice("Using counterexample without contacting server.")
+                debug("Using counterexample without contacting server.")
                 response = should_fail_request_with(payload, counterexample_test_execution.failures)
                 if response is None:
                     response = {'execution_index': execution_index}
@@ -555,7 +555,7 @@ def _instrument(service_name=None, filibuster_url=None):
             if os.environ.get('DISABLE_SERVER_COMMUNICATION', ''):
                 warning("Server communication disabled.")
             elif counterexample is not None:
-                notice("Skipping request, replaying from local counterexample.")
+                debug("Skipping request, replaying from local counterexample.")
             else:
                 response = wrapped_request(self, 'put', filibuster_create_url(filibuster_url), json=payload)
         except Exception as e:
