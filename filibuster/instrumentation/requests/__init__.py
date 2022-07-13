@@ -245,6 +245,8 @@ def _instrument(service_name=None, filibuster_url=None):
                     request_id_string = str(uuid.uuid4())
                     context.attach(context.set_value(_FILIBUSTER_REQUEST_ID_KEY, request_id_string))
 
+                debug("REQUEST ID STRING: " + str(request_id_string))
+
                 if reset_local_vclock:
                     # Reset everything, since there is a new test execution.
                     debug("New test execution. Resetting vclocks_by_request and execution_indices_by_request.")
