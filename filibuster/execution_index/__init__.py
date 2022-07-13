@@ -1,4 +1,5 @@
 import json
+import os
 
 
 def execution_index_new():
@@ -12,12 +13,18 @@ def execution_index_new():
 
 
 def execution_index_push(service, execution_index):
-    (callstack, counters) = execution_index
-
-    if service in counters:
-        counters[service] = counters[service] + 1
+    if os.environ.get("EI_DISABLE_PATH_INCLUSION", ""):
+        (callstack, counters) = execution_index_new()
     else:
+        (callstack, counters) = execution_index
+
+    if os.environ.get("EI_DISABLE_INVOCATION_COUNT", ""):
         counters[service] = 1
+    else:
+        if service in counters:
+            counters[service] = counters[service] + 1
+        else:
+            counters[service] = 1
 
     callstack.append((service, counters[service]))
 
