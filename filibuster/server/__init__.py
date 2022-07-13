@@ -705,11 +705,15 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     global counterexample
     global requests_to_fail
     global current_test_execution
+    global failure_percentage
 
     if counterexample_file:
         counterexample = load_counterexample(counterexample_file)
         current_test_execution = TestExecution.from_json(counterexample['TestExecution'])
         requests_to_fail = current_test_execution.failures
+        if 'failure_percentage' in counterexample:
+            failure_percentage = counterexample['failure_percentage']
+            debug("failure_percentage: " + str(failure_percentage))
 
     processes = []
     queue = Queue()
