@@ -521,6 +521,14 @@ def new_test_execution_check(service_name):
     if service_name not in server_state.seen_first_request_from_mapping:
         server_state.seen_first_request_from_mapping[service_name] = True
         new_test_execution = True
+
+    if PRINT_RESPONSES:
+        print("")
+        print("** NEW TEST EXECUTION RETURNING WITH PAYLOAD *****************")
+        print(json.dumps({"new-test-execution": new_test_execution}, indent=2))
+        print("**************************************************************")
+        print("")
+
     return jsonify({"new-test-execution": new_test_execution})
 
 
