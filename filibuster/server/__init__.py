@@ -96,7 +96,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
         test_executions_scheduled.push(counterexample_test_execution)
     else:  # Run initial execution only when we are running all tests (when there is no counterexample to debug).
         # Run initial execution.
-        info("Running initial non-failing execution (test 1) " + str(functional_test))
+        info("Running the initial non-failing execution (test 1) " + str(functional_test))
 
         # Reset requests to fail.
         requests_to_fail = []
