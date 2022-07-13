@@ -284,6 +284,8 @@ def _instrument(service_name=None, filibuster_url=None):
                     incoming_execution_index = execution_indices_by_request.get(request_id_string,
                                                                                 execution_index_new())
 
+                debug("clock now: " + str(vclocks_by_request.get(request_id_string, vclock_new())))
+
                 if os.environ.get("PRETTY_EXECUTION_INDEXES", ""):
                     execution_index_hash = url
                 else:
