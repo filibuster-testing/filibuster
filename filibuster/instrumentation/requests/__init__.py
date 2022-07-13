@@ -20,6 +20,8 @@ import json
 import sys
 import re
 import hashlib
+import uuid
+
 import requests
 import os
 
