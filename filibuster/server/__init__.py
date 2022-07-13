@@ -60,12 +60,13 @@ cumulative_test_generation_time_in_ms = 0
 mean_dynamic_pruning_time_in_ms = []
 instrumentation_data = None
 counterexample = None
+failure_percentage = None
 
 
 # Specific testing functions.
 
 
-def run_test(functional_test, only_initial_execution, disable_dynamic_reduction):
+def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure):
     global current_test_execution
     global test_executions_scheduled
     global requests_to_fail
@@ -73,7 +74,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
     global test_executions_ran
     global counterexample
 
-    iteration = 0
+    iteration = 1
 
     test_start_time = time.time()
 
@@ -102,7 +103,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
         requests_to_fail = []
 
         # Run initial test, which should pass.
-        run_test_with_fresh_state(functional_test, counterexample is not None, False)
+        run_test_with_fresh_state(functional_test, iteration, counterexample is not None, False, forced_failure)
 
         # Get log of requests that were made and return:
         # This execution will be the execution where everything passes and there
@@ -116,8 +117,6 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
         test_executions_ran.append(initial_actual_test_execution)
 
         info("[DONE] Running initial non-failing execution (test 1)")
-
-        iteration = 1
 
     # Loop until list is exhausted.
     if not only_initial_execution:
@@ -148,7 +147,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
 
             if counterexample:
                 # We have to run.
-                run_test_with_fresh_state(functional_test, True, False)
+                run_test_with_fresh_state(functional_test, iteration, True, False)
 
                 # Add to history list.
                 current_test_execution = TestExecution(server_state.service_request_log,
@@ -175,7 +174,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
 
                     if not dynamic_full_history_reduce:
                         # Run the test.
-                        run_test_with_fresh_state(functional_test, counterexample is not None, False)
+                        run_test_with_fresh_state(functional_test, iteration, counterexample is not None, False, forced_failure)
 
                         # Add to history list.
                         current_test_execution = TestExecution(server_state.service_request_log,
@@ -188,7 +187,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
                         test_executions_pruned.append(current_test_execution)
                 else:
                     # Run the test.
-                    run_test_with_fresh_state(functional_test, counterexample is not None, False)
+                    run_test_with_fresh_state(functional_test, iteration, counterexample is not None, False, forced_failure)
 
                     # Add to history list.
                     current_test_execution = TestExecution(server_state.service_request_log,
@@ -399,7 +398,7 @@ def read_analysis_file(analysis_file):
 
 # Test functions
 
-def run_test_with_fresh_state(functional_test, counterexample_provided=False, loadgen=False):
+def run_test_with_fresh_state(functional_test, iteration, counterexample_provided=False, loadgen=False, forced_failure=None):
     # Reset state.
     global test_executions_ran
     global server_state
@@ -408,7 +407,7 @@ def run_test_with_fresh_state(functional_test, counterexample_provided=False, lo
     exit_code = os.WEXITSTATUS(os.system(functional_test))
 
     if not loadgen:
-        if exit_code:
+        if exit_code or str(forced_failure) == str(iteration):
             # Allow replay of failed test
             if not current_test_execution:  # Errored on initial test. This shouldn't happen.
                 raise Exception(
@@ -531,6 +530,7 @@ def create():
         global server_state
         global cumulative_test_generation_time_in_ms
         global instrumentation_data
+        global failure_percentage
 
         data = request.get_json()
 
@@ -547,7 +547,7 @@ def create():
         server_state.service_request_log.append(data)
 
         global requests_to_fail
-        failure_request_metadata = should_fail_request_with(data, requests_to_fail)
+        failure_request_metadata = should_fail_request_with(data, requests_to_fail, failure_percentage)
 
         payload = {
             'generated_id': server_state.generated_id_incr,
@@ -685,7 +685,7 @@ def update():
 def start_thread(queue, functional_test, counterexample_file, num_requests):
     for x in range(num_requests):
         start = timer()
-        exit_code = run_test_with_fresh_state(functional_test, counterexample_file is not None, True)
+        exit_code = run_test_with_fresh_state(functional_test, 0, counterexample_file is not None, True)
         end = timer()
         duration = end - start
         queue.put((exit_code, start, end, duration))
@@ -779,7 +779,7 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     info("--------------- Loadgen Statistics ---------------")
 
 
-def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction):
+def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction, forced_failure):
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -787,7 +787,7 @@ def start_filibuster_server_and_run_test(functional_test, analysis_file, counter
     if counterexample_file:
         counterexample = load_counterexample(counterexample_file)
 
-    run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
+    run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure)
 
 
 def start_filibuster_server(analysis_file):
