@@ -51,6 +51,11 @@ def test(functional_test,
          should_suppress_combinations):
     """Test a microservice application using Filibuster."""
 
+    # Ensure some functional test is specified.
+    if functional_test is None and gradle_test is None:
+        click.echo(click.style("Either --gradle-test or --functional-test must be specified.", fg='red'))
+        exit(1)
+
     # Resolve full path of analysis file.
     if analysis_file == DEFAULT_ANALYSIS_FILE:
         abs_analysis_file = abspath(os.path.dirname(os.path.realpath(__file__)) + "/" + analysis_file)
