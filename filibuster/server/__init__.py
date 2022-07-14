@@ -66,13 +66,16 @@ failure_percentage = None
 # Specific testing functions.
 
 
-def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure):
+def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations):
     global current_test_execution
     global test_executions_scheduled
     global requests_to_fail
     global current_test_execution_batch
     global test_executions_ran
     global counterexample
+    global suppress_combinations
+
+    suppress_combinations = should_suppress_combinations
 
     iteration = 1
 
@@ -249,6 +252,7 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
     global test_executions_scheduled
     global current_test_execution_batch
     global requests_to_fail
+    global suppress_combinations
 
     # List of additional test executions.
     additional_test_executions = []
@@ -382,8 +386,15 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
         append_quantity = 0
 
         for te in additional_test_executions:
-            test_executions_scheduled.push(te)
-            append_quantity = append_quantity + 1
+            if suppress_combinations is True:
+                if len(te.failures) == 1:
+                    test_executions_scheduled.push(te)
+                    append_quantity = append_quantity + 1
+                else:
+                    pass
+            else:
+                test_executions_scheduled.push(te)
+                append_quantity = append_quantity + 1
         # warning("Added " + str(append_quantity) + " tests.")
     else:
         warning("Ignoring, path we discovered is a root of a path we already discovered.")
@@ -791,7 +802,7 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     info("--------------- Loadgen Statistics ---------------")
 
 
-def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction, forced_failure):
+def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations):
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -799,7 +810,7 @@ def start_filibuster_server_and_run_test(functional_test, analysis_file, counter
     if counterexample_file:
         counterexample = load_counterexample(counterexample_file)
 
-    run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure)
+    run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations)
 
 
 def start_filibuster_server(analysis_file):

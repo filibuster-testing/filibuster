@@ -38,6 +38,7 @@ class Mutex(click.Option):
 @click.option('--only-initial-execution', type=bool, is_flag=True, help='Only run a fault-free execution of the test.')
 @click.option('--disable-dynamic-reduction', type=bool, is_flag=True, help='Disable dynamic reduction.')
 @click.option('--forced-failure', type=int, help='Force failure at iteration X to generate counterexample file.')
+@click.option('--should-suppress-combinations', type=bool, is_flag=True, help='Should suppress test executions with multiple failures.')
 def test(functional_test,
          gradle_test,
          java_debug,
@@ -46,7 +47,8 @@ def test(functional_test,
          counterexample_file,
          only_initial_execution,
          disable_dynamic_reduction,
-         forced_failure):
+         forced_failure,
+         should_suppress_combinations):
     """Test a microservice application using Filibuster."""
 
     # Resolve full path of analysis file.
@@ -81,7 +83,8 @@ def test(functional_test,
                                          counterexample_file,
                                          only_initial_execution,
                                          disable_dynamic_reduction,
-                                         forced_failure)
+                                         forced_failure,
+                                         should_suppress_combinations)
 
 
 if __name__ == '__main__':
