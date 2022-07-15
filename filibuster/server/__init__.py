@@ -480,7 +480,7 @@ def faults_injected_index():
 
 
 # TODO: really not efficient, needs to be fixed with memoization
-@app.route("/filibuster/fault-injected/<service_name>", methods=['GET'])
+@app.route("/filibuster/fault-injected/service/<service_name>", methods=['GET'])
 def faults_injected_by_service(service_name):
     global counterexample
     global test_executions_ran
@@ -514,6 +514,61 @@ def faults_injected_by_service(service_name):
                     for le in te.response_log:
                         if le['execution_index'] == item['execution_index']:
                             if le['target_service_name'] == service_name:
+                                found = True
+                                break
+
+    return jsonify({"result": found})
+
+
+# TODO: really not efficient, needs to be fixed with memoization
+@app.route("/filibuster/fault-injected/method/<part1>/<part2>", methods=['GET'])
+def faults_injected_by_method_two_part(part1, part2):
+    global counterexample
+    global test_executions_ran
+    global current_test_execution
+
+    method_name = None
+
+    if part2 is None:
+        method_name = part1
+    else:
+        method_name = part1 + "/" + part2
+
+    if method_name is None:
+        print("HELLO")
+        return jsonify({"result": False})
+
+    found = False
+
+    if counterexample:
+        # If using a counterexample, it should contain a log that maps
+        # execution indexes to their target services.
+        #
+        for item in current_test_execution.failures:
+            for le in current_test_execution.response_log:
+                print(le['method'])
+                if le['execution_index'] == item['execution_index']:
+                    if le['method'] == method_name:
+                        found = True
+                        break
+                    else:
+                        print("{} != {}".format(le['method'], method_name))
+    else:
+        # This work is duplicated here, unfortunately. *After* the test finishes,
+        # we compute this information for every single call made in the test
+        # from all of the previously run tests.
+        #
+        # When we choose to inject faults, we don't know the service that we are injecting
+        # the fault on, so we have to go find another execution where we do know.
+        #
+        # From there, we know.
+        #
+        if current_test_execution:  # on initial, fault-free execution, this value isn't set.
+            for item in current_test_execution.failures:
+                for te in test_executions_ran:
+                    for le in te.response_log:
+                        if le['execution_index'] == item['execution_index']:
+                            if le['method'] == method_name:
                                 found = True
                                 break
 
