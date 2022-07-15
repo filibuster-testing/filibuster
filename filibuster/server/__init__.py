@@ -282,6 +282,7 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
 
         # Iterate list of faults.
         instrumentation = read_analysis_file(analysis_file)
+
         for module in instrumentation:
             pattern = instrumentation[module]['pattern']
             matcher = re.compile(pattern)
