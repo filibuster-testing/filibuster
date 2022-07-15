@@ -48,6 +48,13 @@ if os.environ.get('PRINT_RESPONSES', ''):
 else:
     PRINT_RESPONSES = False
 
+if os.environ.get('DETAILED_FLASK_LOGGING', ''):
+    pass
+else:
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
 # Global state.
 
 server_state = ServerState()
