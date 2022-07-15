@@ -67,7 +67,7 @@ failure_percentage = None
 # Specific testing functions.
 
 
-def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations):
+def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
     global current_test_execution
     global test_executions_scheduled
     global requests_to_fail
@@ -107,7 +107,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
         requests_to_fail = []
 
         # Run initial test, which should pass.
-        run_test_with_fresh_state(functional_test, iteration, counterexample is not None, False, forced_failure)
+        run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample is not None, False, forced_failure)
 
         # Get log of requests that were made and return:
         # This execution will be the execution where everything passes and there
@@ -150,7 +150,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
 
             if counterexample:
                 # We have to run.
-                run_test_with_fresh_state(functional_test, iteration, True, False)
+                run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, True, False)
 
                 # Add to history list.
                 current_test_execution = TestExecution(server_state.service_request_log,
@@ -177,7 +177,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
 
                     if not dynamic_full_history_reduce:
                         # Run the test.
-                        run_test_with_fresh_state(functional_test, iteration, counterexample is not None, False, forced_failure)
+                        run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample is not None, False, forced_failure)
 
                         # Add to history list.
                         current_test_execution = TestExecution(server_state.service_request_log,
@@ -190,7 +190,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
                         test_executions_pruned.append(current_test_execution)
                 else:
                     # Run the test.
-                    run_test_with_fresh_state(functional_test, iteration, counterexample is not None, False, forced_failure)
+                    run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample is not None, False, forced_failure)
 
                     # Add to history list.
                     current_test_execution = TestExecution(server_state.service_request_log,
@@ -409,13 +409,27 @@ def read_analysis_file(analysis_file):
 
 # Test functions
 
-def run_test_with_fresh_state(functional_test, iteration, counterexample_provided=False, loadgen=False, forced_failure=None):
+def run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample_provided=False, loadgen=False, forced_failure=None):
     # Reset state.
     global test_executions_ran
     global server_state
     server_state = ServerState()
 
+    if setup_script is not None:
+        setup_script_exit_code = os.WEXITSTATUS(os.system(setup_script))
+
+        if setup_script_exit_code != 0:
+            error("Setup script failed!  Please fix before continuing.")
+            exit(1)
+
     exit_code = os.WEXITSTATUS(os.system(functional_test))
+
+    if teardown_script is not None:
+        teardown_script_exit_code = os.WEXITSTATUS(os.system(teardown_script))
+
+        if teardown_script_exit_code != 0:
+            error("Teardown script failed!  Please fix before continuing.")
+            exit(1)
 
     if not loadgen:
         if exit_code or str(forced_failure) == str(iteration):
@@ -756,16 +770,16 @@ def update():
         print(e, file=sys.stderr)
 
 
-def start_thread(queue, functional_test, counterexample_file, num_requests):
+def start_thread(queue, setup_script, teardown_script, functional_test, counterexample_file, num_requests):
     for x in range(num_requests):
         start = timer()
-        exit_code = run_test_with_fresh_state(functional_test, 0, counterexample_file is not None, True)
+        exit_code = run_test_with_fresh_state(setup_script, teardown_script, functional_test, 0, counterexample_file is not None, True)
         end = timer()
         duration = end - start
         queue.put((exit_code, start, end, duration))
 
 
-def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure):
+def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure, setup_script, teardown_script):
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -786,7 +800,7 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
 
     # Start each worker.
     for x in range(concurrency):
-        p = Process(target=start_thread, args=(queue, functional_test, counterexample_file, num_requests))
+        p = Process(target=start_thread, args=(queue, setup_script, teardown_script, functional_test, counterexample_file, num_requests))
         p.start()
         processes.append(p)
 
@@ -857,7 +871,7 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     info("--------------- Loadgen Statistics ---------------")
 
 
-def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations):
+def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -865,7 +879,7 @@ def start_filibuster_server_and_run_test(functional_test, analysis_file, counter
     if counterexample_file:
         counterexample = load_counterexample(counterexample_file)
 
-    run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations)
+    run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script)
 
 
 def start_filibuster_server(analysis_file):

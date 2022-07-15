@@ -17,9 +17,11 @@ from filibuster.server import start_filibuster_server_and_run_multi_threaded_tes
               type=float,
               help='Maximum request latency before request is considered failure (seconds.)')
 @click.option('--failure-percentage', required=True, type=int, help='Percentage of requests to fail (as integer.)')
-@click.option('--before-script', type=str, help='Script to run before starting functional test.')
-@click.option('--after-script', type=str, help='Script to run after functional test completes.')
-def loadgen(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure, failure_percentage, before_script, after_script):
+@click.option('--before-script', type=str, help='Script to run before starting loadgen testing for initial setup.')
+@click.option('--after-script', type=str, help='Script to run after loadgen testing for final assertions.')
+@click.option('--setup-script', type=str, help='Script runs every iteration, prior to execution of the functional test.')
+@click.option('--teardown-script', type=str, help='Script runs every iteration, after execution of the functional test.')
+def loadgen(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure, failure_percentage, before_script, after_script, setup_script, teardown_script):
     """Generate load for a given counterexample."""
 
     # TODO: also need to add some configuration for the pause between each request.
@@ -62,7 +64,7 @@ def loadgen(functional_test, analysis_file, counterexample_file, concurrency, nu
 
     # Run a multi-threaded test.
     start_filibuster_server_and_run_multi_threaded_test(
-        functional_test, abs_analysis_file, new_counterexample_file, concurrency, num_requests, max_request_latency_for_failure)
+        functional_test, abs_analysis_file, new_counterexample_file, concurrency, num_requests, max_request_latency_for_failure, setup_script, teardown_script)
 
     # CSM 2022-03-09: Start temporary changes for proof of concept.
 

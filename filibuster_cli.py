@@ -39,6 +39,8 @@ class Mutex(click.Option):
 @click.option('--disable-dynamic-reduction', type=bool, is_flag=True, help='Disable dynamic reduction.')
 @click.option('--forced-failure', type=int, help='Force failure at iteration X to generate counterexample file.')
 @click.option('--should-suppress-combinations', type=bool, is_flag=True, help='Should suppress test executions with multiple failures.')
+@click.option('--setup-script', type=str, help='Script runs every iteration, prior to execution of the functional test.')
+@click.option('--teardown-script', type=str, help='Script runs every iteration, after execution of the functional test.')
 def test(functional_test,
          gradle_test,
          java_debug,
@@ -48,7 +50,9 @@ def test(functional_test,
          only_initial_execution,
          disable_dynamic_reduction,
          forced_failure,
-         should_suppress_combinations):
+         should_suppress_combinations,
+         setup_script,
+         teardown_script):
     """Test a microservice application using Filibuster."""
 
     # Ensure some functional test is specified.
@@ -89,7 +93,9 @@ def test(functional_test,
                                          only_initial_execution,
                                          disable_dynamic_reduction,
                                          forced_failure,
-                                         should_suppress_combinations)
+                                         should_suppress_combinations,
+                                         setup_script,
+                                         teardown_script)
 
 
 if __name__ == '__main__':
