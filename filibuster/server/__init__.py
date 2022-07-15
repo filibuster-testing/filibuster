@@ -560,13 +560,10 @@ def faults_injected_by_method_two_part(part1, part2):
         #
         for item in current_test_execution.failures:
             for le in current_test_execution.response_log:
-                print(le['method'])
                 if le['execution_index'] == item['execution_index']:
                     if le['method'] == method_name:
                         found = True
                         break
-                    else:
-                        print("{} != {}".format(le['method'], method_name))
     else:
         # This work is duplicated here, unfortunately. *After* the test finishes,
         # we compute this information for every single call made in the test
