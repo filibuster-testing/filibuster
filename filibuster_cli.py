@@ -53,7 +53,7 @@ def test(functional_test,
 
     # Ensure some functional test is specified.
     if functional_test is None and gradle_test is None:
-        click.echo(click.style("Either --gradle-test or --functional-test must be specified.", fg='red'))
+        click.echo(click.style("Error: either --gradle-test or --functional-test must be specified.", fg='red'))
         exit(1)
 
     # Resolve full path of analysis file.
