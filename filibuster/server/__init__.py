@@ -1,4 +1,5 @@
 import math
+
 from _queue import Empty
 from multiprocessing import Process, Queue
 
@@ -47,6 +48,13 @@ if os.environ.get('PRINT_RESPONSES', ''):
 else:
     PRINT_RESPONSES = False
 
+if os.environ.get('DETAILED_FLASK_LOGGING', ''):
+    pass
+else:
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
 # Global state.
 
 server_state = ServerState()
@@ -60,20 +68,24 @@ cumulative_test_generation_time_in_ms = 0
 mean_dynamic_pruning_time_in_ms = []
 instrumentation_data = None
 counterexample = None
+failure_percentage = None
 
 
 # Specific testing functions.
 
 
-def run_test(functional_test, only_initial_execution, disable_dynamic_reduction):
+def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
     global current_test_execution
     global test_executions_scheduled
     global requests_to_fail
     global current_test_execution_batch
     global test_executions_ran
     global counterexample
+    global suppress_combinations
 
-    iteration = 0
+    suppress_combinations = should_suppress_combinations
+
+    iteration = 1
 
     test_start_time = time.time()
 
@@ -96,13 +108,13 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
         test_executions_scheduled.push(counterexample_test_execution)
     else:  # Run initial execution only when we are running all tests (when there is no counterexample to debug).
         # Run initial execution.
-        info("Running initial non-failing execution (test 1) " + str(functional_test))
+        info("Running the initial non-failing execution (test 1) " + str(functional_test))
 
         # Reset requests to fail.
         requests_to_fail = []
 
         # Run initial test, which should pass.
-        run_test_with_fresh_state(functional_test, counterexample is not None, False)
+        run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample is not None, False, forced_failure)
 
         # Get log of requests that were made and return:
         # This execution will be the execution where everything passes and there
@@ -111,13 +123,10 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
 
         # Add to list of ran executions.
         test_executions_attempted.append(initial_test_execution)
-        initial_actual_test_execution = TestExecution(server_state.service_request_log, requests_to_fail,
-                                                      completed=True)
+        initial_actual_test_execution = TestExecution(server_state.service_request_log, requests_to_fail, completed=True)
         test_executions_ran.append(initial_actual_test_execution)
 
         info("[DONE] Running initial non-failing execution (test 1)")
-
-        iteration = 1
 
     # Loop until list is exhausted.
     if not only_initial_execution:
@@ -148,7 +157,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
 
             if counterexample:
                 # We have to run.
-                run_test_with_fresh_state(functional_test, True, False)
+                run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, True, False)
 
                 # Add to history list.
                 current_test_execution = TestExecution(server_state.service_request_log,
@@ -175,7 +184,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
 
                     if not dynamic_full_history_reduce:
                         # Run the test.
-                        run_test_with_fresh_state(functional_test, counterexample is not None, False)
+                        run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample is not None, False, forced_failure)
 
                         # Add to history list.
                         current_test_execution = TestExecution(server_state.service_request_log,
@@ -188,7 +197,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
                         test_executions_pruned.append(current_test_execution)
                 else:
                     # Run the test.
-                    run_test_with_fresh_state(functional_test, counterexample is not None, False)
+                    run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample is not None, False, forced_failure)
 
                     # Add to history list.
                     current_test_execution = TestExecution(server_state.service_request_log,
@@ -250,6 +259,7 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
     global test_executions_scheduled
     global current_test_execution_batch
     global requests_to_fail
+    global suppress_combinations
 
     # List of additional test executions.
     additional_test_executions = []
@@ -280,6 +290,7 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
 
         # Iterate list of faults.
         instrumentation = read_analysis_file(analysis_file)
+
         for module in instrumentation:
             pattern = instrumentation[module]['pattern']
             matcher = re.compile(pattern)
@@ -314,7 +325,6 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                                     new_req['forced_exception']['metadata'] = {}
 
                                     for key in exception['metadata']:
-                                        print("KEY IS " + str(key))
                                         # TODO: we have to do this programmatically, we need to parse the expression.
                                         if exception['metadata'][key] == "@expr(metadata['timeout']-1)":
                                             new_req['forced_exception']['metadata'][key] = (
@@ -383,8 +393,15 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
         append_quantity = 0
 
         for te in additional_test_executions:
-            test_executions_scheduled.push(te)
-            append_quantity = append_quantity + 1
+            if suppress_combinations is True:
+                if len(te.failures) == 1:
+                    test_executions_scheduled.push(te)
+                    append_quantity = append_quantity + 1
+                else:
+                    pass
+            else:
+                test_executions_scheduled.push(te)
+                append_quantity = append_quantity + 1
         # warning("Added " + str(append_quantity) + " tests.")
     else:
         warning("Ignoring, path we discovered is a root of a path we already discovered.")
@@ -399,16 +416,30 @@ def read_analysis_file(analysis_file):
 
 # Test functions
 
-def run_test_with_fresh_state(functional_test, counterexample_provided=False, loadgen=False):
+def run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample_provided=False, loadgen=False, forced_failure=None):
     # Reset state.
     global test_executions_ran
     global server_state
     server_state = ServerState()
 
+    if setup_script is not None:
+        setup_script_exit_code = os.WEXITSTATUS(os.system(setup_script))
+
+        if setup_script_exit_code != 0:
+            error("Setup script failed!  Please fix before continuing.")
+            exit(1)
+
     exit_code = os.WEXITSTATUS(os.system(functional_test))
 
+    if teardown_script is not None:
+        teardown_script_exit_code = os.WEXITSTATUS(os.system(teardown_script))
+
+        if teardown_script_exit_code != 0:
+            error("Teardown script failed!  Please fix before continuing.")
+            exit(1)
+
     if not loadgen:
-        if exit_code:
+        if exit_code or str(forced_failure) == str(iteration):
             # Allow replay of failed test
             if not current_test_execution:  # Errored on initial test. This shouldn't happen.
                 raise Exception(
@@ -470,7 +501,7 @@ def faults_injected_index():
 
 
 # TODO: really not efficient, needs to be fixed with memoization
-@app.route("/filibuster/fault-injected/<service_name>", methods=['GET'])
+@app.route("/filibuster/fault-injected/service/<service_name>", methods=['GET'])
 def faults_injected_by_service(service_name):
     global counterexample
     global test_executions_ran
@@ -510,6 +541,58 @@ def faults_injected_by_service(service_name):
     return jsonify({"result": found})
 
 
+# TODO: really not efficient, needs to be fixed with memoization
+@app.route("/filibuster/fault-injected/method/<part1>/<part2>", methods=['GET'])
+def faults_injected_by_method_two_part(part1, part2):
+    global counterexample
+    global test_executions_ran
+    global current_test_execution
+
+    method_name = None
+
+    if part2 is None:
+        method_name = part1
+    else:
+        method_name = part1 + "/" + part2
+
+    if method_name is None:
+        print("HELLO")
+        return jsonify({"result": False})
+
+    found = False
+
+    if counterexample:
+        # If using a counterexample, it should contain a log that maps
+        # execution indexes to their target services.
+        #
+        for item in current_test_execution.failures:
+            for le in current_test_execution.response_log:
+                if le['execution_index'] == item['execution_index']:
+                    if le['method'] == method_name:
+                        found = True
+                        break
+    else:
+        # This work is duplicated here, unfortunately. *After* the test finishes,
+        # we compute this information for every single call made in the test
+        # from all of the previously run tests.
+        #
+        # When we choose to inject faults, we don't know the service that we are injecting
+        # the fault on, so we have to go find another execution where we do know.
+        #
+        # From there, we know.
+        #
+        if current_test_execution:  # on initial, fault-free execution, this value isn't set.
+            for item in current_test_execution.failures:
+                for te in test_executions_ran:
+                    for le in te.response_log:
+                        if le['execution_index'] == item['execution_index']:
+                            if le['method'] == method_name:
+                                found = True
+                                break
+
+    return jsonify({"result": found})
+
+
 @app.route("/health-check", methods=['GET'])
 def health_check():
     return jsonify({"status": "OK"})
@@ -522,6 +605,14 @@ def new_test_execution_check(service_name):
     if service_name not in server_state.seen_first_request_from_mapping:
         server_state.seen_first_request_from_mapping[service_name] = True
         new_test_execution = True
+
+    if PRINT_RESPONSES:
+        print("")
+        print("** NEW TEST EXECUTION RETURNING WITH PAYLOAD *****************")
+        print(json.dumps({"new-test-execution": new_test_execution}, indent=2))
+        print("**************************************************************")
+        print("")
+
     return jsonify({"new-test-execution": new_test_execution})
 
 
@@ -531,6 +622,7 @@ def create():
         global server_state
         global cumulative_test_generation_time_in_ms
         global instrumentation_data
+        global failure_percentage
 
         data = request.get_json()
 
@@ -547,7 +639,7 @@ def create():
         server_state.service_request_log.append(data)
 
         global requests_to_fail
-        failure_request_metadata = should_fail_request_with(data, requests_to_fail)
+        failure_request_metadata = should_fail_request_with(data, requests_to_fail, failure_percentage)
 
         payload = {
             'generated_id': server_state.generated_id_incr,
@@ -682,33 +774,37 @@ def update():
         print(e, file=sys.stderr)
 
 
-def start_thread(queue, functional_test, counterexample_file, num_requests):
+def start_thread(queue, setup_script, teardown_script, functional_test, counterexample_file, num_requests):
     for x in range(num_requests):
         start = timer()
-        exit_code = run_test_with_fresh_state(functional_test, counterexample_file is not None, True)
+        exit_code = run_test_with_fresh_state(setup_script, teardown_script, functional_test, 0, counterexample_file is not None, True)
         end = timer()
         duration = end - start
         queue.put((exit_code, start, end, duration))
 
 
-def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure):
+def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysis_file, counterexample_file, concurrency, num_requests, max_request_latency_for_failure, setup_script, teardown_script):
     start_filibuster_server(analysis_file)
 
     global counterexample
     global requests_to_fail
     global current_test_execution
+    global failure_percentage
 
     if counterexample_file:
         counterexample = load_counterexample(counterexample_file)
         current_test_execution = TestExecution.from_json(counterexample['TestExecution'])
         requests_to_fail = current_test_execution.failures
+        if 'failure_percentage' in counterexample:
+            failure_percentage = counterexample['failure_percentage']
+            debug("failure_percentage: " + str(failure_percentage))
 
     processes = []
     queue = Queue()
 
     # Start each worker.
     for x in range(concurrency):
-        p = Process(target=start_thread, args=(queue, functional_test, counterexample_file, num_requests))
+        p = Process(target=start_thread, args=(queue, setup_script, teardown_script, functional_test, counterexample_file, num_requests))
         p.start()
         processes.append(p)
 
@@ -779,7 +875,7 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
     info("--------------- Loadgen Statistics ---------------")
 
 
-def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction):
+def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -787,7 +883,7 @@ def start_filibuster_server_and_run_test(functional_test, analysis_file, counter
     if counterexample_file:
         counterexample = load_counterexample(counterexample_file)
 
-    run_test(functional_test, only_initial_execution, disable_dynamic_reduction)
+    run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script)
 
 
 def start_filibuster_server(analysis_file):

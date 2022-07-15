@@ -6,7 +6,7 @@ with open("requirements.txt", "r") as fh:
     requirements = fh.read()
 setup(
     name='filibuster',
-    version='0.0.4',
+    version='0.0.5',
     author='Christopher S. Meiklejohn',
     author_email='christopher.meiklejohn@gmail.com',
     license='Apache-2.0',

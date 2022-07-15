@@ -20,6 +20,8 @@ import json
 import sys
 import re
 import hashlib
+import uuid
+
 import requests
 import os
 
@@ -239,6 +241,12 @@ def _instrument(service_name=None, filibuster_url=None):
 
                 request_id_string = context.get_value(_FILIBUSTER_REQUEST_ID_KEY)
 
+                if request_id_string is None:
+                    request_id_string = str(uuid.uuid4())
+                    context.attach(context.set_value(_FILIBUSTER_REQUEST_ID_KEY, request_id_string))
+
+                debug("REQUEST ID STRING: " + str(request_id_string))
+
                 if reset_local_vclock:
                     # Reset everything, since there is a new test execution.
                     debug("New test execution. Resetting vclocks_by_request and execution_indices_by_request.")
@@ -284,6 +292,8 @@ def _instrument(service_name=None, filibuster_url=None):
                     incoming_execution_index = execution_indices_by_request.get(request_id_string,
                                                                                 execution_index_new())
 
+                debug("clock now: " + str(vclocks_by_request.get(request_id_string, vclock_new())))
+
                 if os.environ.get("PRETTY_EXECUTION_INDEXES", ""):
                     execution_index_hash = url
                 else:
@@ -298,8 +308,13 @@ def _instrument(service_name=None, filibuster_url=None):
                     url = url.replace('http://', '')
                     if ":" in url:
                         url = url.split(":", 1)[1]
-                    execution_index_hash = unique_request_hash(
-                        [full_traceback_hash, 'requests', method, json.dumps(url)])
+
+                    if os.environ.get("EI_DISABLE_CALL_STACK_HASH", ""):
+                        execution_index_hash = unique_request_hash(
+                            ['requests', method, json.dumps(url)])
+                    else:
+                        execution_index_hash = unique_request_hash(
+                            [full_traceback_hash, 'requests', method, json.dumps(url)])
 
                 execution_indices_by_request = _filibuster_global_context_get_value(_FILIBUSTER_EI_BY_REQUEST_KEY)
                 execution_indices_by_request[request_id_string] = execution_index_push(execution_index_hash,
@@ -547,15 +562,14 @@ def _instrument(service_name=None, filibuster_url=None):
                     pass
 
             if counterexample is not None and counterexample_test_execution is not None:
-                notice("Using counterexample without contacting server.")
+                debug("Using counterexample without contacting server.")
                 response = should_fail_request_with(payload, counterexample_test_execution.failures)
                 if response is None:
                     response = {'execution_index': execution_index}
-                print(response)
             if os.environ.get('DISABLE_SERVER_COMMUNICATION', ''):
                 warning("Server communication disabled.")
             elif counterexample is not None:
-                notice("Skipping request, replaying from local counterexample.")
+                debug("Skipping request, replaying from local counterexample.")
             else:
                 response = wrapped_request(self, 'put', filibuster_create_url(filibuster_url), json=payload)
         except Exception as e:
