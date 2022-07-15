@@ -1,4 +1,5 @@
 import math
+
 from _queue import Empty
 from multiprocessing import Process, Queue
 
