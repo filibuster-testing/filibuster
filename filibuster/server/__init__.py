@@ -115,8 +115,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
 
         # Add to list of ran executions.
         test_executions_attempted.append(initial_test_execution)
-        initial_actual_test_execution = TestExecution(server_state.service_request_log, requests_to_fail,
-                                                      completed=True)
+        initial_actual_test_execution = TestExecution(server_state.service_request_log, requests_to_fail, completed=True)
         test_executions_ran.append(initial_actual_test_execution)
 
         info("[DONE] Running initial non-failing execution (test 1)")
