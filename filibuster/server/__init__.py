@@ -317,7 +317,6 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                                     new_req['forced_exception']['metadata'] = {}
 
                                     for key in exception['metadata']:
-                                        print("KEY IS " + str(key))
                                         # TODO: we have to do this programmatically, we need to parse the expression.
                                         if exception['metadata'][key] == "@expr(metadata['timeout']-1)":
                                             new_req['forced_exception']['metadata'][key] = (
