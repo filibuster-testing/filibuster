@@ -29,6 +29,7 @@ class Mutex(click.Option):
 
 
 @click.command()
+@click.option('--server-only', cls=Mutex, not_required_if=["gradle-test", "functional-test"], type=bool, is_flag=True, help='Run in server-only mode.')
 @click.option('--functional-test', cls=Mutex, not_required_if=["gradle-test"], type=str, help='Functional test file.')
 @click.option('--gradle-test', cls=Mutex, not_required_if=["functional-test"], type=str, help='Gradle test name.')
 @click.option('--java-debug', type=bool, is_flag=True, help='Pause for remote debug attach each test execution.')
@@ -41,7 +42,8 @@ class Mutex(click.Option):
 @click.option('--should-suppress-combinations', type=bool, is_flag=True, help='Should suppress test executions with multiple failures.')
 @click.option('--setup-script', type=str, help='Script runs every iteration, prior to execution of the functional test.')
 @click.option('--teardown-script', type=str, help='Script runs every iteration, after execution of the functional test.')
-def test(functional_test,
+def test(server_only,
+         functional_test,
          gradle_test,
          java_debug,
          java_logging,
@@ -56,8 +58,8 @@ def test(functional_test,
     """Test a microservice application using Filibuster."""
 
     # Ensure some functional test is specified.
-    if functional_test is None and gradle_test is None:
-        click.echo(click.style("Error: either --gradle-test or --functional-test must be specified.", fg='red'))
+    if functional_test is None and gradle_test is None and server_only is False:
+        click.echo(click.style("Error: either --server-only, --gradle-test or --functional-test must be specified.", fg='red'))
         exit(1)
 
     # Resolve full path of analysis file.
@@ -84,6 +86,8 @@ def test(functional_test,
         os.system("ps auxwww | grep 'worker.org.gradle.process.internal.worker.GradleWorkerMain' | awk '{print $2}' | xargs kill -9")
 
         test_to_execute = "./gradlew --no-daemon {} test {} --tests '{}'".format(java_logging_opt, java_debug_opt, gradle_test)
+    elif server_only is not False:
+        test_to_execute = None
     else:
         test_to_execute = functional_test
 

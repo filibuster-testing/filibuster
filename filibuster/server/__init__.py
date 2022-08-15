@@ -69,9 +69,10 @@ mean_dynamic_pruning_time_in_ms = []
 instrumentation_data = None
 counterexample = None
 failure_percentage = None
-
-
-# Specific testing functions.
+iteration_complete = False
+iteration_exit_code = 0
+server_only_mode = False
+should_terminate_immediately = False
 
 
 def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
@@ -82,6 +83,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
     global test_executions_ran
     global counterexample
     global suppress_combinations
+    global server_only_mode
 
     suppress_combinations = should_suppress_combinations
 
@@ -103,6 +105,10 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
     # Keep track of the tests that we need to run.
     test_executions_scheduled = Stack()
 
+    # server only?
+    if functional_test is None:
+        server_only_mode = True
+
     if counterexample:  # Schedule a test execution for the counterexample.
         counterexample_test_execution = TestExecution.from_json(counterexample['TestExecution'])
         test_executions_scheduled.push(counterexample_test_execution)
@@ -120,6 +126,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
         # This execution will be the execution where everything passes and there
         # are no failures.
         initial_test_execution = TestExecution(server_state.service_request_log, [])
+        next_test_execution = initial_test_execution
 
         # Add to list of ran executions.
         test_executions_attempted.append(initial_test_execution)
@@ -207,8 +214,10 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
                     test_executions_attempted.append(next_test_execution)
                     test_executions_ran.append(current_test_execution)
 
+            current_test_execution = None
             info("Test " + (str(iteration)) + " completed.")
 
+    current_test_execution = None
     notice("Completed testing " + str(functional_test))
     info("")
 
@@ -420,6 +429,10 @@ def run_test_with_fresh_state(setup_script, teardown_script, functional_test, it
     # Reset state.
     global test_executions_ran
     global server_state
+    global iteration_complete
+    global iteration_exit_code
+    global server_only_mode
+
     server_state = ServerState()
 
     if setup_script is not None:
@@ -429,7 +442,20 @@ def run_test_with_fresh_state(setup_script, teardown_script, functional_test, it
             error("Setup script failed!  Please fix before continuing.")
             exit(1)
 
-    exit_code = os.WEXITSTATUS(os.system(functional_test))
+    # Run initial test, which should pass.
+    exit_code = 0
+
+    if functional_test is None:
+        print("Waiting for external test to complete.")
+
+        if wait_until(lambda: check_iteration_complete(), 100):
+            iteration_complete = False
+            exit_code = iteration_exit_code
+        else:
+            error("Something didn't go right!")
+            exit_code = 1
+    else:
+        exit_code = os.WEXITSTATUS(os.system(functional_test))
 
     if teardown_script is not None:
         teardown_script_exit_code = os.WEXITSTATUS(os.system(teardown_script))
@@ -439,7 +465,13 @@ def run_test_with_fresh_state(setup_script, teardown_script, functional_test, it
             exit(1)
 
     if not loadgen:
-        if exit_code or str(forced_failure) == str(iteration):
+        if server_only_mode:
+            # Do nothing right now, just assume a pass.
+            print("Not stopping server, it was a server only mode failure.")
+            pass
+        elif exit_code or str(forced_failure) == str(iteration):
+            print("Handling non-server only mode failure.")
+
             # Allow replay of failed test
             if not current_test_execution:  # Errored on initial test. This shouldn't happen.
                 raise Exception(
@@ -480,6 +512,34 @@ def hello():
             "update": "filibuster/update"
         }
     })
+
+
+@app.route("/filibuster/complete-iteration/<iteration>/exception/<exception>", methods=['POST'])
+def complete_iteration(iteration, exception):
+    global iteration_complete
+    global iteration_exit_code
+
+    iteration_complete = True
+
+    if exception == "0":
+        exception_p = False
+        iteration_exit_code = 0
+    else:
+        exception_p = True
+        iteration_exit_code = 1
+
+    print("Exception: " + str(exception))
+    print("Exception_p: " + str(exception_p))
+    print("Iteration complete: " + str(iteration))
+
+    return jsonify({})
+
+
+@app.route("/filibuster/has-next-iteration/<iteration>", methods=['GET'])
+def has_next_iteration(iteration):
+    global current_test_execution
+    # print("Has Iteration called: " + str(iteration) + ": " + str(current_test_execution is not None))
+    return jsonify({"has-next-iteration": current_test_execution is not None})
 
 
 @app.route("/filibuster/fault-injected", methods=['GET'])
@@ -596,6 +656,14 @@ def faults_injected_by_method_two_part(part1, part2):
 @app.route("/health-check", methods=['GET'])
 def health_check():
     return jsonify({"status": "OK"})
+
+
+@app.route("/terminate", methods=['GET'])
+def terminate():
+    global should_terminate_immediately
+    should_terminate_immediately = True
+    notice("Terminating server process.")
+    return jsonify({})
 
 
 @app.route("/filibuster/new-test-execution/<service_name>", methods=['GET'])
@@ -717,12 +785,20 @@ def update():
         if isinstance(idx, str):
             idx = int(idx)
         if idx < 0 or len(server_state.service_request_log) <= idx:
-            raise IndexError
+            # print(server_state.service_request_log)
+            # print(str(idx))
+            # print(str(idx < 0))
+            # print(str(len(server_state.service_request_log)))
+            # print(str(len(server_state.service_request_log) <= idx))
+            # print("INDEX ERROR ******")
+            return jsonify({}) # TODO: This can't be here long term.
+            # raise IndexError
         for key in data.keys():
             if key == 'generated_id':
                 continue
             if data[key] is not None:
                 server_state.service_request_log[idx][key] = data[key]
+        # print("HERE1 ******")
 
         # For each request that we make, we receive *2* updates:
         #
@@ -876,6 +952,10 @@ def start_filibuster_server_and_run_multi_threaded_test(functional_test, analysi
 
 
 def start_filibuster_server_and_run_test(functional_test, analysis_file, counterexample_file, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
+    # if functional_test is None:
+    #     print("Waiting to kill Filibuster processes (THIS IS WAY HACK BECAUSE SERVER WONT DIE)....")
+    #     os.system("lsof -n | grep LISTEN | grep avt-profile-2 | awk '{print $2}' | xargs kill -9")
+
     start_filibuster_server(analysis_file)
 
     global counterexample
@@ -884,6 +964,9 @@ def start_filibuster_server_and_run_test(functional_test, analysis_file, counter
         counterexample = load_counterexample(counterexample_file)
 
     run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script)
+
+    if server_only_mode:
+        wait_indefinitely_until_shutdown()
 
 
 def start_filibuster_server(analysis_file):
@@ -902,3 +985,28 @@ def my_percentile(data, percentile):
         return sorted(data)[int(p)]
     else:
         return sorted(data)[int(math.ceil(p)) - 1]
+
+
+def wait_until(somepredicate, timeout, period=0.25, *args, **kwargs):
+    notice("Waiting until condition met.")
+    mustend = time.time() + timeout
+    while time.time() < mustend:
+        if somepredicate(*args, **kwargs): return True
+        time.sleep(period)
+    return False
+
+
+def check_iteration_complete():
+    global iteration_complete
+    return iteration_complete
+
+
+def wait_indefinitely_until_shutdown(period=0.25):
+    notice("Waiting indefinitely for shutdown.")
+
+    while True:
+        if should_terminate_immediately:
+            notice("Should terminate immediately set to true!")
+            exit(0)
+
+        time.sleep(period)
