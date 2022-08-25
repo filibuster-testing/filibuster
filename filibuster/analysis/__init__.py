@@ -160,6 +160,21 @@ def java_header_to_status_code(constant):
         print("Found constant with no match: " + constant)
         raise Exception("Analysis failed: unknown java header constant.")
 
+def add_python_redis_exceptions():
+    # Setup.
+    instrumentation['python.redis'] = {}
+    instrumentation['python.redis']['pattern'] = "redis\\.execute\\_command"
+    instrumentation['python.redis']['exceptions'] = []
+
+    # Base exceptions.
+    # ConnectionError raised when the redis-server has disconnected
+    instrumentation['python.redis']['exceptions'].append(
+        {'name': 'redis.exceptions.ConnectionError'})
+    instrumentation['python.redis']['exceptions'].append(
+        {'name': 'redis.exceptions.TimeoutError'})
+    # ResponseError raised when set operations are used on a key whose value is not a set
+    instrumentation['python.redis']['exceptions'].append(
+        {'name': 'redis.exceptions.ResponseError'})
 
 def exception_to_status_code(exception):
     if exception == "Forbidden":
@@ -330,6 +345,8 @@ def analyze_services_directory(output, directory):
     # Add Java grpc callsite exceptions.
     add_java_grpc_exceptions()
 
+    add_python_redis_exceptions()
+
     ##################################################################################################################
     # Fill out placeholder information for parsable file.
     ##################################################################################################################
@@ -340,7 +357,7 @@ def analyze_services_directory(output, directory):
 
     if 'grpc' not in instrumentation:
         instrumentation['grpc'] = {}
-        instrumentation['grpc']['pattern'] = "((grpc\\.insecure\_channel)|(.*Service/.*))"
+        instrumentation['grpc']['pattern'] = "((grpc\\.insecure\\_channel)|(.*Service/.*))"
 
     if 'errors' not in instrumentation['http']:
         instrumentation['http']['errors'] = []
