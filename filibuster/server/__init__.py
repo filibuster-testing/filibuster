@@ -73,6 +73,7 @@ iteration_complete = False
 iteration_exit_code = 0
 server_only_mode = False
 should_terminate_immediately = False
+teardown_completed = False
 
 
 def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
@@ -84,6 +85,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
     global counterexample
     global suppress_combinations
     global server_only_mode
+    global teardown_completed
 
     suppress_combinations = should_suppress_combinations
 
@@ -119,6 +121,8 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
         # Reset requests to fail.
         requests_to_fail = []
 
+        teardown_completed = False
+
         # Run initial test, which should pass.
         run_test_with_fresh_state(setup_script, teardown_script, functional_test, iteration, counterexample is not None, False, forced_failure)
 
@@ -135,9 +139,14 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
 
         info("[DONE] Running initial non-failing execution (test 1)")
 
+        # Barrier to know when all of the AfterEach statements are done.
+        wait_for_teardown_completed()
+
     # Loop until list is exhausted.
     if not only_initial_execution:
         while test_executions_scheduled.size() > 0:
+            teardown_completed = False
+
             if os.environ.get("PAUSE_BETWEEN", ""):
                 input("Press Enter to start next test...")
 
@@ -159,6 +168,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
 
             # Set current test execution.
             current_test_execution = next_test_execution
+            notice("Set current test execution to next execution.")
 
             describe_test_execution(current_test_execution, str(iteration), False)
 
@@ -214,7 +224,11 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
                     test_executions_attempted.append(next_test_execution)
                     test_executions_ran.append(current_test_execution)
 
-            current_test_execution = None
+            # Barrier to know when all of the AfterEach statements are done.
+            wait_for_teardown_completed()
+
+            # Done as part of previous step, before unblocking thread.
+            # current_test_execution = None
             info("Test " + (str(iteration)) + " completed.")
 
     current_test_execution = None
@@ -222,7 +236,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
     info("")
 
     # Print test executions that actually ran.
-    print_test_executions_actually_ran(test_executions_ran)
+    # print_test_executions_actually_ran(test_executions_ran)
 
     # Compute elapsed time.
     test_end_time = time.time()
@@ -446,7 +460,7 @@ def run_test_with_fresh_state(setup_script, teardown_script, functional_test, it
     exit_code = 0
 
     if functional_test is None:
-        print("Waiting for external test to complete.")
+        notice("Waiting for external test to complete.")
 
         if wait_until(lambda: check_iteration_complete(), 100):
             iteration_complete = False
@@ -535,11 +549,28 @@ def complete_iteration(iteration, exception):
     return jsonify({})
 
 
-@app.route("/filibuster/has-next-iteration/<iteration>", methods=['GET'])
-def has_next_iteration(iteration):
+# Is the current iteration an actual test?
+@app.route("/filibuster/has-next-iteration/<iteration>/<caller>", methods=['GET'])
+def has_next_iteration(iteration, caller):
     global current_test_execution
-    # print("Has Iteration called: " + str(iteration) + ": " + str(current_test_execution is not None))
-    return jsonify({"has-next-iteration": current_test_execution is not None})
+    global test_executions_scheduled
+
+    if current_test_execution is not None:
+        # print("current set, returning true")
+        print("has_next_iteration called: " + str(iteration) + " for caller " + str(caller))
+        return jsonify({"has-next-iteration": True})
+
+    elif current_test_execution is None and test_executions_scheduled.size() > 0:
+        # Wait until current test execution is set.
+        # print("current not yet set, waiting.")
+        wait_until_current_test_execution()
+        # print("current now set, returning true")
+        print("has_next_iteration called: " + str(iteration) + " for caller " + str(caller))
+        return jsonify({"has-next-iteration": True})
+
+    else:
+        # print("returning false")
+        return jsonify({"has-next-iteration": False})
 
 
 @app.route("/filibuster/fault-injected", methods=['GET'])
@@ -557,6 +588,7 @@ def faults_injected_index():
             if len(current_test_execution.failures) > 0:
                 fault_injected = True
 
+    print("wasFaultInjected() called and is returning: " + str(fault_injected))
     return jsonify({"result": fault_injected})
 
 
@@ -650,6 +682,7 @@ def faults_injected_by_method_two_part(part1, part2):
                                 found = True
                                 break
 
+    print("here, returning: " + str(found))
     return jsonify({"result": found})
 
 
@@ -663,6 +696,23 @@ def terminate():
     global should_terminate_immediately
     should_terminate_immediately = True
     notice("Terminating server process.")
+    return jsonify({})
+
+
+@app.route("/teardowns-completed/<iteration>", methods=['GET'])
+def teardowns_completed(iteration):
+    global teardown_completed
+    global current_test_execution
+
+    # This blocks java as soon as beforeEach registers the final afterEach, but needs
+    # to be set immediately and not asynchronously otherwise beforeEach will run before
+    # we have swapped the test execution.
+    if current_test_execution is not None:
+        notice("Nulling current test execution.")
+    current_test_execution = None
+
+    teardown_completed = True
+    # notice("Teardown completed for iteration: " + str(iteration))
     return jsonify({})
 
 
@@ -988,7 +1038,7 @@ def my_percentile(data, percentile):
 
 
 def wait_until(somepredicate, timeout, period=0.25, *args, **kwargs):
-    notice("Waiting until condition met.")
+    # notice("Waiting until condition met.")
     mustend = time.time() + timeout
     while time.time() < mustend:
         if somepredicate(*args, **kwargs): return True
@@ -1002,11 +1052,39 @@ def check_iteration_complete():
 
 
 def wait_indefinitely_until_shutdown(period=0.25):
+    global should_terminate_immediately
     notice("Waiting indefinitely for shutdown.")
 
     while True:
         if should_terminate_immediately:
             notice("Should terminate immediately set to true!")
             exit(0)
+
+        time.sleep(period)
+
+
+def wait_for_teardown_completed(period=0.25):
+    global teardown_completed
+    global current_test_execution
+    notice("Waiting for teardown completed: BLOCKED PYTHON WAITING FOR AFTEREACH.")
+
+    while True:
+        if teardown_completed:
+            notice("Teardown completed; nulling out current test execution: PYTHON UNBLOCKED.")
+            # This unblocks python.
+            teardown_completed = False
+            break
+
+        time.sleep(period)
+
+
+def wait_until_current_test_execution(period=0.25):
+    global current_test_execution
+    notice("Waiting for current test execution.")
+
+    while True:
+        if current_test_execution is not None:
+            notice("Current test execution populated: UNBLOCKED JAVA.")
+            break
 
         time.sleep(period)
