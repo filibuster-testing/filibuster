@@ -285,6 +285,7 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
     global current_test_execution_batch
     global requests_to_fail
     global suppress_combinations
+    global instrumentation
 
     # List of additional test executions.
     additional_test_executions = []
@@ -314,7 +315,8 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                 break
 
         # Iterate list of faults.
-        instrumentation = read_analysis_file(analysis_file)
+        if instrumentation is None:
+            instrumentation = read_analysis_file(analysis_file)
 
         for module in instrumentation:
             pattern = instrumentation[module]['pattern']
