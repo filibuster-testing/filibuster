@@ -167,6 +167,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
             requests_to_fail = next_test_execution.failures
 
             # Set current test execution.
+            notice("Setting current test execution.")
             current_test_execution = next_test_execution
             notice("Set current test execution to next execution.")
 
