@@ -563,9 +563,9 @@ def has_next_iteration(iteration, caller):
 
     elif current_test_execution is None and test_executions_scheduled.size() > 0:
         # Wait until current test execution is set.
-        # print("current not yet set, waiting.")
+        print("current not yet set, waiting.")
         wait_until_current_test_execution()
-        # print("current now set, returning true")
+        print("current now set, returning true")
         print("has_next_iteration called: " + str(iteration) + " for caller " + str(caller))
         return jsonify({"has-next-iteration": True})
 
