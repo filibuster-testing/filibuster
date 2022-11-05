@@ -692,7 +692,7 @@ def health_check():
     return jsonify({"status": "OK"})
 
 
-@app.route("/terminate", methods=['GET'])
+@app.route("/filibuster/terminate", methods=['GET'])
 def terminate():
     global should_terminate_immediately
     should_terminate_immediately = True
@@ -700,7 +700,7 @@ def terminate():
     return jsonify({})
 
 
-@app.route("/teardowns-completed/<iteration>", methods=['GET'])
+@app.route("/filibuster/teardowns-completed/<iteration>", methods=['GET'])
 def teardowns_completed(iteration):
     global teardown_completed
     global current_test_execution
