@@ -713,7 +713,7 @@ def teardowns_completed(iteration):
     current_test_execution = None
 
     teardown_completed = True
-    # notice("Teardown completed for iteration: " + str(iteration))
+    notice("Teardown completed for iteration: " + str(iteration))
     return jsonify({})
 
 
