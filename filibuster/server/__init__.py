@@ -74,6 +74,7 @@ iteration_exit_code = 0
 server_only_mode = False
 should_terminate_immediately = False
 teardown_completed = False
+instrumentation = None
 
 
 def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
@@ -733,6 +734,13 @@ def new_test_execution_check(service_name):
         print("")
 
     return jsonify({"new-test-execution": new_test_execution})
+
+
+@app.route("/filibuster/analysis-file", methods=['POST'])
+def analysis_file():
+    global instrumentation
+    instrumentation = request.get_json()
+    return jsonify({})
 
 
 @app.route("/filibuster/create", methods=['PUT'])
