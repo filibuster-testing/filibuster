@@ -1066,6 +1066,8 @@ def wait_indefinitely_until_shutdown(period=0.25):
 def wait_for_teardown_completed(period=0.25):
     global teardown_completed
     global current_test_execution
+    global server_only_mode
+
     notice("Waiting for teardown completed: BLOCKED PYTHON WAITING FOR AFTEREACH.")
 
     if server_only_mode:
