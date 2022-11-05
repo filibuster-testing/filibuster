@@ -380,42 +380,78 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                                         additional_test_executions.append(new_execution)
 
                 # Error testing.
-                if instrumentation_type == 'request_received':
-                    if 'errors' in instrumentation[module]:
-                        for error in instrumentation[module]['errors']:
-                            if 'target_service_name' in req and req['target_service_name'] is not None:
-                                target_service_name = req['target_service_name']
+                # if instrumentation_type == 'request_received':
+                #     if 'errors' in instrumentation[module]:
+                #         for error in instrumentation[module]['errors']:
+                #             if 'target_service_name' in req and req['target_service_name'] is not None:
+                #                 target_service_name = req['target_service_name']
+                #
+                #                 service_pattern = error['service_name']
+                #                 service_matcher = re.compile(service_pattern)
+                #                 service_matching = service_matcher.match(target_service_name)
+                #
+                #                 if service_matching is not None:
+                #                     for type in error['types']:
+                #                         # warning("Checking if we need to inject error: " + str(type))
+                #                         # warning("already_failed: " + str(already_failed))
+                #
+                #                         if not already_failed:
+                #                             # For this execution, we need to fail everything we did before to get here
+                #                             # but, we also need to fail this additional one request as well.
+                #                             # (also, add the exception so we know what to throw later.)
+                #                             new_req = copy.deepcopy(req)
+                #                             new_req['failure_metadata'] = {}
+                #                             for key in type:
+                #                                 new_req['failure_metadata'][key] = type[key]
+                #                             new_failures = copy.deepcopy(failures)
+                #                             new_failures.append(TestExecution.filter_request_for_failures(new_req))
+                #                             new_failures = sorted(new_failures, key=lambda k: k['execution_index'])
+                #
+                #                             new_execution = TestExecution(log, new_failures)
+                #                             if should_schedule(new_execution, additional_test_executions):
+                #                                 if new_execution not in additional_test_executions:
+                #                                     debug("Adding req failure for request: " + str(
+                #                                         req['execution_index']))
+                #                                     debug("=> failure description: " + str(type))
+                #                                     additional_test_executions.append(new_execution)
+                #             else:
+                #                 warning("Request does not have a target service, it's made outside of the system.")
 
-                                service_pattern = error['service_name']
-                                service_matcher = re.compile(service_pattern)
-                                service_matching = service_matcher.match(target_service_name)
+                if 'errors' in instrumentation[module]:
+                    for error in instrumentation[module]['errors']:
+                        if 'target_service_name' in req and req['target_service_name'] is not None:
+                            target_service_name = req['target_service_name']
+                        else:
+                            target_service_name = ""
 
-                                if service_matching is not None:
-                                    for type in error['types']:
-                                        # warning("Checking if we need to inject error: " + str(type))
-                                        # warning("already_failed: " + str(already_failed))
+                        service_pattern = error['service_name']
+                        service_matcher = re.compile(service_pattern)
+                        service_matching = service_matcher.match(target_service_name)
 
-                                        if not already_failed:
-                                            # For this execution, we need to fail everything we did before to get here
-                                            # but, we also need to fail this additional one request as well.
-                                            # (also, add the exception so we know what to throw later.)
-                                            new_req = copy.deepcopy(req)
-                                            new_req['failure_metadata'] = {}
-                                            for key in type:
-                                                new_req['failure_metadata'][key] = type[key]
-                                            new_failures = copy.deepcopy(failures)
-                                            new_failures.append(TestExecution.filter_request_for_failures(new_req))
-                                            new_failures = sorted(new_failures, key=lambda k: k['execution_index'])
+                        if service_matching is not None:
+                            for type in error['types']:
+                                # warning("Checking if we need to inject error: " + str(type))
+                                # warning("already_failed: " + str(already_failed))
 
-                                            new_execution = TestExecution(log, new_failures)
-                                            if should_schedule(new_execution, additional_test_executions):
-                                                if new_execution not in additional_test_executions:
-                                                    debug("Adding req failure for request: " + str(
-                                                        req['execution_index']))
-                                                    debug("=> failure description: " + str(type))
-                                                    additional_test_executions.append(new_execution)
-                            else:
-                                warning("Request does not have a target service, it's made outside of the system.")
+                                if not already_failed:
+                                    # For this execution, we need to fail everything we did before to get here
+                                    # but, we also need to fail this additional one request as well.
+                                    # (also, add the exception so we know what to throw later.)
+                                    new_req = copy.deepcopy(req)
+                                    new_req['failure_metadata'] = {}
+                                    for key in type:
+                                        new_req['failure_metadata'][key] = type[key]
+                                    new_failures = copy.deepcopy(failures)
+                                    new_failures.append(TestExecution.filter_request_for_failures(new_req))
+                                    new_failures = sorted(new_failures, key=lambda k: k['execution_index'])
+
+                                    new_execution = TestExecution(log, new_failures)
+                                    if should_schedule(new_execution, additional_test_executions):
+                                        if new_execution not in additional_test_executions:
+                                            debug("Adding req failure for request: " + str(
+                                                req['execution_index']))
+                                            debug("=> failure description: " + str(type))
+                                            additional_test_executions.append(new_execution)
 
         append_quantity = 0
 
