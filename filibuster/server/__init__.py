@@ -708,7 +708,7 @@ def teardowns_completed(iteration):
     # to be set immediately and not asynchronously otherwise beforeEach will run before
     # we have swapped the test execution.
     if current_test_execution is not None:
-        notice("Nulling current test execution.")
+        notice("Nulling current test execution because teardown is completed.")
     current_test_execution = None
 
     teardown_completed = True
