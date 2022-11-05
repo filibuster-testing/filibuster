@@ -1,6 +1,6 @@
 click>=7.1.2
-Flask==1.0.0
 requests
-sphinx
-sphinx-rtd-theme
-myst-parser
+Flask==2.0.0
+pytest
+requests
+Jinja2

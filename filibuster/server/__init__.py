@@ -74,6 +74,7 @@ iteration_exit_code = 0
 server_only_mode = False
 should_terminate_immediately = False
 teardown_completed = False
+instrumentation = None
 
 
 def run_test(functional_test, only_initial_execution, disable_dynamic_reduction, forced_failure, should_suppress_combinations, setup_script, teardown_script):
@@ -167,6 +168,7 @@ def run_test(functional_test, only_initial_execution, disable_dynamic_reduction,
             requests_to_fail = next_test_execution.failures
 
             # Set current test execution.
+            notice("Setting current test execution.")
             current_test_execution = next_test_execution
             notice("Set current test execution to next execution.")
 
@@ -283,6 +285,7 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
     global current_test_execution_batch
     global requests_to_fail
     global suppress_combinations
+    global instrumentation
 
     # List of additional test executions.
     additional_test_executions = []
@@ -312,7 +315,8 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                 break
 
         # Iterate list of faults.
-        instrumentation = read_analysis_file(analysis_file)
+        if instrumentation is None:
+            instrumentation = read_analysis_file(analysis_file)
 
         for module in instrumentation:
             pattern = instrumentation[module]['pattern']
@@ -376,42 +380,78 @@ def generate_additional_test_executions(generated_id, execution_index, instrumen
                                         additional_test_executions.append(new_execution)
 
                 # Error testing.
-                if instrumentation_type == 'request_received':
-                    if 'errors' in instrumentation[module]:
-                        for error in instrumentation[module]['errors']:
-                            if 'target_service_name' in req and req['target_service_name'] is not None:
-                                target_service_name = req['target_service_name']
+                # if instrumentation_type == 'request_received':
+                #     if 'errors' in instrumentation[module]:
+                #         for error in instrumentation[module]['errors']:
+                #             if 'target_service_name' in req and req['target_service_name'] is not None:
+                #                 target_service_name = req['target_service_name']
+                #
+                #                 service_pattern = error['service_name']
+                #                 service_matcher = re.compile(service_pattern)
+                #                 service_matching = service_matcher.match(target_service_name)
+                #
+                #                 if service_matching is not None:
+                #                     for type in error['types']:
+                #                         # warning("Checking if we need to inject error: " + str(type))
+                #                         # warning("already_failed: " + str(already_failed))
+                #
+                #                         if not already_failed:
+                #                             # For this execution, we need to fail everything we did before to get here
+                #                             # but, we also need to fail this additional one request as well.
+                #                             # (also, add the exception so we know what to throw later.)
+                #                             new_req = copy.deepcopy(req)
+                #                             new_req['failure_metadata'] = {}
+                #                             for key in type:
+                #                                 new_req['failure_metadata'][key] = type[key]
+                #                             new_failures = copy.deepcopy(failures)
+                #                             new_failures.append(TestExecution.filter_request_for_failures(new_req))
+                #                             new_failures = sorted(new_failures, key=lambda k: k['execution_index'])
+                #
+                #                             new_execution = TestExecution(log, new_failures)
+                #                             if should_schedule(new_execution, additional_test_executions):
+                #                                 if new_execution not in additional_test_executions:
+                #                                     debug("Adding req failure for request: " + str(
+                #                                         req['execution_index']))
+                #                                     debug("=> failure description: " + str(type))
+                #                                     additional_test_executions.append(new_execution)
+                #             else:
+                #                 warning("Request does not have a target service, it's made outside of the system.")
 
-                                service_pattern = error['service_name']
-                                service_matcher = re.compile(service_pattern)
-                                service_matching = service_matcher.match(target_service_name)
+                if 'errors' in instrumentation[module]:
+                    for error in instrumentation[module]['errors']:
+                        if 'target_service_name' in req and req['target_service_name'] is not None:
+                            target_service_name = req['target_service_name']
+                        else:
+                            target_service_name = ""
 
-                                if service_matching is not None:
-                                    for type in error['types']:
-                                        # warning("Checking if we need to inject error: " + str(type))
-                                        # warning("already_failed: " + str(already_failed))
+                        service_pattern = error['service_name']
+                        service_matcher = re.compile(service_pattern)
+                        service_matching = service_matcher.match(target_service_name)
 
-                                        if not already_failed:
-                                            # For this execution, we need to fail everything we did before to get here
-                                            # but, we also need to fail this additional one request as well.
-                                            # (also, add the exception so we know what to throw later.)
-                                            new_req = copy.deepcopy(req)
-                                            new_req['failure_metadata'] = {}
-                                            for key in type:
-                                                new_req['failure_metadata'][key] = type[key]
-                                            new_failures = copy.deepcopy(failures)
-                                            new_failures.append(TestExecution.filter_request_for_failures(new_req))
-                                            new_failures = sorted(new_failures, key=lambda k: k['execution_index'])
+                        if service_matching is not None:
+                            for type in error['types']:
+                                # warning("Checking if we need to inject error: " + str(type))
+                                # warning("already_failed: " + str(already_failed))
 
-                                            new_execution = TestExecution(log, new_failures)
-                                            if should_schedule(new_execution, additional_test_executions):
-                                                if new_execution not in additional_test_executions:
-                                                    debug("Adding req failure for request: " + str(
-                                                        req['execution_index']))
-                                                    debug("=> failure description: " + str(type))
-                                                    additional_test_executions.append(new_execution)
-                            else:
-                                warning("Request does not have a target service, it's made outside of the system.")
+                                if not already_failed:
+                                    # For this execution, we need to fail everything we did before to get here
+                                    # but, we also need to fail this additional one request as well.
+                                    # (also, add the exception so we know what to throw later.)
+                                    new_req = copy.deepcopy(req)
+                                    new_req['failure_metadata'] = {}
+                                    for key in type:
+                                        new_req['failure_metadata'][key] = type[key]
+                                    new_failures = copy.deepcopy(failures)
+                                    new_failures.append(TestExecution.filter_request_for_failures(new_req))
+                                    new_failures = sorted(new_failures, key=lambda k: k['execution_index'])
+
+                                    new_execution = TestExecution(log, new_failures)
+                                    if should_schedule(new_execution, additional_test_executions):
+                                        if new_execution not in additional_test_executions:
+                                            debug("Adding req failure for request: " + str(
+                                                req['execution_index']))
+                                            debug("=> failure description: " + str(type))
+                                            additional_test_executions.append(new_execution)
 
         append_quantity = 0
 
@@ -562,9 +602,9 @@ def has_next_iteration(iteration, caller):
 
     elif current_test_execution is None and test_executions_scheduled.size() > 0:
         # Wait until current test execution is set.
-        # print("current not yet set, waiting.")
+        print("current not yet set, waiting.")
         wait_until_current_test_execution()
-        # print("current now set, returning true")
+        print("current now set, returning true")
         print("has_next_iteration called: " + str(iteration) + " for caller " + str(caller))
         return jsonify({"has-next-iteration": True})
 
@@ -691,7 +731,7 @@ def health_check():
     return jsonify({"status": "OK"})
 
 
-@app.route("/terminate", methods=['GET'])
+@app.route("/filibuster/terminate", methods=['GET'])
 def terminate():
     global should_terminate_immediately
     should_terminate_immediately = True
@@ -699,7 +739,7 @@ def terminate():
     return jsonify({})
 
 
-@app.route("/teardowns-completed/<iteration>", methods=['GET'])
+@app.route("/filibuster/teardowns-completed/<iteration>", methods=['GET'])
 def teardowns_completed(iteration):
     global teardown_completed
     global current_test_execution
@@ -708,11 +748,11 @@ def teardowns_completed(iteration):
     # to be set immediately and not asynchronously otherwise beforeEach will run before
     # we have swapped the test execution.
     if current_test_execution is not None:
-        notice("Nulling current test execution.")
+        notice("Nulling current test execution because teardown is completed.")
     current_test_execution = None
 
     teardown_completed = True
-    # notice("Teardown completed for iteration: " + str(iteration))
+    notice("Teardown completed for iteration: " + str(iteration))
     return jsonify({})
 
 
@@ -732,6 +772,13 @@ def new_test_execution_check(service_name):
         print("")
 
     return jsonify({"new-test-execution": new_test_execution})
+
+
+@app.route("/filibuster/analysis-file", methods=['POST'])
+def analysis_file():
+    global instrumentation
+    instrumentation = request.get_json()
+    return jsonify({})
 
 
 @app.route("/filibuster/create", methods=['PUT'])
@@ -1066,25 +1113,29 @@ def wait_indefinitely_until_shutdown(period=0.25):
 def wait_for_teardown_completed(period=0.25):
     global teardown_completed
     global current_test_execution
+    global server_only_mode
+
     notice("Waiting for teardown completed: BLOCKED PYTHON WAITING FOR AFTEREACH.")
 
-    while True:
-        if teardown_completed:
-            notice("Teardown completed; nulling out current test execution: PYTHON UNBLOCKED.")
-            # This unblocks python.
-            teardown_completed = False
-            break
+    if server_only_mode:
+        while True:
+            if teardown_completed:
+                notice("Teardown completed.  Marking teardown_completed.")
+                # This unblocks python.
+                teardown_completed = False
+                break
 
-        time.sleep(period)
+            time.sleep(period)
 
 
 def wait_until_current_test_execution(period=0.25):
     global current_test_execution
     notice("Waiting for current test execution.")
 
-    while True:
-        if current_test_execution is not None:
-            notice("Current test execution populated: UNBLOCKED JAVA.")
-            break
+    if server_only_mode:
+        while True:
+            if current_test_execution is not None:
+                notice("Current test execution populated: UNBLOCKED JAVA.")
+                break
 
-        time.sleep(period)
+            time.sleep(period)

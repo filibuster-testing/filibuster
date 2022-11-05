@@ -91,6 +91,12 @@ def test(server_only,
     else:
         test_to_execute = functional_test
 
+    if os.environ.get('SHOULD_SUPPRESS_COMBINATIONS', ''):
+        should_suppress_combinations = True
+
+    if os.environ.get('DISABLE_DYNAMIC_REDUCTION', ''):
+        disable_dynamic_reduction = True
+
     start_filibuster_server_and_run_test(test_to_execute,
                                          abs_analysis_file,
                                          counterexample_file,
