@@ -12,7 +12,7 @@ def num_services_running(services):
     num_running = len(services)
     for service in services:
         if not service_running(service):
-            debug("! service " + service + " not yet running!")
+            # debug("! service " + service + " not yet running!")
             num_running -= 1
     return num_running
 
