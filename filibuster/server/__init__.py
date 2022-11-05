@@ -1068,23 +1068,25 @@ def wait_for_teardown_completed(period=0.25):
     global current_test_execution
     notice("Waiting for teardown completed: BLOCKED PYTHON WAITING FOR AFTEREACH.")
 
-    while True:
-        if teardown_completed:
-            notice("Teardown completed; nulling out current test execution: PYTHON UNBLOCKED.")
-            # This unblocks python.
-            teardown_completed = False
-            break
+    if server_only_mode:
+        while True:
+            if teardown_completed:
+                notice("Teardown completed.  Marking teardown_completed.")
+                # This unblocks python.
+                teardown_completed = False
+                break
 
-        time.sleep(period)
+            time.sleep(period)
 
 
 def wait_until_current_test_execution(period=0.25):
     global current_test_execution
     notice("Waiting for current test execution.")
 
-    while True:
-        if current_test_execution is not None:
-            notice("Current test execution populated: UNBLOCKED JAVA.")
-            break
+    if server_only_mode:
+        while True:
+            if current_test_execution is not None:
+                notice("Current test execution populated: UNBLOCKED JAVA.")
+                break
 
-        time.sleep(period)
+            time.sleep(period)
